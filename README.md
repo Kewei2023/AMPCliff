@@ -9,7 +9,11 @@ testing plenty of models for AMP activity cliff prediction
 ```
 conda env create -f environment.yml
 ```
-
+### Get Data
+```
+pip install dvc
+dvc pull
+```
 ### Runing
 
 #### Deep Learning Method
