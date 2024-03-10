@@ -1,0 +1,91 @@
+orig_cwd: "."
+# from debug to cluster running: change ddp => true, change logger => true
+mode:
+  ddp: false # true # false 
+  nni: false
+  accelerate: false # true # false
+  # full: false # training full dataset
+  # data: random # random, test_not_in_train, test_in_train
+  # debiase: false
+  # deepspeed:
+  #   config: /data/home/scv6872/Breeze/configs/ds_config.json
+
+task:
+  type: generation # regression # pretrain # binary # affinity, multitask, contact_map
+  generation: 
+    default_metric: loss
+  
+
+
+train:
+  random_seed: 0
+  num_epoch: 50 # 2 # 50
+  batch_size: 4 # 4 # 512 # 512 # 1024 # 8
+  num_workers: 1
+  freeze: [0,1,2,3,4,5,6,7,8] # [3,4,7,8]
+  learning_rate: 1e-4
+  adam_epsilon: 1e-8
+  weight_decay: 0.2
+  loss: 'huber' # 'huber' # 'mse','huber','tmse'
+  loss_beta: 0.6989700043360189 # log10(5)
+  lr_scheduler:
+    type: cosine # cosine, plateau
+    when: batch  # batch, epoch
+    cosine:
+      T_0: 10
+      T_mult: 2
+      eta_min: 1e-6
+  eval_epoch: 2
+  pin_memory: False
+  device_ids: [0,1,2,3]
+
+model:
+  dir: /data/home/scv6872/Breeze/models/files/t12
+  generation:
+    version: v1
+    initial:
+      initial_weight: true # true
+      model_name: "/data/public/models/facebook/esm2_t12_35M_UR50D/" # esm2_t12_35M_UR50D" # "esm2_t6_8M_UR50D" # "/data/public/models/llama/llama-13b/" # "/data/public/models/facebook/esm2_t48_15B_UR50D/" # "" # "/data/public/models/facebook/esm2_t36_3B_UR50D/" # "roberta-base", "facebook/bart-base","facebook/esm2_t33_650M_UR50D", "facebook/esm1b_t33_650M_UR50S","bert-base-uncased", "xlnet-base-cased", "gpt2"
+    check_point: 
+      load: false
+      path: /data/home/scv6872/Breeze/outputs/2023-11-27/11-57-02/model_step_1_accuracy_0.321 # /data/home/scv6872/Breeze/outputs/2023-11-27/14-36-32/model_step_41_accuracy_0.637 # /data/home/scv6872/Breeze/outputs/2023-11-27/14-36-32/model_step_1_accuracy_0.324 # /data/home/scv6872/Breeze/outputs/2023-11-27/14-36-32/model_step_1_accuracy_0.324 # /data/home/scv6872/Breeze/outputs/2023-11-27/11-57-02/model_step_1_accuracy_0.321 # /data/home/scv6872/Breeze/outputs/2023-11-20/10-24-41/model_step_1_accuracy_0.323 # /data/home/scv6872/Breeze/outputs/2023-11-20/10-24-41/model_step_3_accuracy_0.365 # /data/home/scv6872/Breeze/outputs/2023-11-20/10-24-41/model_step_2_accuracy_0.351 # /data/home/scv6872/Breeze/outputs/2023-11-20/10-24-41/model_step_11_accuracy_0.399/ # "/data/home/scv6872/Breeze/outputs/2023-11-20/10-24-41/model_step_11_accuracy_0.399/"
+    cvae:
+      latent_dim: 256
+      num_layers: 2
+  
+  
+  rank:
+    initial:
+      initial_weight: true # true
+      model_name: "/data/public/models/facebook/esm2_t12_35M_UR50D/" # esm2_t12_35M_UR50D" # "esm2_t6_8M_UR50D" # "/data/public/models/llama/llama-13b/" # "/data/public/models/facebook/esm2_t48_15B_UR50D/" # "" # "/data/public/models/facebook/esm2_t36_3B_UR50D/" # "roberta-base", "facebook/bart-base","facebook/esm2_t33_650M_UR50D", "facebook/esm1b_t33_650M_UR50S","bert-base-uncased", "xlnet-base-cased", "gpt2"
+    check_point: 
+      load: false
+      path: /data/home/scv6872/Breeze/outputs/2023-11-27/11-57-02/model_step_1_accuracy_0.321 # /data/home/scv6872/Breeze/outputs/2023-11-27/14-36-32/model_step_41_accuracy_0.637 # /data/home/scv6872/Breeze/outputs/2023-11-27/14-36-32/model_step_1_accuracy_0.324 # /data/home/scv6872/Breeze/outputs/2023-11-27/14-36-32/model_step_1_accuracy_0.324 # /data/home/scv6872/Breeze/outputs/2023-11-27/11-57-02/model_step_1_accuracy_0.321 # /data/home/scv6872/Breeze/outputs/2023-11-20/10-24-41/model_step_1_accuracy_0.323 # /data/home/scv6872/Breeze/outputs/2023-11-20/10-24-41/model_step_3_accuracy_0.365 # /data/home/scv6872/Breeze/outputs/2023-11-20/10-24-41/model_step_2_accuracy_0.351 # /data/home/scv6872/Breeze/outputs/2023-11-20/10-24-41/model_step_11_accuracy_0.399/ # "/data/home/scv6872/Breeze/outputs/2023-11-20/10-24-41/model_step_11_accuracy_0.399/"
+    residual:
+      input_channels: 480
+      block_channels: [512, 256]
+      num_blocks: 1
+      kernel_size: 3
+      stride: 1
+      padding: 1
+
+
+
+data:
+  max_length: 28
+  generation:
+    mode: 'fix'
+    fix:
+      train_file: "/data/home/scv6872/Breeze/downstream/regression/train/grampa_e_coli_7_25.csv" # AMPBERT.csv" 
+      valid_file: "/data/home/scv6872/Breeze/downstream/regression/test/grampa_e_coli_7_25.csv" # AMPBERT.csv"
+    
+  
+logger:
+  log: True
+  log_dir: "outputs"
+  log_per_steps: 10
+  final_artifact_path: final
+
+other:
+  debug: true # false # False
+  debug_step: 5
