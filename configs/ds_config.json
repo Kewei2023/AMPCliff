@@ -1,0 +1,28 @@
+{
+    "bf16": {
+        "enabled": false
+    },
+    "fp16": {
+        "enabled": true
+    },
+    "zero_optimization": {
+        "stage": 3,
+        "stage3_gather_16bit_weights_on_model_save": false,
+        "offload_optimizer": {
+            "device": "none"
+        },
+        "offload_param": {
+            "device": "none"
+        }
+    },
+    "gradient_clipping": 1.0,
+    "train_batch_size": 256,
+    "train_micro_batch_size_per_gpu": 64,
+    "gradient_accumulation_steps": 10,
+    "steps_per_print": 1000,
+    "prescale_gradients": false,
+    "wall_clock_breakdown": false
+}
+
+
+  

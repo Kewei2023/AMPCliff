@@ -1,0 +1,11 @@
+# Ignore compiled Python files
+outputs
+
+# Ignore log files
+mlruns
+
+# Ignore build folder
+Bert-Protein
+ChatGPT
+*llama*
+slurm*

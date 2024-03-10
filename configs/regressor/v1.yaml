@@ -1,0 +1,9 @@
+version: v1
+tokenizer: "breeze"
+d_model: 768
+nhead: 3
+dim_feedforward: 1024
+dropout: 0.1
+activation: 'gelu'
+num_layers: 1
+linear_dim: 1024
