@@ -1,7 +1,0 @@
-model:
-  regression:
-    embedding_dim: 50
-    hidden_num: 128
-    num_layer: 2
-    bidirectional: False
-    dropout: 0.7
