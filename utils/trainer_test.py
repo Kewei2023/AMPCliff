@@ -143,7 +143,7 @@ class Trainer(object):
 
             if not self.cfg.mode.nni and self.global_rank == 0 and self.cfg.logger.log:
                 for metric_name, metric_v in metrics.items():
-                    if isinstance(metric_v,  (float, np.float, int, np.int_)):
+                    if isinstance(metric_v,  (float, np.float64, int, np.int_)):
                         mlflow.log_metric("{}_eval/{}".format(split,metric_name),
                                         metric_v,
                                         step=step)

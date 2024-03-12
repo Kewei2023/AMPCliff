@@ -1,0 +1,5 @@
+['remote "ampcliff"']
+    url = ssh://scv6872@BSCC-N26@ssh.cn-nanjing-1.paracloud.com//data/home/scv6872/AMPCliff/data/
+    port = 22
+    user = scv6872@BSCC-N26
+    keyfile = /data/home/scv6872/.ssh/id_rsa

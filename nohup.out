@@ -1,0 +1,271 @@
+Looking in indexes: http://mirrors.tencentyun.com/pypi/simple
+Requirement already satisfied: dvc[s3] in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (2.10.2)
+Requirement already satisfied: configobj>=5.0.6 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from dvc[s3]) (5.0.8)
+Requirement already satisfied: packaging>=19.0 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from dvc[s3]) (22.0)
+Requirement already satisfied: zc.lockfile>=1.2.1 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from dvc[s3]) (3.0.post1)
+Requirement already satisfied: typing-extensions>=3.7.4 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from dvc[s3]) (4.5.0)
+Requirement already satisfied: shtab<2,>=1.3.4 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from dvc[s3]) (1.7.1)
+Requirement already satisfied: requests>=2.22.0 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from dvc[s3]) (2.28.1)
+Requirement already satisfied: grandalf==0.6 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from dvc[s3]) (0.6)
+Requirement already satisfied: psutil>=5.8.0 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from dvc[s3]) (5.9.4)
+Requirement already satisfied: fsspec[http]>=2021.10.1 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from dvc[s3]) (2022.8.2)
+Requirement already satisfied: tabulate>=0.8.7 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from dvc[s3]) (0.9.0)
+Requirement already satisfied: nanotime>=0.5.2 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from dvc[s3]) (0.5.2)
+Requirement already satisfied: rich>=10.13.0 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from dvc[s3]) (13.3.3)
+Requirement already satisfied: dvclive>=0.7.3 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from dvc[s3]) (0.9.0)
+Requirement already satisfied: diskcache>=5.2.1 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from dvc[s3]) (5.6.3)
+Requirement already satisfied: ruamel.yaml>=0.17.11 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from dvc[s3]) (0.18.6)
+Requirement already satisfied: importlib-resources>=5.2.2 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from dvc[s3]) (5.12.0)
+Requirement already satisfied: dpath<3,>=2.0.2 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from dvc[s3]) (2.1.6)
+Requirement already satisfied: scmrepo==0.0.19 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from dvc[s3]) (0.0.19)
+Requirement already satisfied: distro>=1.3.0 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from dvc[s3]) (1.9.0)
+Requirement already satisfied: dictdiffer>=0.8.1 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from dvc[s3]) (0.9.0)
+Requirement already satisfied: shortuuid>=0.5.0 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from dvc[s3]) (1.0.12)
+Requirement already satisfied: importlib-metadata>=1.4 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from dvc[s3]) (4.11.3)
+Requirement already satisfied: flatten-dict<1,>=0.4.1 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from dvc[s3]) (0.4.2)
+Requirement already satisfied: appdirs>=1.4.3 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from dvc[s3]) (1.4.4)
+Requirement already satisfied: dvc-render==0.0.5 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from dvc[s3]) (0.0.5)
+Requirement already satisfied: pygtrie>=2.3.2 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from dvc[s3]) (2.5.0)
+Requirement already satisfied: flufl.lock>=5 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from dvc[s3]) (7.1.1)
+Requirement already satisfied: toml>=0.10.1 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from dvc[s3]) (0.10.2)
+Requirement already satisfied: pydot>=1.2.4 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from dvc[s3]) (2.0.0)
+Requirement already satisfied: tqdm<5,>=4.63.1 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from dvc[s3]) (4.64.1)
+Requirement already satisfied: colorama>=0.3.9 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from dvc[s3]) (0.4.6)
+Requirement already satisfied: voluptuous>=0.11.7 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from dvc[s3]) (0.14.1)
+Requirement already satisfied: networkx>=2.5 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from dvc[s3]) (2.6.3)
+Requirement already satisfied: python-benedict>=0.24.2 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from dvc[s3]) (0.33.2)
+Requirement already satisfied: pathspec<0.10.0,>=0.9.0 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from dvc[s3]) (0.9.0)
+Requirement already satisfied: pyparsing>=2.4.7 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from dvc[s3]) (3.0.9)
+Requirement already satisfied: funcy>=1.14 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from dvc[s3]) (2.0)
+Requirement already satisfied: aiohttp-retry>=2.4.5 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from dvc[s3]) (2.8.3)
+Collecting aiobotocore[boto3]>2
+  Downloading http://mirrors.tencentyun.com/pypi/packages/30/f5/495f81a2bb24f5b876cadb84be802d4dbf0c5707aa8e9102614444b4cd05/aiobotocore-2.6.0-py3-none-any.whl (73 kB)
+Collecting s3fs[boto3]>=2021.11.1
+  Downloading http://mirrors.tencentyun.com/pypi/packages/23/17/890cd0304664f2809922938640940b906685e377a1ac72225ef93d9d33a6/s3fs-2023.1.0-py3-none-any.whl (27 kB)
+Requirement already satisfied: future in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from grandalf==0.6->dvc[s3]) (0.18.2)
+Requirement already satisfied: gitpython>3 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from scmrepo==0.0.19->dvc[s3]) (3.1.31)
+Requirement already satisfied: pygit2>=1.7.2 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from scmrepo==0.0.19->dvc[s3]) (1.10.1)
+Requirement already satisfied: dulwich>=0.20.34 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from scmrepo==0.0.19->dvc[s3]) (0.21.7)
+Requirement already satisfied: asyncssh<3,>=2.7.1 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from scmrepo==0.0.19->dvc[s3]) (2.14.2)
+Collecting aioitertools<1.0.0,>=0.5.1
+  Downloading http://mirrors.tencentyun.com/pypi/packages/45/66/d1a9fd8e6ff88f2157cb145dd054defb0fd7fe2507fe5a01347e7c690eab/aioitertools-0.11.0-py3-none-any.whl (23 kB)
+Requirement already satisfied: aiohttp<4.0.0,>=3.7.4.post0 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from aiobotocore[boto3]>2->dvc[s3]) (3.8.3)
+Requirement already satisfied: wrapt<2.0.0,>=1.10.10 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from aiobotocore[boto3]>2->dvc[s3]) (1.13.3)
+Collecting botocore<1.31.18,>=1.31.17
+  Downloading http://mirrors.tencentyun.com/pypi/packages/3d/e5/32a88f5a95e3d43c2e3ed86fc1ffdb715547a04f95a51d00e1185af63b0c/botocore-1.31.17-py3-none-any.whl (11.1 MB)
+Collecting boto3<1.28.18,>=1.28.17
+  Downloading http://mirrors.tencentyun.com/pypi/packages/46/a7/487512e3328f2566d72aed3b7059fd8dff18c95d9bcbbe16c5ecc13e6fc5/boto3-1.28.17-py3-none-any.whl (135 kB)
+Requirement already satisfied: charset-normalizer<3.0,>=2.0 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from aiohttp<4.0.0,>=3.7.4.post0->aiobotocore[boto3]>2->dvc[s3]) (2.1.1)
+Requirement already satisfied: aiosignal>=1.1.2 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from aiohttp<4.0.0,>=3.7.4.post0->aiobotocore[boto3]>2->dvc[s3]) (1.2.0)
+Requirement already satisfied: frozenlist>=1.1.1 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from aiohttp<4.0.0,>=3.7.4.post0->aiobotocore[boto3]>2->dvc[s3]) (1.3.1)
+Requirement already satisfied: multidict<7.0,>=4.5 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from aiohttp<4.0.0,>=3.7.4.post0->aiobotocore[boto3]>2->dvc[s3]) (6.0.2)
+Requirement already satisfied: attrs>=17.3.0 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from aiohttp<4.0.0,>=3.7.4.post0->aiobotocore[boto3]>2->dvc[s3]) (22.1.0)
+Requirement already satisfied: yarl<2.0,>=1.0 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from aiohttp<4.0.0,>=3.7.4.post0->aiobotocore[boto3]>2->dvc[s3]) (1.8.1)
+Requirement already satisfied: async-timeout<5.0,>=4.0.0a3 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from aiohttp<4.0.0,>=3.7.4.post0->aiobotocore[boto3]>2->dvc[s3]) (4.0.2)
+Requirement already satisfied: asynctest==0.13.0 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from aiohttp<4.0.0,>=3.7.4.post0->aiobotocore[boto3]>2->dvc[s3]) (0.13.0)
+Requirement already satisfied: cryptography>=39.0 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from asyncssh<3,>=2.7.1->scmrepo==0.0.19->dvc[s3]) (42.0.5)
+Requirement already satisfied: jmespath<2.0.0,>=0.7.1 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from boto3<1.28.18,>=1.28.17->aiobotocore[boto3]>2->dvc[s3]) (1.0.1)
+Requirement already satisfied: s3transfer<0.7.0,>=0.6.0 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from boto3<1.28.18,>=1.28.17->aiobotocore[boto3]>2->dvc[s3]) (0.6.0)
+Requirement already satisfied: python-dateutil<3.0.0,>=2.1 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from botocore<1.31.18,>=1.31.17->aiobotocore[boto3]>2->dvc[s3]) (2.8.2)
+Requirement already satisfied: urllib3<1.27,>=1.25.4 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from botocore<1.31.18,>=1.31.17->aiobotocore[boto3]>2->dvc[s3]) (1.26.12)
+Requirement already satisfied: six in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from configobj>=5.0.6->dvc[s3]) (1.16.0)
+Requirement already satisfied: cffi>=1.12 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from cryptography>=39.0->asyncssh<3,>=2.7.1->scmrepo==0.0.19->dvc[s3]) (1.15.1)
+Requirement already satisfied: pycparser in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from cffi>=1.12->cryptography>=39.0->asyncssh<3,>=2.7.1->scmrepo==0.0.19->dvc[s3]) (2.21)
+Requirement already satisfied: atpublic>=2.3 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from flufl.lock>=5->dvc[s3]) (3.1.2)
+Requirement already satisfied: gitdb<5,>=4.0.1 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from gitpython>3->scmrepo==0.0.19->dvc[s3]) (4.0.10)
+Requirement already satisfied: smmap<6,>=3.0.1 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from gitdb<5,>=4.0.1->gitpython>3->scmrepo==0.0.19->dvc[s3]) (5.0.0)
+Requirement already satisfied: zipp>=0.5 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from importlib-metadata>=1.4->dvc[s3]) (3.8.0)
+Requirement already satisfied: cached-property in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from pygit2>=1.7.2->scmrepo==0.0.19->dvc[s3]) (1.5.2)
+Requirement already satisfied: python-fsutil<1.0.0,>=0.9.3 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from python-benedict>=0.24.2->dvc[s3]) (0.13.1)
+Requirement already satisfied: python-slugify<9.0.0,>=7.0.0 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from python-benedict>=0.24.2->dvc[s3]) (8.0.4)
+Requirement already satisfied: text-unidecode>=1.3 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from python-slugify<9.0.0,>=7.0.0->python-benedict>=0.24.2->dvc[s3]) (1.3)
+Requirement already satisfied: idna<4,>=2.5 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from requests>=2.22.0->dvc[s3]) (3.4)
+Requirement already satisfied: certifi>=2017.4.17 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from requests>=2.22.0->dvc[s3]) (2022.12.7)
+Requirement already satisfied: pygments<3.0.0,>=2.13.0 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from rich>=10.13.0->dvc[s3]) (2.15.0)
+Requirement already satisfied: markdown-it-py<3.0.0,>=2.2.0 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from rich>=10.13.0->dvc[s3]) (2.2.0)
+Requirement already satisfied: mdurl~=0.1 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from markdown-it-py<3.0.0,>=2.2.0->rich>=10.13.0->dvc[s3]) (0.1.2)
+Requirement already satisfied: ruamel.yaml.clib>=0.2.7 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from ruamel.yaml>=0.17.11->dvc[s3]) (0.2.8)
+Collecting s3fs[boto3]>=2021.11.1
+  Downloading http://mirrors.tencentyun.com/pypi/packages/04/5c/6a5696e6e0fc30cfab334ed47e7e04707a6efd0ac1fe24158f5969fb4ef8/s3fs-2022.11.0-py3-none-any.whl (27 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/33/34/49020b4674b1c0758c4507550977c0cb9224ef274659b5ed3bae298863e8/s3fs-2022.10.0-py3-none-any.whl (27 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/fb/6a/d2b077d0d03e02077d697f3ec03012f500cea49c4e703d59d551018cf9ee/s3fs-2022.8.2-py3-none-any.whl (27 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/b2/b1/260232e7addb497011842282b24779cab2b7f2dd853b052813c5287f6f54/s3fs-2022.8.1-py3-none-any.whl (27 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/b2/5f/382bc6345bfc47febd0f7c732b90b7724f3fa88a1f71a3f1a0fcbee278fe/s3fs-2022.8.0-py3-none-any.whl (27 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/8d/e1/8476e0bab027651a4b572c0a0776ac95bcceebf4912dc2940bcd58c57c9f/s3fs-2022.7.1-py3-none-any.whl (27 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/cb/d1/3d3800d8748d3091d02296ed018276a34a387c1361879784ac74c8dc1215/s3fs-2022.7.0-py3-none-any.whl (27 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/f5/65/dd14d312b9d3d73023e7e56ae52295e5a96583077702cd8d71e3c5f80f7a/s3fs-2022.5.0-py3-none-any.whl (27 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/20/f0/9a784318e776f4bc6f26b44e81b7f2dc4f2ec7d8ffdec0ee52f8ce435351/s3fs-2022.3.0-py3-none-any.whl (26 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/ff/10/683249cebdb8893fefdc08d8260eba7f4bacc908281b54f01f25f679ae32/s3fs-2022.2.0-py3-none-any.whl (26 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/f1/ff/76ed699715acec23c487f3bb59b6b8be01289d1fe9ff2a447d8c400b6ee8/s3fs-2022.1.0-py3-none-any.whl (25 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/46/42/cbdd10502fa5ba8a477fbc997afcf12f14663273d582c35e2b54944a6704/s3fs-2021.11.1-py3-none-any.whl (25 kB)
+INFO: pip is looking at multiple versions of ruamel-yaml-clib to determine which version is compatible with other requirements. This could take a while.
+Collecting ruamel.yaml.clib>=0.2.7
+  Downloading http://mirrors.tencentyun.com/pypi/packages/38/bc/2399ac38b7badf795e1d8fe2a4ad32881401edf2d4a18372a5adecf67ce5/ruamel.yaml.clib-0.2.8-cp37-cp37m-manylinux_2_5_x86_64.manylinux1_x86_64.whl (551 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/38/d9/12fd19480b081d0930b82fe15ed1f9e400aa06530b9f722149bb2580a913/ruamel.yaml.clib-0.2.7-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.manylinux_2_24_x86_64.whl (500 kB)
+INFO: pip is looking at multiple versions of ruamel-yaml to determine which version is compatible with other requirements. This could take a while.
+Collecting ruamel.yaml>=0.17.11
+  Downloading http://mirrors.tencentyun.com/pypi/packages/73/67/8ece580cc363331d9a53055130f86b096bf16e38156e33b1d3014fffda6b/ruamel.yaml-0.18.6-py3-none-any.whl (117 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/57/db/4b74a29f5fd175aea3ff0d95f8230d9bb8a54e38d963c6f96065b9e2eef3/ruamel.yaml-0.18.5-py3-none-any.whl (116 kB)
+INFO: pip is looking at multiple versions of ruamel-yaml-clib to determine which version is compatible with other requirements. This could take a while.
+  Downloading http://mirrors.tencentyun.com/pypi/packages/4b/5d/678d7d15071816cb9a5e015fcd090ddc59a6a195ce8965363313e2044595/ruamel.yaml-0.18.3-py3-none-any.whl (114 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/5f/97/561b9c14816a9b07d08c7c6de7ab72283929870f5e3454f2d8e811054ef2/ruamel.yaml-0.18.2-py3-none-any.whl (113 kB)
+INFO: This is taking longer than usual. You might need to provide the dependency resolver with stricter constraints to reduce runtime. If you want to abort this run, you can press Ctrl + C to do so. To improve how pip performs, tell us what happened here: https://pip.pypa.io/surveys/backtracking
+  Downloading http://mirrors.tencentyun.com/pypi/packages/05/e8/bb98ff17311e1e8f3e4149a7298274ec2645437bab936775b02c6646b672/ruamel.yaml-0.18.1-py3-none-any.whl (113 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/11/58/3863723ae81d9c1d2cc8fdd6917bf3a854106faa0df817f83f70cc6cfbf6/ruamel.yaml-0.18.0-py3-none-any.whl (113 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/35/79/5e2cffa1c77432f11cd93a5351f30732c997a239d3a3090856a72d6d8ba7/ruamel.yaml-0.17.40-py3-none-any.whl (113 kB)
+INFO: pip is looking at multiple versions of ruamel-yaml to determine which version is compatible with other requirements. This could take a while.
+  Downloading http://mirrors.tencentyun.com/pypi/packages/77/f1/ac2c96880bd498ff7ea9898b137e784517d11977353a5eee85e59f4e14ac/ruamel.yaml-0.17.39-py3-none-any.whl (113 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/1f/cb/415b5ff8179a342aa87941f651d4571494560e7a67fb286243512f29d644/ruamel.yaml-0.17.38-py3-none-any.whl (113 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/c3/06/20feed488ef1551074657d334cafd8aa094f7f1a6ae9d70df13c76bf5491/ruamel.yaml-0.17.36-py3-none-any.whl (106 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/79/a9/ae2f346226fcec5beb172ae3cab6d47ae0baa986f1ed1bdf08d96b469b27/ruamel.yaml-0.17.35-py3-none-any.whl (112 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/c7/b2/014cafac3adc5b7a815e9bd975b440517f3434b18b9898fde11d709b0663/ruamel.yaml-0.17.34-py3-none-any.whl (112 kB)
+INFO: This is taking longer than usual. You might need to provide the dependency resolver with stricter constraints to reduce runtime. If you want to abort this run, you can press Ctrl + C to do so. To improve how pip performs, tell us what happened here: https://pip.pypa.io/surveys/backtracking
+  Downloading http://mirrors.tencentyun.com/pypi/packages/45/29/061265cf2fdcead209b62779be813d2af935e0c47e6339ac9ee53c023312/ruamel.yaml-0.17.33-py3-none-any.whl (112 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/d9/0e/2a05efa11ea33513fbdf4a2e2576fe94fd8fa5ad226dbb9c660886390974/ruamel.yaml-0.17.32-py3-none-any.whl (112 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/9c/9c/e69fc06169ac6e757c66004885e0dfcc6c2b5c1a331a5dc70b890b6b4bf8/ruamel.yaml-0.17.31-py3-none-any.whl (112 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/61/17/bcad9c68318846d5c8a54b6f02f2b59f97f150f25e3e590616fa7795d360/ruamel.yaml-0.17.30-py3-none-any.whl (111 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/49/d3/e8d635aca62c0dc44193e1c7c7910bca6b909a16a864ac3c944afcf0302a/ruamel.yaml-0.17.29-py3-none-any.whl (111 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/22/e8/3e4687ceedef0a650a9d33d3a0f87d5e2d1b9a5d50181b87f128fff53420/ruamel.yaml-0.17.28-py3-none-any.whl (109 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/3c/32/0eb02e9f0ee94c1c4019b59cb03abf1fcacde239ba813f8b264f70b398d6/ruamel.yaml-0.17.27-py3-none-any.whl (109 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/23/33/dbc62343de0cf92e0f9c15bc0a287bdaea0953f1cadca0480c78d5ac6641/ruamel.yaml-0.17.26-py3-none-any.whl (109 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/46/e2/22497ec8874435e6b99da2d2a396e4fb8b281e6c15cf79e6f45ab7304c6a/ruamel.yaml-0.17.25-py3-none-any.whl (109 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/8d/7b/a7bfb158635d6849244daafc268fe2576c70d0fe6b38d890a8638a968ab7/ruamel.yaml-0.17.24-py3-none-any.whl (109 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/62/c6/2489d768c89ec1ec46afa385c6e33e3902ebe3f19c2f10599e22d704b353/ruamel.yaml-0.17.23-py3-none-any.whl (108 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/ef/06/608d619f65477e8a4e87077bd27f20685fd96d6a6cdf3ad2920e1d7c968c/ruamel.yaml-0.17.22-py3-none-any.whl (107 kB)
+Collecting ruamel.yaml.clib>=0.2.6
+  Downloading http://mirrors.tencentyun.com/pypi/packages/98/8a/ba37489b423916162b086b01c7c18001cf297350694180468e1698085c58/ruamel.yaml.clib-0.2.6-cp37-cp37m-manylinux1_x86_64.whl (546 kB)
+Collecting ruamel.yaml>=0.17.11
+  Downloading http://mirrors.tencentyun.com/pypi/packages/9e/cb/938214ac358fbef7058343b3765c79a1b7ed0c366f7f992ce7ff38335652/ruamel.yaml-0.17.21-py3-none-any.whl (109 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/cb/30/2d76730ade03303d1c4deb0742a4fbe374e072a4eeb9e1d08f5140f7ddd2/ruamel.yaml-0.17.20-py3-none-any.whl (109 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/a6/d6/2af44d0b3c8b87573403308a8b28ca3645a843c194aa3c68f22ca3b245e9/ruamel.yaml-0.17.19-py3-none-any.whl (109 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/16/d2/6cb023c49feded1fed0b0a494424fa328f1f81c14898e0dd5b17d8d67cd7/ruamel.yaml-0.17.18-py3-none-any.whl (109 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/c7/75/729b63cd0de2316c8bb789ff2c557d9732a5aeb900c5539ae74db41ba562/ruamel.yaml-0.17.17-py3-none-any.whl (109 kB)
+Collecting ruamel.yaml.clib>=0.1.2
+  Downloading http://mirrors.tencentyun.com/pypi/packages/5e/6e/f652c56bbb2c3d3fca252ffc7c0358597f57a1bbdf484dac683054950c63/ruamel.yaml.clib-0.2.2-cp37-cp37m-manylinux1_x86_64.whl (547 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/40/80/da16b691d5e259dd9919a10628e541fca321cb4b078fbb88e1c7c22aa42d/ruamel.yaml.clib-0.2.0-cp37-cp37m-manylinux1_x86_64.whl (547 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/f2/bd/ff0d632e1b248c28427a23bd741f5b8f954acba82df86661e5daf7cc79a6/ruamel.yaml.clib-0.1.2-cp37-cp37m-manylinux1_x86_64.whl (547 kB)
+Collecting ruamel.yaml>=0.17.11
+  Downloading http://mirrors.tencentyun.com/pypi/packages/d3/cc/248dfb697bb98152c187ced584e505124ed952529d7f8e74b28f6f4d6f31/ruamel.yaml-0.17.16-py3-none-any.whl (109 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/12/f6/9ed9325e80398219ffda9316f33c7822249f757e655135d61950a3b2f978/ruamel.yaml-0.17.15-py3-none-any.whl (108 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/a8/d2/11bb5a7a3681f3a7530301d5f1224c678be15a6d587e16b0848b2f65552e/ruamel.yaml-0.17.14-py3-none-any.whl (108 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/28/17/8d9c99ab24ab7ca4259e3bff3e53a886387fdc11314fdc17bec15bbdeb17/ruamel.yaml-0.17.13-py3-none-any.whl (108 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/16/50/c4793402da0d17760799a1076c2dd782958d3e768ed561e1e76844009933/ruamel.yaml-0.17.12-py3-none-any.whl (108 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/98/ae/2644cb875f505b1b35b1963b756201c85f1c75ed363380a156ddd946b5da/ruamel.yaml-0.17.11-py3-none-any.whl (108 kB)
+INFO: pip is looking at multiple versions of pygments to determine which version is compatible with other requirements. This could take a while.
+Collecting pygments<3.0.0,>=2.13.0
+  Downloading http://mirrors.tencentyun.com/pypi/packages/97/9c/372fef8377a6e340b1704768d20daaded98bf13282b5327beb2e2fe2c7ef/pygments-2.17.2-py3-none-any.whl (1.2 MB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/4f/34/6a8073bd275d7034476b4af94a5f3ca206b86e4c206a61eeb4e3d73b4a06/pygments-2.17.1-py3-none-any.whl (1.2 MB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/5b/66/a48025f51da4dec44c7a3de9b643fdc34ffb92ad1f2b3e90ebc6305d2c0f/pygments-2.17.0-py3-none-any.whl (1.2 MB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/43/88/29adf0b44ba6ac85045e63734ae0997d3c58d8b1a91c914d240828d0d73d/Pygments-2.16.1-py3-none-any.whl (1.2 MB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/ec/9a/40aa8248006cbe35b8bffc83cfca0ffdf68306d4354bca334a25b4b275a0/Pygments-2.16.0-py3-none-any.whl (1.2 MB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/34/a7/37c8d68532ba71549db4212cb036dbd6161b40e463aba336770e80c72f84/Pygments-2.15.1-py3-none-any.whl (1.1 MB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/08/4c/c587fc05d6f15f4deff971cb1a5b624429d6187c19f7274a50670edf3ec8/Pygments-2.15.0-py3-none-any.whl (1.1 MB)
+INFO: pip is looking at multiple versions of pygments to determine which version is compatible with other requirements. This could take a while.
+  Downloading http://mirrors.tencentyun.com/pypi/packages/0b/42/d9d95cc461f098f204cd20c85642ae40fbff81f74c300341b8d0e0df14e0/Pygments-2.14.0-py3-none-any.whl (1.1 MB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/4f/82/672cd382e5b39ab1cd422a672382f08a1fb3d08d9e0c0f3707f33a52063b/Pygments-2.13.0-py3-none-any.whl (1.1 MB)
+INFO: pip is looking at multiple versions of mdurl to determine which version is compatible with other requirements. This could take a while.
+Collecting mdurl~=0.1
+  Downloading http://mirrors.tencentyun.com/pypi/packages/b3/38/89ba8ad64ae25be8de66a6d463314cf1eb366222074cfda9ee839c56a4b4/mdurl-0.1.2-py3-none-any.whl (10.0 kB)
+INFO: This is taking longer than usual. You might need to provide the dependency resolver with stricter constraints to reduce runtime. If you want to abort this run, you can press Ctrl + C to do so. To improve how pip performs, tell us what happened here: https://pip.pypa.io/surveys/backtracking
+  Downloading http://mirrors.tencentyun.com/pypi/packages/00/3f/571221facbf1c158a78dbad166b512fc718e76a1ed16382ee919816b0015/mdurl-0.1.1-py3-none-any.whl (10 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/ff/9f/cb94cab8c28f644360bdc96ab8813ec91d5de8090220c223fea350c2c0f0/mdurl-0.1.0-py3-none-any.whl (11 kB)
+INFO: pip is looking at multiple versions of markdown-it-py to determine which version is compatible with other requirements. This could take a while.
+Collecting markdown-it-py<3.0.0,>=2.2.0
+  Downloading http://mirrors.tencentyun.com/pypi/packages/bf/25/2d88e8feee8e055d015343f9b86e370a1ccbec546f2865c98397aaef24af/markdown_it_py-2.2.0-py3-none-any.whl (84 kB)
+INFO: pip is looking at multiple versions of mdurl to determine which version is compatible with other requirements. This could take a while.
+INFO: pip is looking at multiple versions of rich to determine which version is compatible with other requirements. This could take a while.
+Collecting rich>=10.13.0
+  Downloading http://mirrors.tencentyun.com/pypi/packages/87/67/a37f6214d0e9fe57f6ae54b2956d550ca8365857f42a1ce0392bb21d9410/rich-13.7.1-py3-none-any.whl (240 kB)
+INFO: This is taking longer than usual. You might need to provide the dependency resolver with stricter constraints to reduce runtime. If you want to abort this run, you can press Ctrl + C to do so. To improve how pip performs, tell us what happened here: https://pip.pypa.io/surveys/backtracking
+  Downloading http://mirrors.tencentyun.com/pypi/packages/be/be/1520178fa01eabe014b16e72a952b9f900631142ccd03dc36cf93e30c1ce/rich-13.7.0-py3-none-any.whl (240 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/be/2a/4e62ff633612f746f88618852a626bbe24226eba5e7ac90e91dcfd6a414e/rich-13.6.0-py3-none-any.whl (239 kB)
+INFO: pip is looking at multiple versions of markdown-it-py to determine which version is compatible with other requirements. This could take a while.
+  Downloading http://mirrors.tencentyun.com/pypi/packages/c1/d1/23ba6235ed82883bb416f57179d1db2c05f3fb8e5d83c18660f9ab6f09c9/rich-13.5.3-py3-none-any.whl (239 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/8d/5f/21a93b2ec205f4b79853ff6e838e3c99064d5dbe85ec6b05967506f14af0/rich-13.5.2-py3-none-any.whl (239 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/83/d5/311cc7acdc4dfb146e419c5975c23ffca4e3023a6f41588af35d19718e0c/rich-13.5.1-py3-none-any.whl (239 kB)
+INFO: This is taking longer than usual. You might need to provide the dependency resolver with stricter constraints to reduce runtime. If you want to abort this run, you can press Ctrl + C to do so. To improve how pip performs, tell us what happened here: https://pip.pypa.io/surveys/backtracking
+  Downloading http://mirrors.tencentyun.com/pypi/packages/cf/2c/aa1418e8fafb5489c6fbfb36ba6afc1be72b196419bdea0c501487743740/rich-13.5.0-py3-none-any.whl (239 kB)
+INFO: pip is looking at multiple versions of rich to determine which version is compatible with other requirements. This could take a while.
+  Downloading http://mirrors.tencentyun.com/pypi/packages/fc/1e/482e5eec0b89b593e81d78f819a9412849814e22225842b598908e7ac560/rich-13.4.2-py3-none-any.whl (239 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/ea/93/c68645c689d10a035010e3ae314b6b2855d040ce0d11fdfdfbb8be416581/rich-13.4.1-py3-none-any.whl (239 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/79/2c/165e0916c5488f0662637f49507480b7e9fc47428b478be2cc0d57664914/rich-13.4.0-py3-none-any.whl (239 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/39/03/6de23bdd88f5ee7f8b03f94f6e88108f5d7ffe6d207e95cdb06d9aa4cd57/rich-13.3.5-py3-none-any.whl (238 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/9d/1a/28117ae737aec7c004ed5067034a8949adab43730420b50312821f466c3f/rich-13.3.4-py3-none-any.whl (238 kB)
+INFO: This is taking longer than usual. You might need to provide the dependency resolver with stricter constraints to reduce runtime. If you want to abort this run, you can press Ctrl + C to do so. To improve how pip performs, tell us what happened here: https://pip.pypa.io/surveys/backtracking
+  Downloading http://mirrors.tencentyun.com/pypi/packages/42/5c/f44fc88bad850c4a20711a3349ec0e8bc50fece8d8b32c962d2aab70ea2b/rich-13.3.3-py3-none-any.whl (238 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/6b/f0/79df8eaa345ece1d33d8dfeec46ea166028da37b314dc44ead18c058a126/rich-13.3.2-py3-none-any.whl (238 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/a8/c6/14b77fe7a5fab66ffbeffd6706f598d00a52702846bce0e2339bcf9dd20c/rich-13.3.1-py3-none-any.whl (239 kB)
+Collecting markdown-it-py<3.0.0,>=2.1.0
+  Downloading http://mirrors.tencentyun.com/pypi/packages/f9/3f/ecd1b708973b9a3e4574b43cffc1ce8eb98696da34f1a1c44a68c3c0d737/markdown_it_py-2.1.0-py3-none-any.whl (84 kB)
+Collecting rich>=10.13.0
+  Downloading http://mirrors.tencentyun.com/pypi/packages/53/df/e75dcda730fc18a9b6514e6c585ddae8ab39f893e11b272cffb843519fb2/rich-13.3.0-py3-none-any.whl (238 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/0e/cf/a6369a2aee266c2d7604230f083d4bd14b8f69bc69eb25b3da63b9f2f853/rich-13.2.0-py3-none-any.whl (238 kB)
+Collecting pygments<3.0.0,>=2.6.0
+  Downloading http://mirrors.tencentyun.com/pypi/packages/5c/8e/1d9017950034297fffa336c72e693a5b51bbf85141b24a763882cf1977b5/Pygments-2.12.0-py3-none-any.whl (1.1 MB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/1d/17/ed4d2df187995561b28f1073df24137cb750e12f9879d291cc8ab67c65d2/Pygments-2.11.2-py3-none-any.whl (1.1 MB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/61/f1/37071192452df97f9b952707515703e86e3f7123c2ed8a4010043acbc362/Pygments-2.11.1-py3-none-any.whl (1.1 MB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/07/4c/8add7ee4771c3e217f4d3a7180c60954b9dcab8cee02161fc44044cb1c32/Pygments-2.11.0-py3-none-any.whl (1.1 MB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/78/c8/8d9be2f72d8f465461f22b5f199c04f7ada933add4dae6e2468133c17471/Pygments-2.10.0-py3-none-any.whl (1.0 MB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/a6/c9/be11fce9810793676017f79ffab3c6cb18575844a6c7b8d4ed92f95de604/Pygments-2.9.0-py3-none-any.whl (1.0 MB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/3a/80/a52c0a7c5939737c6dca75a831e89658ecb6f590fb7752ac777d221937b9/Pygments-2.8.1-py3-none-any.whl (983 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/d4/ef/881b14d3ad4d6a86384d63bfbb87205161e4fc46420526380ec209a12e17/Pygments-2.8.0-py3-none-any.whl (983 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/17/e3/c7ea888bd6e9849c60b1f378637850265177ed01297137f544a7ecf7d7ba/Pygments-2.7.4-py3-none-any.whl (950 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/85/c5/c437c383d5917fae9782eb6588bec8aff931afe13c76b9e8c03dacee9beb/Pygments-2.7.3-py3-none-any.whl (950 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/d8/cf/d7e48846e10ac4f8b89d489cec3dc9c2804a825f812c851559cfbcc251cc/Pygments-2.7.2-py3-none-any.whl (948 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/d7/72/49a7db1b245c13d0e38cfdc96c1adf6e3bd16a7a0dceb7b25faa6612353b/Pygments-2.7.1-py3-none-any.whl (944 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/5e/ac/cc00398eccce66515a8acac52afa3e51bbe9a8080e9f232aa91cbb041856/Pygments-2.7.0-py3-none-any.whl (950 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/2d/68/106af3ae51daf807e9cdcba6a90e518954eb8b70341cee52995540a53ead/Pygments-2.6.1-py3-none-any.whl (914 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/b1/f1/b029e6454e6ce6965e806ba9c8152cbeb6eab080068576cb48767fd8ff4e/Pygments-2.6.0-py3-none-any.whl (914 kB)
+Collecting rich>=10.13.0
+  Downloading http://mirrors.tencentyun.com/pypi/packages/55/19/8b1ed0f3ea49306b8115afe84e8e5cd92925d732260efc75e4e3e3089bf0/rich-13.1.0-py3-none-any.whl (238 kB)
+Requirement already satisfied: commonmark<0.10.0,>=0.9.0 in /data/run01/scv6872/.conda/envs/py37/lib/python3.7/site-packages (from rich>=10.13.0->dvc[s3]) (0.9.1)
+INFO: pip is looking at multiple versions of commonmark to determine which version is compatible with other requirements. This could take a while.
+Collecting commonmark<0.10.0,>=0.9.0
+  Downloading http://mirrors.tencentyun.com/pypi/packages/b1/92/dfd892312d822f36c55366118b95d914e5f16de11044a27cf10a7d71bbbf/commonmark-0.9.1-py2.py3-none-any.whl (51 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/a7/65/2ea45a38e8c6a0a13453c5cadcc9b725049425c8628dbe7da87b30944573/commonmark-0.9.0-py2.py3-none-any.whl (51 kB)
+Collecting rich>=10.13.0
+  Downloading http://mirrors.tencentyun.com/pypi/packages/ea/bc/5ca0a05823fcdf00c64b44448122131319bc0bf53ec9ce715dc960560df2/rich-13.0.1-py3-none-any.whl (238 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/92/37/2732511fdd5c6e037af9e92b87dbb50049c02fd3a8c070bc75eed6c798b3/rich-13.0.0-py3-none-any.whl (238 kB)
+INFO: pip is looking at multiple versions of commonmark to determine which version is compatible with other requirements. This could take a while.
+  Downloading http://mirrors.tencentyun.com/pypi/packages/32/60/81ac2e7d1e3b861ab478a72e3b20fc91c4302acd2274822e493758941829/rich-12.6.0-py3-none-any.whl (237 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/f6/39/4cb526e0d505464376e3c47a812df6e6638363ebe66e6a63618831fe47ad/rich-12.5.1-py3-none-any.whl (235 kB)
+INFO: This is taking longer than usual. You might need to provide the dependency resolver with stricter constraints to reduce runtime. If you want to abort this run, you can press Ctrl + C to do so. To improve how pip performs, tell us what happened here: https://pip.pypa.io/surveys/backtracking
+  Downloading http://mirrors.tencentyun.com/pypi/packages/0b/78/fd144401a7849947ef5852e00686e56312cc95aa3a4866f5c8a00a459a4e/rich-12.5.0-py3-none-any.whl (235 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/13/3f/1996db12d23733e2834b9c2b094cc59c0d1ab943fedafcdb34b5c0da9ebf/rich-12.4.4-py3-none-any.whl (232 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/ee/b4/1f6d7662938d80dfc29f7c325c7c5da795dc2961c9640e196daf7bd2f181/rich-12.4.3-py3-none-any.whl (231 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/32/b5/e87c2fd0d9fed6bfcab1a162c5be8b2687a191b591a3c77e0cfd609ac65d/rich-12.4.2-py3-none-any.whl (231 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/05/c0/844c879d659e15c4b1fbe8be89b25de7cf9b0d5e8485aadfe83ae6e7286a/rich-12.4.1-py3-none-any.whl (231 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/be/d4/d3e6167b888fcea5b3ef0c8d5950fe3003d2b66797b8068ad4e5aeb2bfec/rich-12.4.0-py3-none-any.whl (231 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/03/43/cea2224c2a798118e06888566f0809840744268c02371dfd81308912fc8e/rich-12.3.0-py3-none-any.whl (232 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/a6/7c/5ccbe95d3fc9d737249eb05d90edd70a1eb07671024558bddf3076df4a0e/rich-12.2.0-py3-none-any.whl (229 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/05/cf/c2ecf2bdfed36ba99908ca4f322881ed715338b7cfec7a35344a934f956e/rich-12.0.1-py3-none-any.whl (224 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/93/ac/463598448d578f1f9168eb17405b2faebb4e76123c986b2c4ab64d387d5e/rich-12.0.0-py3-none-any.whl (224 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/74/41/6adf6aeb9b3d4a058a82fd053cbb6824432269caa0998574cb766c555287/rich-11.2.0-py3-none-any.whl (217 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/b8/1a/a470396747efae5853e0057ee6e00e287479db47c5329d4ba5550e422222/rich-11.1.0-py3-none-any.whl (216 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/a0/46/05afc812a59890e92dc7bea6bda777e3c06f57be71a8bde2c2568bf682dc/rich-11.0.0-py3-none-any.whl (215 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/0a/0d/58939059015dce00122b008c3edccbb68f0767126020c939116e6d764cd7/rich-10.16.2-py3-none-any.whl (214 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/82/ef/07abb32f90271b7e820e6e45a10af1c07eb209ebf6d7fc05db7d13e657f1/rich-10.16.1-py3-none-any.whl (214 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/44/8a/669b78b229ace8bef163863b4bfcef1752baab43d88d17119a3d85a97c7b/rich-10.16.0-py3-none-any.whl (214 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/f0/33/1aba32a98ec2d4b660787f8854c6b94d3c06a833632acf1190318daf6276/rich-10.15.2-py3-none-any.whl (214 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/9b/0e/b8acb02f6d487d2284595f12bc7e3bebdc6b7860ea6e22c3d508907cce40/rich-10.15.1-py3-none-any.whl (214 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/1d/5f/178129772fa426b29aa408e9d3d337bed8cdb6a2a72b8bc3b1714a93effa/rich-10.15.0-py3-none-any.whl (214 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/37/51/0e3e0adf12839a7ae73956942e5d47cb246566c8b9223851569369d4da34/rich-10.14.0-py3-none-any.whl (213 kB)
+  Downloading http://mirrors.tencentyun.com/pypi/packages/ad/57/d47436d6cb66874612f94466fcd4c290cb47f59d477942d7ad3ab30510d2/rich-10.13.0-py3-none-any.whl (213 kB)
+INFO: pip is looking at multiple versions of idna to determine which version is compatible with other requirements. This could take a while.
+Collecting idna<4,>=2.5
+  Downloading http://mirrors.tencentyun.com/pypi/packages/c2/e7/a82b05cf63a603df6e68d59ae6a68bf5064484a0718ea5033660af4b54a9/idna-3.6-py3-none-any.whl (61 kB)
+ERROR: Exception:
+Traceback (most recent call last):
+  File "/data/home/scv6872/.conda/envs/py37/lib/python3.7/site-packages/pip/_internal/cli/base_command.py", line 173, in _main
+    status = self.run(options, args)
+  File "/data/home/scv6872/.conda/envs/py37/lib/python3.7/site-packages/pip/_internal/cli/req_command.py", line 203, in wrapper
+    return func(self, options, args)
+  File "/data/home/scv6872/.conda/envs/py37/lib/python3.7/site-packages/pip/_internal/commands/install.py", line 316, in run
+    reqs, check_supported_wheels=not options.target_dir
+  File "/data/home/scv6872/.conda/envs/py37/lib/python3.7/site-packages/pip/_internal/resolution/resolvelib/resolver.py", line 95, in resolve
+    collected.requirements, max_rounds=try_to_avoid_resolution_too_deep
+  File "/data/home/scv6872/.conda/envs/py37/lib/python3.7/site-packages/pip/_vendor/resolvelib/resolvers.py", line 472, in resolve
+    state = resolution.resolve(requirements, max_rounds=max_rounds)
+  File "/data/home/scv6872/.conda/envs/py37/lib/python3.7/site-packages/pip/_vendor/resolvelib/resolvers.py", line 383, in resolve
+    raise ResolutionTooDeep(max_rounds)
+pip._vendor.resolvelib.resolvers.ResolutionTooDeep: 2000000

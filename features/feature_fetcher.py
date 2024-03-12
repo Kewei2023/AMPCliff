@@ -7,7 +7,7 @@ import sys
 import multiprocessing
 from functools import partial
 import torch 
-
+import ipdb
 
 class FeatureFetcher():
   def __init__(self,cfg,tokenizer):
@@ -88,6 +88,19 @@ class FeatureFetcher():
           tokenize_function_partial = partial(self.tokenize_function, add_special_tokens=True)
         
         peptides_descriptors = tokenize_function_partial(peptides)
+        
+      if 'gpt2' in self.cfg.type or self.cfg.type == 'bert-base':
+        
+        peptides_spaced = [' '.join(peptide) for peptide in peptides]
+        
+        if self.task == 'pretrain':
+          tokenize_function_partial = partial(self.tokenize_function, add_special_tokens=False)
+        else:
+          tokenize_function_partial = partial(self.tokenize_function, add_special_tokens=True)
+        
+        peptides_descriptors = tokenize_function_partial(peptides_spaced)
+        # ipdb.set_trace()
+        
         
       return peptides_descriptors
   

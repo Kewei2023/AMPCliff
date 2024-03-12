@@ -1,6 +1,5 @@
-
 from ..models.breeze import BreezeModel,BreezeTokenizer,BreezeForMaskedLM,BreezeForSequenceClassification, BreezeConfig
-from transformers import EsmModel,EsmForSequenceClassification,LlamaForCausalLM, LlamaTokenizer, EsmForMaskedLM
+from transformers import AutoModel,AutoTokenizer,AutoConfig,EsmModel,EsmForSequenceClassification,LlamaForCausalLM, LlamaTokenizer, EsmForMaskedLM
 from ..utils.utils import get_device,fix_random_seed, load_weights, load_model
 from .rank import RankModel
 from .regression import RegModel_v2,RegModel_v1
@@ -21,23 +20,55 @@ class ModelInitializer():
     
     def init(self):
         
-        config = BreezeConfig.from_pretrained(self.cfg.model.dir)
-        config.output_hidden_states = True
-        tokenizer = BreezeTokenizer.from_pretrained(self.cfg.model.dir)
-        model_base = BreezeModel(config=config).to(self.device)
         
-        model = self.PretrainModel(model_base, self.device)
         
+        tokenizer = None
         if self.cfg.task.type == 'regression':
-            
-            # # model_base = BreezeForSequenceClassification(config=config).to(self.device)
-               
+              
             if self.cfg.model[self.cfg.task.type].version == 'breeze':
+            
+                config = BreezeConfig.from_pretrained(self.cfg.model.config_dir)
+                config.output_hidden_states = True
+                tokenizer = BreezeTokenizer.from_pretrained(self.cfg.model.config_dir)
+                model_base = BreezeModel(config=config).to(self.device)
+                
+                model = self.PretrainModel(model_base, self.device)
                 config.problem_type = "regression"
                 config.num_labels = 1
                 train_model = RegModel_v1(model,config).to(self.device)
             
+            if 'gpt2' in self.cfg.model[self.cfg.task.type].version:
+                
+                config = AutoConfig.from_pretrained(self.cfg.model.config_dir)
+                config.output_hidden_states = True
+                tokenizer = AutoTokenizer.from_pretrained(self.cfg.model.config_dir)
+                tokenizer.pad_token = tokenizer.eos_token
+                
+                model_base = AutoModel.from_pretrained(self.cfg.model.config_dir).to(self.device)
+                
+                model = self.PretrainModel(model_base, self.device)
+                
+                config.problem_type = "regression"
+                config.num_labels = 1
+                config.hidden_dropout_prob = 0
+                train_model = RegModel_v1(model,config).to(self.device)
             
+            if self.cfg.model[self.cfg.task.type].version == 'bert-base':
+                
+                config = AutoConfig.from_pretrained(self.cfg.model.config_dir)
+                config.output_hidden_states = True
+                tokenizer = AutoTokenizer.from_pretrained(self.cfg.model.config_dir)
+                tokenizer.add_special_tokens({'pad_token': '[PAD]'})
+                
+                model_base = AutoModel.from_pretrained(self.cfg.model.config_dir).to(self.device)
+                
+                model = self.PretrainModel(model_base, self.device)
+                
+                config.problem_type = "regression"
+                config.num_labels = 1
+                config.hidden_dropout_prob = 0
+                train_model = RegModel_v1(model,config).to(self.device)
+                
             if self.cfg.model[self.cfg.task.type].version == 'AMPSpace':
                 
                 train_model = LstmNet(embedding_dim=50, 
@@ -68,6 +99,13 @@ class ModelInitializer():
                 train_model = CNNRegressor(self.cfg.data.max_length).to(self.device)
         
         if self.cfg.task.type == 'rank':
+        
+            config = BreezeConfig.from_pretrained(self.cfg.model.config_dir)
+            config.output_hidden_states = True
+            tokenizer = BreezeTokenizer.from_pretrained(self.cfg.model.config_dir)
+            model_base = BreezeModel(config=config).to(self.device)
+            
+            model = self.PretrainModel(model_base, self.device)
             config.problem_type = "regression"
             config.num_labels = 1
             train_model = RankModel(model,config).to(self.device)
@@ -85,15 +123,17 @@ class ModelInitializer():
     def PretrainModel(self,model_base, device):
         
         if self.cfg.model[self.cfg.task.type].initial.initial_weight:
-            init_model = EsmModel.from_pretrained(self.cfg.model[self.cfg.task.type].initial.model_name)
-            # init_model = EsmForSequenceClassification.from_pretrained(self.cfg.model[self.cfg.task.type].initial.model_name)
+        
+            init_model = AutoModel.from_pretrained(self.cfg.model[self.cfg.task.type].initial.model_name)
+            
             init_model.half()
             init_model.to(device)
-
+            # ipdb.set_trace()
             pretrained_dict = init_model.state_dict()
             model_dict = model_base.state_dict()
             
-            updated_dict = {name.replace('esm', 'Breeze'): param for name, param in pretrained_dict.items() if 'classifier' not in name}
+            if self.cfg.model[self.cfg.task.type].version == 'breeze':
+              updated_dict = {name.replace('esm', 'Breeze'): param for name, param in pretrained_dict.items() if 'classifier' not in name}
             
             model_dict.update(updated_dict)
             model_base.load_state_dict(model_dict)

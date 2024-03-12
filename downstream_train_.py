@@ -98,7 +98,8 @@ def main(cfg: DictConfig):
     metric_func = Metrics(cfg.task.type,topK=50)
     model, tokenizer = ModelInitializer(cfg,device).init()
     
-    vocab_dict = tokenizer.get_vocab()
+    if tokenizer is not None:
+      vocab_dict = tokenizer.get_vocab()
     
     feature_fetcher = FeatureFetcher(cfg,tokenizer)
     
