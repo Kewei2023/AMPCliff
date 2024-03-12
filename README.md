@@ -26,9 +26,13 @@ sbatch --gpus=1 downstream_train_.sh
 ```
 ##### Changing Models
 
-the code is developing, will make the modification easier in the future
+the code is developing, will update a easier version in the future.
 
-1. modify `configs/downstream.yaml`
+***remark for myself**: SEPERATE LLMs with other type of public models*
+
+***to WHOM running this code**: remember `features.type` and `model.regression.version` should be the same value*
+
+**1. modify `configs/downstream.yaml`**
 ```
 features:
   type: gpt2-large 
