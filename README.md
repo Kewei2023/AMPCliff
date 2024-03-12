@@ -106,8 +106,9 @@ sbatch --gpus=1 machine_learning_train.sh
 
 ### MLFlow Setting
 
-URL: the URL depends on the IP adress of the machine, for Linux please use `ifconfig` command to check
-Port: don't change 
+**URL:** the URL depends on the IP adress of the machine, for Linux please use `ifconfig` command to check
+
+**Port:** don't change 
 ```
 source activate AMPCliff
 conda env config vars set MLFLOW_EXPERIMENT_NAME=breeze
