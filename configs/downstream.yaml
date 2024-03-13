@@ -25,7 +25,7 @@ task:
     default_metric: spearman
 
 features:
-  type: CellTree-cnn # gpt2-large # bert-base # protgpt2 # breeze # CellTree-cnn # breeze # CellTree-rnn # amino_acid # AMPSpace, HC, CellTree-rnn, CellTree-cnn
+  type: LLM # gpt2-large # bert-base # protgpt2 # breeze # CellTree-cnn # breeze # CellTree-rnn # amino_acid # AMPSpace, HC, CellTree-rnn, CellTree-cnn
 
 
 train:
@@ -52,12 +52,12 @@ train:
   device_ids: [0,1,2,3]
 
 model:
-  config_dir: "/data/public/models/gpt2-large/" # "/data/public/models/bert-base-uncased/"# "/data/public/models/ProtGPT2/"
+  config_dir: "/data/public/models/facebook/esm2_t12_35M_UR50D" # "/data/public/models/bert-base-uncased/"# "/data/public/models/ProtGPT2/"
   regression:
-    version: CellTree-cnn # gpt2-large # bert-base # protgpt2 # breeze # CellTree-cnn # breeze # CellTree-rnn # AMPSpace # v1 # AMPSpace, CellTree-cnn, SeqUNet
+    version: esm2_t12 # gpt2-large # bert-base # protgpt2 # breeze # CellTree-cnn # breeze # CellTree-rnn # AMPSpace # v1 # AMPSpace, CellTree-cnn, SeqUNet
     initial:
       initial_weight: true # true
-      model_name: "/data/public/models/gpt2-large/" # "/data/public/models/bert-base-uncased/"# "/data/public/models/ProtGPT2/"# "/data/public/models/facebook/esm2_t12_35M_UR50D/" # esm2_t12_35M_UR50D" # "esm2_t6_8M_UR50D" # "/data/public/models/llama/llama-13b/" # "/data/public/models/facebook/esm2_t48_15B_UR50D/" # "" # "/data/public/models/facebook/esm2_t36_3B_UR50D/" # "roberta-base", "facebook/bart-base","facebook/esm2_t33_650M_UR50D", "facebook/esm1b_t33_650M_UR50S","bert-base-uncased", "xlnet-base-cased", "gpt2"
+      model_name: "/data/public/models/facebook/esm2_t12_35M_UR50D" # "/data/public/models/bert-base-uncased/"# "/data/public/models/ProtGPT2/"# "/data/public/models/facebook/esm2_t12_35M_UR50D/" # esm2_t12_35M_UR50D" # "esm2_t6_8M_UR50D" # "/data/public/models/llama/llama-13b/" # "/data/public/models/facebook/esm2_t48_15B_UR50D/" # "" # "/data/public/models/facebook/esm2_t36_3B_UR50D/" # "roberta-base", "facebook/bart-base","facebook/esm2_t33_650M_UR50D", "facebook/esm1b_t33_650M_UR50S","bert-base-uncased", "xlnet-base-cased", "gpt2"
     check_point: 
       load: false
       path: "/data/home/scv6872/AMPCliff/outputs/2024-03-07/11-10-48/None/model_step_17_spearman_0.626/" # /data/home/scv6872/Breeze/outputs/2023-11-27/14-36-32/model_step_41_accuracy_0.637 # /data/home/scv6872/Breeze/outputs/2023-11-27/14-36-32/model_step_1_accuracy_0.324 # /data/home/scv6872/Breeze/outputs/2023-11-27/14-36-32/model_step_1_accuracy_0.324 # /data/home/scv6872/Breeze/outputs/2023-11-27/11-57-02/model_step_1_accuracy_0.321 # /data/home/scv6872/Breeze/outputs/2023-11-20/10-24-41/model_step_1_accuracy_0.323 # /data/home/scv6872/Breeze/outputs/2023-11-20/10-24-41/model_step_3_accuracy_0.365 # /data/home/scv6872/Breeze/outputs/2023-11-20/10-24-41/model_step_2_accuracy_0.351 # /data/home/scv6872/Breeze/outputs/2023-11-20/10-24-41/model_step_11_accuracy_0.399/ # "/data/home/scv6872/Breeze/outputs/2023-11-20/10-24-41/model_step_11_accuracy_0.399/"
@@ -105,9 +105,9 @@ data:
                     '/data/home/scv6872/Breeze/outputs/2023-12-01/22-28-34/fold 3/model_step_16_recall_4.0',
                     '/data/home/scv6872/Breeze/outputs/2023-12-01/22-28-34/fold 4/model_step_44_recall_3.0']
     fix:
-      train_file: "/data/home/scv6872/AMPCliff/data/levenstein/grampa_s_aureus_7_25-levenstein-train.csv" 
-      valid_file: "/data/home/scv6872/AMPCliff/data/levenstein/grampa_s_aureus_7_25-levenstein-valid.csv" 
-      test_file: "/data/home/scv6872/AMPCliff/data/levenstein/grampa_s_aureus_7_25-levenstein-test.csv" 
+      train_file: "/data/home/scv6872/AMPCliff/data/tanimoto average/grampa_s_aureus_7_25-tanimoto average-train.csv" 
+      valid_file: "/data/home/scv6872/AMPCliff/data/tanimoto average/grampa_s_aureus_7_25-tanimoto average-valid.csv" 
+      test_file: "/data/home/scv6872/AMPCliff/data/tanimoto average/grampa_s_aureus_7_25-tanimoto average-test.csv" 
     
     fixed_cluster:
       data_file: "/data/home/scv6872/Breeze/downstream/regression/grampa_s_aureus_7_25_ratio_0.5v0_mmseqs_cluster_sampled_fold.csv" # "/data/home/scv6872/Breeze/downstream/regression/grampa_s_aureus_7_25_ratio_0.5v0_acpair_0_cluster_sampled_fold.csv" # AMPBERT.csv" 

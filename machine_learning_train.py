@@ -22,7 +22,6 @@ from AMPCliff.features.feature_fetcher import FeatureFetcher
 from AMPCliff.models.breeze import BreezeModel,BreezeTokenizer,BreezeForMaskedLM,BreezeForSequenceClassification, BreezeConfig
 from AMPCliff.factory.initializer import ModelInitializer
 from AMPCliff.factory.ML import ModelRegressor
-from transformers import EsmModel,EsmForSequenceClassification,LlamaForCausalLM, LlamaTokenizer, EsmForMaskedLM
 from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.optim import AdamW
 from AMPCliff.utils.metrics import Metrics

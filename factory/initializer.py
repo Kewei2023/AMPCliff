@@ -29,44 +29,57 @@ class ModelInitializer():
             
                 config = BreezeConfig.from_pretrained(self.cfg.model.config_dir)
                 config.output_hidden_states = True
+                config.problem_type = "regression"
+                config.num_labels = 1
+                
                 tokenizer = BreezeTokenizer.from_pretrained(self.cfg.model.config_dir)
                 model_base = BreezeModel(config=config).to(self.device)
                 
                 model = self.PretrainModel(model_base, self.device)
+                
+                train_model = RegModel_v1(model,config).to(self.device)
+            
+            if 'esm2' in self.cfg.model[self.cfg.task.type].version:
+            
+                config = AutoConfig.from_pretrained(self.cfg.model.config_dir)
+                config.output_hidden_states = True
                 config.problem_type = "regression"
                 config.num_labels = 1
+                
+                tokenizer = AutoTokenizer.from_pretrained(self.cfg.model.config_dir)
+                model = AutoModel.from_pretrained(self.cfg.model.config_dir).to(self.device)
+                
+                
                 train_model = RegModel_v1(model,config).to(self.device)
             
             if 'gpt2' in self.cfg.model[self.cfg.task.type].version:
                 
                 config = AutoConfig.from_pretrained(self.cfg.model.config_dir)
                 config.output_hidden_states = True
-                tokenizer = AutoTokenizer.from_pretrained(self.cfg.model.config_dir)
-                tokenizer.pad_token = tokenizer.eos_token
-                
-                model_base = AutoModel.from_pretrained(self.cfg.model.config_dir).to(self.device)
-                
-                model = self.PretrainModel(model_base, self.device)
-                
                 config.problem_type = "regression"
                 config.num_labels = 1
                 config.hidden_dropout_prob = 0
+                
+                tokenizer = AutoTokenizer.from_pretrained(self.cfg.model.config_dir)
+                tokenizer.pad_token = tokenizer.eos_token
+                
+                model = AutoModel.from_pretrained(self.cfg.model.config_dir).to(self.device)
+                    
                 train_model = RegModel_v1(model,config).to(self.device)
             
             if self.cfg.model[self.cfg.task.type].version == 'bert-base':
                 
                 config = AutoConfig.from_pretrained(self.cfg.model.config_dir)
                 config.output_hidden_states = True
-                tokenizer = AutoTokenizer.from_pretrained(self.cfg.model.config_dir)
-                tokenizer.add_special_tokens({'pad_token': '[PAD]'})
-                
-                model_base = AutoModel.from_pretrained(self.cfg.model.config_dir).to(self.device)
-                
-                model = self.PretrainModel(model_base, self.device)
-                
                 config.problem_type = "regression"
                 config.num_labels = 1
                 config.hidden_dropout_prob = 0
+                
+                tokenizer = AutoTokenizer.from_pretrained(self.cfg.model.config_dir)
+                tokenizer.add_special_tokens({'pad_token': '[PAD]'})
+                
+                model = AutoModel.from_pretrained(self.cfg.model.config_dir).to(self.device)
+            
                 train_model = RegModel_v1(model,config).to(self.device)
                 
             if self.cfg.model[self.cfg.task.type].version == 'AMPSpace':
@@ -124,17 +137,17 @@ class ModelInitializer():
         
         if self.cfg.model[self.cfg.task.type].initial.initial_weight:
         
-            init_model = AutoModel.from_pretrained(self.cfg.model[self.cfg.task.type].initial.model_name)
+            init_model = EsmModel.from_pretrained(self.cfg.model[self.cfg.task.type].initial.model_name)
             
             init_model.half()
             init_model.to(device)
             # ipdb.set_trace()
+
+            
             pretrained_dict = init_model.state_dict()
             model_dict = model_base.state_dict()
-            
-            if self.cfg.model[self.cfg.task.type].version == 'breeze':
-              updated_dict = {name.replace('esm', 'Breeze'): param for name, param in pretrained_dict.items() if 'classifier' not in name}
-            
+            updated_dict = {name.replace('esm', 'Breeze'): param for name, param in pretrained_dict.items() if 'classifier' not in name}
+          
             model_dict.update(updated_dict)
             model_base.load_state_dict(model_dict)
 

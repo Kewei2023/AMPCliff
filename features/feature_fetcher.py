@@ -80,16 +80,8 @@ class FeatureFetcher():
         
         
       
-      if self.cfg.type == 'breeze':
-        
-        if self.task == 'pretrain':
-          tokenize_function_partial = partial(self.tokenize_function, add_special_tokens=False)
-        else:
-          tokenize_function_partial = partial(self.tokenize_function, add_special_tokens=True)
-        
-        peptides_descriptors = tokenize_function_partial(peptides)
-        
-      if 'gpt2' in self.cfg.type or self.cfg.type == 'bert-base':
+     
+      if self.cfg.type == 'LLM':
         
         peptides_spaced = [' '.join(peptide) for peptide in peptides]
         

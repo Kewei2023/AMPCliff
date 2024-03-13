@@ -30,12 +30,12 @@ the code is developing, will update a easier version in the future.
 
 ***remark for myself**: SEPERATE LLMs with other type of public models*
 
-***to WHOM running this code**: remember `features.type` and `model.regression.version` should be the same value*
+***to WHOM running this code**: for LLM, `features.type` always `LLM`*
 
 **1. modify `configs/downstream.yaml`**
 ```
 features:
-  type: gpt2-large 
+  type: LLM # reunit all of LLM features to this name
 
 ... # ignore some other settings
 
