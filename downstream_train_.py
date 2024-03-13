@@ -100,7 +100,10 @@ def main(cfg: DictConfig):
     
     if tokenizer is not None:
       vocab_dict = tokenizer.get_vocab()
-    
+    else:
+      vocab_dict = None
+      
+      
     feature_fetcher = FeatureFetcher(cfg,tokenizer)
     
     if cfg.mode.ddp:

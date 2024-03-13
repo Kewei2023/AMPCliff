@@ -51,10 +51,10 @@ model:
 Here we support the following models:
 | Models      | config_dir                           |model_name|
 |---------------|---------------------------------------|-|
-| bert-base     | "/data/public/models/bert-base-uncased/"|"/data/public/models/bert-base-uncased/"|
-| protgpt2     | "/data/public/models/ProtGPT2/"|"/data/public/models/ProtGPT2/"|
-| gpt2-large     | "/data/public/models/gpt2-large/"|"/data/public/models/gpt2-large/" |
-| esm2_t12     | "/data/public/models/facebook/esm2_t12_35M_UR50D/"|"/data/public/models/facebook/esm2_t12_35M_UR50D/" |
+| bert-base     | `/data/public/models/bert-base-uncased/`|`/data/public/models/bert-base-uncased/`|
+| protgpt2     | `/data/public/models/ProtGPT2/`|`/data/public/models/ProtGPT2/`|
+| gpt2-large     | `/data/public/models/gpt2-large/`|`/data/public/models/gpt2-large/` |
+| esm2_t12     | `/data/public/models/facebook/esm2_t12_35M_UR50D/`|`/data/public/models/facebook/esm2_t12_35M_UR50D/` |
 | remained to be fullfilled    |remained to be fullfilled|remained to be fullfilled|
 | CellTree-cnn     | -|-|
 | CellTree-rnn     | -|-|
