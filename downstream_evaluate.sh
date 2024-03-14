@@ -4,4 +4,4 @@ module load anaconda/2020.11 gcc/11.1.0 # cuda/11.1 gcc/11.1.0
 source activate AMPCliff
 
 export PYTHONUNBUFFERED=1
-python downstream_train.py
+python downstream_evaluate.py

@@ -53,7 +53,7 @@ done
 ```
 sbatch --gpus=3 distribute_train.sh # maximum 8
 ```
-##### Changing Models
+**Changing Models**
 
 the code is developing, will update a easier version in the future.
 
@@ -103,7 +103,13 @@ if 'gpt2' in self.cfg.model[self.cfg.task.type].version:
     config.hidden_dropout_prob = 0
     train_model = RegModel_v1(model,config).to(self.device)
 ``` 
+**load checkpoints**
 
+set `check_point.load`=`true` and give a model path to `check_point.path`
+
+```
+sbatch --gpus=1 downstream_evaluate.sh
+```
 #### Machine Learning Method
 ```
 sbatch --gpus=1 machine_learning_train.sh
