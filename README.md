@@ -21,8 +21,37 @@ private_key is needed, contact kewei
 ### Runing
 
 #### Deep Learning Method
+
+**single GPU**
+
+*NOTE:* set `ddp` in `downstream.yaml` to `false`.
 ```
-sbatch --gpus=1 downstream_train_.sh
+sbatch --gpus=1 downstream_train.sh
+```
+
+**multi GPUs**
+
+
+*NOTE:* 
+1. set `ddp` in `downstream.yaml` to `true`.
+
+2. `CUDA_VISIBLE_DEVICES` start from 0, and `WORLD_SIZE`=`--nproc_per_node`=len(`CUDA_VISIBLE_DEVICES`)=`--gpus`!
+
+```
+for i in {0..0}
+do
+    WORLD_SIZE=3 CUDA_VISIBLE_DEVICES=0,1,2 torchrun \
+                --nproc_per_node=3 \
+                --nnodes=1          \
+                --node_rank=0       \
+                --master_addr=localhost  \
+                --master_port=22226 \
+                downstream_train.py "train.random_seed=$i"
+done
+```
+
+```
+sbatch --gpus=3 distribute_train.sh # maximum 8
 ```
 ##### Changing Models
 
@@ -34,17 +63,10 @@ the code is developing, will update a easier version in the future.
 
 **1. modify `configs/downstream.yaml`**
 ```
-features:
-  type: LLM # reunit all of LLM features to this name
-
-... # ignore some other settings
-
 model:
   config_dir: "/data/public/models/gpt2-large/" 
   regression:
     version: gpt2-large 
-    initial:
-      model_name: "/data/public/models/gpt2-large/" 
 
 ``` 
 
@@ -64,7 +86,7 @@ Here we support the following models:
 
 For more LLM models, please see `/data/public/models/`, feel free to play with it!
 
-3. modify `factory/initializer.py`
+2. modify `factory/initializer.py`
 ```
 if 'gpt2' in self.cfg.model[self.cfg.task.type].version:
                 
@@ -73,28 +95,13 @@ if 'gpt2' in self.cfg.model[self.cfg.task.type].version:
     tokenizer = AutoTokenizer.from_pretrained(self.cfg.model.config_dir)
     tokenizer.pad_token = tokenizer.eos_token # in most cases, tokenizer need to be modified
     
-    model_base = AutoModel.from_pretrained(self.cfg.model.config_dir).to(self.device)
+    model = AutoModel.from_pretrained(self.cfg.model.config_dir).to(self.device)
     
-    model = self.PretrainModel(model_base, self.device)
     
     config.problem_type = "regression"
     config.num_labels = 1
     config.hidden_dropout_prob = 0
     train_model = RegModel_v1(model,config).to(self.device)
-``` 
-
-2. modify `features/feature_fetcher.py`
-```
-if 'gpt2' in self.cfg.type or self.cfg.type == 'bert-base': # usually just modify this condition
-        
-        peptides_spaced = [' '.join(peptide) for peptide in peptides]
-        
-        if self.task == 'pretrain':
-          tokenize_function_partial = partial(self.tokenize_function, add_special_tokens=False)
-        else:
-          tokenize_function_partial = partial(self.tokenize_function, add_special_tokens=True)
-        
-        peptides_descriptors = tokenize_function_partial(peptides_spaced)
 ``` 
 
 #### Machine Learning Method

@@ -64,10 +64,10 @@ data:
                     '/data/home/scv6872/Breeze/outputs/2023-12-01/22-28-34/fold 3/model_step_16_recall_4.0',
                     '/data/home/scv6872/Breeze/outputs/2023-12-01/22-28-34/fold 4/model_step_44_recall_3.0']
     fix:
-      all_train_file: "/data/home/scv6872/AMPCliff/data/blosum62 average/grampa_s_aureus_7_25-blosum62 average-all-train.csv" 
-      train_file: "/data/home/scv6872/AMPCliff/data/blosum62 average/grampa_s_aureus_7_25-blosum62 average-train.csv" 
-      valid_file: "/data/home/scv6872/AMPCliff/data/blosum62 average/grampa_s_aureus_7_25-blosum62 average-valid.csv" 
-      test_file: "/data/home/scv6872/AMPCliff/data/blosum62 average/grampa_s_aureus_7_25-blosum62 average-test.csv" 
+      all_train_file: "/data/home/scv6872/AMPCliff/data/blosum62 average/diff 4/grampa_s_aureus_7_25-blosum62 average-all-train.csv" 
+      train_file: "/data/home/scv6872/AMPCliff/data/blosum62 average/diff 4/grampa_s_aureus_7_25-blosum62 average-train.csv" 
+      valid_file: "/data/home/scv6872/AMPCliff/data/blosum62 average/diff 4/grampa_s_aureus_7_25-blosum62 average-valid.csv" 
+      test_file: "/data/home/scv6872/AMPCliff/data/blosum62 average/diff 4/grampa_s_aureus_7_25-blosum62 average-test.csv" 
     fixed_cluster:
       data_file: "/data/home/scv6872/Breeze/downstream/regression/grampa_s_aureus_7_25_ratio_0.5v0_mmseqs_cluster_sampled_fold.csv" # "/data/home/scv6872/Breeze/downstream/regression/grampa_s_aureus_7_25_ratio_0.5v0_acpair_0_cluster_sampled_fold.csv" # AMPBERT.csv" 
       fold: 5

@@ -85,10 +85,7 @@ class FeatureFetcher():
         
         peptides_spaced = [' '.join(peptide) for peptide in peptides]
         
-        if self.task == 'pretrain':
-          tokenize_function_partial = partial(self.tokenize_function, add_special_tokens=False)
-        else:
-          tokenize_function_partial = partial(self.tokenize_function, add_special_tokens=True)
+        tokenize_function_partial = partial(self.tokenize_function, add_special_tokens=True)
         
         peptides_descriptors = tokenize_function_partial(peptides_spaced)
         # ipdb.set_trace()

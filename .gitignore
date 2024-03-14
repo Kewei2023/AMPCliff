@@ -1,6 +1,6 @@
 # Ignore compiled Python files
 outputs
-
+models
 # Ignore log files
 mlruns
 # Ignore data files
