@@ -28,7 +28,7 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.optim import AdamW
 from AMPCliff.utils.metrics import Metrics
 from AMPCliff.visualization.plot import plot_low_dimension
-from cleanlab.regression.rank import get_label_quality_scores
+from AMPCliff.utils.match import seq2pair
 import mlflow
 import torch
 import ipdb
