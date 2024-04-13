@@ -1,7 +1,7 @@
 # Ignore compiled Python files
-outputs
+outputs/*
 # But do not ignore 
-!outputs/2024-04-03/13-16-23/esm2_t33
+!outputs/2024-04-03/13-16-23/esm2_t33/*
 models
 # Ignore log files
 mlruns
