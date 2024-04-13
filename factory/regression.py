@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from .residual import ResidualCNN,FeedForward
+# from .residual import ResidualCNN,FeedForward
 import ipdb
 
 class ClassificationHead(nn.Module):

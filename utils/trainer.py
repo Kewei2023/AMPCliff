@@ -167,7 +167,7 @@ class Trainer(object):
                     mlflow.pytorch.save_model(
                         (self.net.module if is_parallel(self.net) else self.net),
                         self.best_model_path,
-                        code_paths=[os.path.join(self.root_level_dir, "models")])
+                        code_paths=[os.path.join(self.root_level_dir, "factory")])
                     
                     for item in Path(self.best_model_dir).iterdir():
                           
