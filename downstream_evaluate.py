@@ -1,8 +1,3 @@
-# Copyright (c) 2022, salesforce.com, inc.
-# All rights reserved.
-# SPDX-License-Identifier: BSD-3-Clause
-# For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
-
 import os
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -20,7 +15,6 @@ from AMPCliff.utils.distribution import setup_multinodes, cleanup_multinodes
 from AMPCliff.loader.utils import make_loader #######
 from AMPCliff.loader.split import random_split_data,stratified_split_data,fixed_cluster_split_data
 from AMPCliff.utils.utils import get_device,fix_random_seed, load_weights, load_model
-from AMPCliff.utils.trainer import Trainer ######
 from AMPCliff.utils.evaluator import Evaluator #######
 from AMPCliff.features.feature_fetcher import FeatureFetcher
 from AMPCliff.factory.initializer import ModelInitializer
@@ -105,216 +99,213 @@ def main(cfg: DictConfig):
                     find_unused_parameters=True
                     )
 
-    optimizer = AdamW(model.parameters(),
-                lr=cfg.train.learning_rate,
-                betas=(0.9, 0.999),
-                eps=cfg.train.adam_epsilon,
-                weight_decay=cfg.train.weight_decay)
-
-    scheduler = lr_scheduler(cfg, optimizer)
-        # fix data files
-    if cfg.data[cfg.task.type].mode == 'fix':
-
-        diff = cfg.data.diff
-        if global_rank == 0:
-            Logger.info('loading train data...')
+   
         
-        train_file_path = cfg.data[cfg.task.type].fix.train_file.replace("{diff}",str(diff)).replace("{condition}",cfg.data[cfg.task.type].condition)
-        
-        train_dataloader = make_loader(
-                                        local_rank=local_rank,
-                                        dataset_file=train_file_path,
-                                        cfg = cfg,
-                                        batch_size=cfg.train.batch_size,
-                                        vocab_dict=vocab_dict,
-                                        pin_memory=False,
-                                        num_workers=cfg.train.num_workers,
-                                        random_seed=random_seed
-                                    )
-        if global_rank == 0:
-            Logger.info('loading valid data...')
-        
-        valid_file_path = cfg.data[cfg.task.type].fix.valid_file.replace("{diff}",str(diff)).replace("{condition}",cfg.data[cfg.task.type].condition)
-        
-        valid_dataloader = make_loader(
-                                        local_rank=local_rank,
-                                        dataset_file=valid_file_path,
-                                        cfg = cfg,
-                                        batch_size=cfg.train.batch_size,
-                                        vocab_dict=vocab_dict,
-                                        pin_memory=False,
-                                        num_workers=cfg.train.num_workers,
-                                        random_seed=random_seed
-                                    )
-        if global_rank == 0:
-            Logger.info('loading test data...')
-        
-        test_file_path = cfg.data[cfg.task.type].fix.test_file.replace("{diff}",str(diff)).replace("{condition}",cfg.data[cfg.task.type].condition)
-        
-        test_dataloader = make_loader(
-                                        local_rank=local_rank,
-                                        dataset_file=test_file_path,
-                                        cfg = cfg,
-                                        batch_size=cfg.train.batch_size,
-                                        vocab_dict=vocab_dict,
-                                        pin_memory=False,
-                                        num_workers=cfg.train.num_workers,
-                                        random_seed=random_seed
-                                    )
-
-        dataloaders = {'train': train_dataloader, 'valid': valid_dataloader, 'test': test_dataloader}
-        
-        if global_rank == 0:
-            Logger.info('loading checkpoint...')
+    for condition in cfg.data[cfg.task.type].condition:
+          
+      for diff in cfg.data.diff: 
+      
+        if cfg.data[cfg.task.type].mode == 'fix':
+    
+            # diff = cfg.data.diff
+            if global_rank == 0:
+                Logger.info('loading train data...')
             
-        if not cfg.model[cfg.task.type].check_point.load:
-          
-          Logger.info('please give a check point path and set "load" to true')
-          exit()
-          
-        else:
-          model = load_model(model, cfg.model[cfg.task.type].check_point.path, device)
-       
-        
-        evaluator = Evaluator(model,dataloaders, metric_func,feature_fetcher, device, cfg)
-         
-        
-        if global_rank == 0:
-          Logger.info("evaluating train set......")
-        
-        evaluate_tr_metrics = evaluator.run('train')
-        y_pred,y_true,ids = evaluator.y_pred,evaluator.y_true,evaluator.ids
-          
-        if cfg.mode.ddp:
-          # collect results of each gpu
-          gather_list_pred = [torch.zeros_like(y_pred) for _ in range(world_size)]
-          gather_list_true = [torch.zeros_like(y_true) for _ in range(world_size)]
-          gather_list_ids = [torch.zeros_like(ids) for _ in range(world_size)]
-          
-          torch.distributed.all_gather(gather_list_pred, y_pred)
-          torch.distributed.all_gather(gather_list_true, y_true)
-          torch.distributed.all_gather(gather_list_ids, ids)
-        
-          if global_rank == 0:
-            # concat all results
-            y_pred = torch.cat(gather_list_pred)
-            y_true = torch.cat(gather_list_true)
-            ids = torch.cat(gather_list_ids)
-        
-        
-        if global_rank == 0:
-          # plot figures
-          metric_func(y_pred,y_true ,split='train',plot=True)
-          # save results
-          df = pd.read_csv(train_file_path)
+            train_file_path = cfg.data[cfg.task.type].fix.train_file.replace("{diff}",str(diff)).replace("{condition}",condition)
               
-          pred_df = pd.DataFrame.from_dict({f'{cfg.model[cfg.task.type].version}-pred':y_pred.squeeze(1).cpu(),
-                                            'true':y_true.cpu(),
-                                            'Idx':ids})
-          res_df = pd.merge(df,pred_df,on='Idx',how='outer')
-          res_df.to_csv(f'./train_result.csv')
-        
-        
-        
-        if global_rank == 0:
-          Logger.info("evaluating valid set......")
-          
-        evaluate_val_metrics = evaluator.run('valid')
-        y_pred,y_true,ids = evaluator.y_pred,evaluator.y_true,evaluator.ids
-        
-        
-        if cfg.mode.ddp:
-          # collect results of each gpu
-          gather_list_pred = [torch.zeros_like(y_pred) for _ in range(world_size)]
-          gather_list_true = [torch.zeros_like(y_true) for _ in range(world_size)]
-          gather_list_ids = [torch.zeros_like(ids) for _ in range(world_size)]
-          
-          torch.distributed.all_gather(gather_list_pred, y_pred)
-          torch.distributed.all_gather(gather_list_true, y_true)
-          torch.distributed.all_gather(gather_list_ids, ids)
-        
-          if global_rank == 0:
-            # concat all results
-            y_pred = torch.cat(gather_list_pred)
-            y_true = torch.cat(gather_list_true)
-            ids = torch.cat(gather_list_ids)
             
-        if global_rank == 0: 
-        
-          metric_func(y_pred,y_true ,split='valid',plot=True)
-          # save results
-          df = pd.read_csv(valid_file_path)
-              
-          pred_df = pd.DataFrame.from_dict({f'{cfg.model[cfg.task.type].version}-pred':y_pred.squeeze(1).cpu(),
-                                            'true':y_true.cpu(),
-                                            'Idx':ids})
-              
-          pred_df = pd.DataFrame.from_dict(dict(pred=y_pred.squeeze(1).cpu(),true=y_true.cpu(),Idx=ids))
-          res_df = pd.merge(df,pred_df,on='Idx',how='outer')
-          res_df.to_csv(f'./valid_result.csv')
-        
-        
-        
-        
-        if global_rank == 0:
-          Logger.info("evaluating test set......")
-          Logger.info("and save pair info......")
-          
-        evaluate_test_metrics = evaluator.run('test')
-        y_pred,y_true,ids = evaluator.y_pred,evaluator.y_true,evaluator.ids
-        
-        if cfg.mode.ddp:
-          # collect results of each gpu
-          gather_list_pred = [torch.zeros_like(y_pred) for _ in range(world_size)]
-          gather_list_true = [torch.zeros_like(y_true) for _ in range(world_size)]
-          gather_list_ids = [torch.zeros_like(ids) for _ in range(world_size)]
-          
-          torch.distributed.all_gather(gather_list_pred, y_pred)
-          torch.distributed.all_gather(gather_list_true, y_true)
-          torch.distributed.all_gather(gather_list_ids, ids)
-        
-          if global_rank == 0:
-            # concat all results
-            y_pred = torch.cat(gather_list_pred)
-            y_true = torch.cat(gather_list_true)
-            ids = torch.cat(gather_list_ids)
+            train_dataloader = make_loader(
+                                            local_rank=local_rank,
+                                            dataset_file=train_file_path,
+                                            cfg = cfg,
+                                            batch_size=cfg.train.batch_size,
+                                            vocab_dict=vocab_dict,
+                                            pin_memory=False,
+                                            num_workers=cfg.train.num_workers,
+                                            random_seed=random_seed
+                                        )
+            if global_rank == 0:
+                Logger.info('loading valid data...')
             
-        if global_rank == 0: 
-        
-          # plot figures
-          metric_func(y_pred,y_true ,split='test',plot=True)
-          # save results
-          df = pd.read_csv(test_file_path)
+            valid_file_path = cfg.data[cfg.task.type].fix.valid_file.replace("{diff}",str(diff)).replace("{condition}",condition)
               
-          pred_df = pd.DataFrame.from_dict({f'{cfg.model[cfg.task.type].version}-pred':y_pred.squeeze(1).cpu(),
-                                            'true':y_true.cpu(),
-                                            'Idx':ids})
-          res_df = pd.merge(df,pred_df,on='Idx',how='outer')
-          res_df.to_csv(f'./test_result.csv')
-          pair_df = seq2pair(res_df,cfg.data.diff)
-          pair_df.to_csv(f'./test_pair_result.csv')
-        
-        
-        
-        if global_rank == 0:
-            if not cfg.mode.nni and cfg.logger.log:            
-                for metric_name, metric_v in evaluate_tr_metrics.items():
-                    if isinstance(metric_v, (float, np.float64, int, np.int)):
-                        mlflow.log_metric("train_final/{}".format(metric_name), metric_v, step=1)
-                    elif isinstance(metric_v, str):
-                        mlflow.log_text(metric_v, "train_final/report.txt")
+            
+            valid_dataloader = make_loader(
+                                            local_rank=local_rank,
+                                            dataset_file=valid_file_path,
+                                            cfg = cfg,
+                                            batch_size=cfg.train.batch_size,
+                                            vocab_dict=vocab_dict,
+                                            pin_memory=False,
+                                            num_workers=cfg.train.num_workers,
+                                            random_seed=random_seed
+                                        )
+            if global_rank == 0:
+                Logger.info('loading test data...')
+            
+            test_file_path = cfg.data[cfg.task.type].fix.test_file.replace("{diff}",str(diff)).replace("{condition}",condition)
+              
+            
+            test_dataloader = make_loader(
+                                            local_rank=local_rank,
+                                            dataset_file=test_file_path,
+                                            cfg = cfg,
+                                            batch_size=cfg.train.batch_size,
+                                            vocab_dict=vocab_dict,
+                                            pin_memory=False,
+                                            num_workers=cfg.train.num_workers,
+                                            random_seed=random_seed
+                                        )
+    
+            dataloaders = {'train': train_dataloader, 'valid': valid_dataloader, 'test': test_dataloader}
+            
+            if global_rank == 0:
+                Logger.info('loading checkpoint...')
                 
-                for metric_name, metric_v in evaluate_val_metrics.items():
-                    if isinstance(metric_v, (float, np.float64, int, np.int)):
-                        mlflow.log_metric("valid_final/{}".format(metric_name), metric_v, step=1)
-                    elif isinstance(metric_v, str):
-                        mlflow.log_text(metric_v, "valid_final/report.txt")
+            if not cfg.model[cfg.task.type].check_point.load:
+              
+              Logger.info('please give a check point path and set "load" to true')
+              exit()
+              
+            else:
+              model = load_model(model, cfg.model[cfg.task.type].check_point.path, device)
+           
+            
+            evaluator = Evaluator(model,dataloaders, metric_func,feature_fetcher, device, cfg)
+             
+            
+            if global_rank == 0:
+              Logger.info("evaluating train set......")
+            
+            evaluate_tr_metrics = evaluator.run('train')
+            y_pred,y_true,ids = evaluator.y_pred,evaluator.y_true,evaluator.ids
+              
+            if cfg.mode.ddp:
+              # collect results of each gpu
+              gather_list_pred = [torch.zeros_like(y_pred) for _ in range(world_size)]
+              gather_list_true = [torch.zeros_like(y_true) for _ in range(world_size)]
+              gather_list_ids = [torch.zeros_like(ids) for _ in range(world_size)]
+              
+              torch.distributed.all_gather(gather_list_pred, y_pred)
+              torch.distributed.all_gather(gather_list_true, y_true)
+              torch.distributed.all_gather(gather_list_ids, ids)
+            
+              if global_rank == 0:
+                # concat all results
+                y_pred = torch.cat(gather_list_pred)
+                y_true = torch.cat(gather_list_true)
+                ids = torch.cat(gather_list_ids)
+            
+            
+            if global_rank == 0:
+              # plot figures
+              metric_func(y_pred,y_true ,split='train',plot=True)
+              # save results
+              df = pd.read_csv(train_file_path)
+                  
+              pred_df = pd.DataFrame.from_dict({f'{cfg.model[cfg.task.type].version}-pred':y_pred.squeeze(1).cpu(),
+                                                'true':y_true.cpu(),
+                                                'Idx':ids})
+              res_df = pd.merge(df,pred_df,on='Idx',how='outer').sort_values(by='Idx')
+              res_df.to_csv(f'./{cfg.model[cfg.task.type].version}-{condition}-diff{diff}-train_result.csv')
+            
+            
+            
+            if global_rank == 0:
+              Logger.info("evaluating valid set......")
+              
+            evaluate_val_metrics = evaluator.run('valid')
+            y_pred,y_true,ids = evaluator.y_pred,evaluator.y_true,evaluator.ids
+            
+            
+            if cfg.mode.ddp:
+              # collect results of each gpu
+              gather_list_pred = [torch.zeros_like(y_pred) for _ in range(world_size)]
+              gather_list_true = [torch.zeros_like(y_true) for _ in range(world_size)]
+              gather_list_ids = [torch.zeros_like(ids) for _ in range(world_size)]
+              
+              torch.distributed.all_gather(gather_list_pred, y_pred)
+              torch.distributed.all_gather(gather_list_true, y_true)
+              torch.distributed.all_gather(gather_list_ids, ids)
+            
+              if global_rank == 0:
+                # concat all results
+                y_pred = torch.cat(gather_list_pred)
+                y_true = torch.cat(gather_list_true)
+                ids = torch.cat(gather_list_ids)
                 
-                for metric_name, metric_v in evaluate_test_metrics.items():
-                    if isinstance(metric_v, (float, np.float64, int, np.int)):
-                        mlflow.log_metric("test_final/{}".format(metric_name), metric_v, step=1)
-                    elif isinstance(metric_v, str):
-                        mlflow.log_text(metric_v, "test_final/report.txt")
+            if global_rank == 0: 
+            
+              metric_func(y_pred,y_true ,split='valid',plot=True)
+              # save results
+              df = pd.read_csv(valid_file_path)
+                  
+              pred_df = pd.DataFrame.from_dict({f'{cfg.model[cfg.task.type].version}-pred':y_pred.squeeze(1).cpu(),
+                                                'true':y_true.cpu(),
+                                                'Idx':ids})
+              res_df = pd.merge(df,pred_df,on='Idx',how='outer').sort_values(by='Idx')
+              res_df.to_csv(f'./{cfg.model[cfg.task.type].version}-{condition}-diff{diff}-valid_result.csv')
+            
+            
+            
+            
+            if global_rank == 0:
+              Logger.info("evaluating test set......")
+              Logger.info("and save pair info......")
+              
+            evaluate_test_metrics = evaluator.run('test')
+            y_pred,y_true,ids = evaluator.y_pred,evaluator.y_true,evaluator.ids
+            
+            if cfg.mode.ddp:
+              # collect results of each gpu
+              gather_list_pred = [torch.zeros_like(y_pred) for _ in range(world_size)]
+              gather_list_true = [torch.zeros_like(y_true) for _ in range(world_size)]
+              gather_list_ids = [torch.zeros_like(ids) for _ in range(world_size)]
+              
+              torch.distributed.all_gather(gather_list_pred, y_pred)
+              torch.distributed.all_gather(gather_list_true, y_true)
+              torch.distributed.all_gather(gather_list_ids, ids)
+            
+              if global_rank == 0:
+                # concat all results
+                y_pred = torch.cat(gather_list_pred)
+                y_true = torch.cat(gather_list_true)
+                ids = torch.cat(gather_list_ids)
+                
+            if global_rank == 0: 
+            
+              # plot figures
+              metric_func(y_pred,y_true ,split='test',plot=True)
+              # save results
+              df = pd.read_csv(test_file_path)
+                  
+              pred_df = pd.DataFrame.from_dict({f'{cfg.model[cfg.task.type].version}-pred':y_pred.squeeze(1).cpu(),
+                                                'true':y_true.cpu(),
+                                                'Idx':ids})
+              res_df = pd.merge(df,pred_df,on='Idx',how='outer').sort_values(by='Idx')
+              res_df.to_csv(f'./{cfg.model[cfg.task.type].version}-{condition}-diff{diff}-test_result.csv')
+            
+            
+            
+            if global_rank == 0:
+                if not cfg.mode.nni and cfg.logger.log:            
+                    for metric_name, metric_v in evaluate_tr_metrics.items():
+                        if isinstance(metric_v, (float, np.float64, int, np.int)):
+                            mlflow.log_metric("train_final/{}".format(metric_name), metric_v, step=1)
+                        elif isinstance(metric_v, str):
+                            mlflow.log_text(metric_v, "train_final/report.txt")
+                    
+                    for metric_name, metric_v in evaluate_val_metrics.items():
+                        if isinstance(metric_v, (float, np.float64, int, np.int)):
+                            mlflow.log_metric("valid_final/{}".format(metric_name), metric_v, step=1)
+                        elif isinstance(metric_v, str):
+                            mlflow.log_text(metric_v, "valid_final/report.txt")
+                    
+                    for metric_name, metric_v in evaluate_test_metrics.items():
+                        if isinstance(metric_v, (float, np.float64, int, np.int)):
+                            mlflow.log_metric("test_final/{}".format(metric_name), metric_v, step=1)
+                        elif isinstance(metric_v, str):
+                            mlflow.log_text(metric_v, "test_final/report.txt")
 
 
 
