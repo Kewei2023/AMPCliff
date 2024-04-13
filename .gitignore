@@ -11,4 +11,6 @@ ChatGPT
 *llama*
 slurm*
 
-/data
+factory/SeqUNet.py 
+factory/generation.py 
+facorty/residual.py 

@@ -21,28 +21,14 @@ data:
   regression:
     mode: 'fix' # 'fixed_cluster' # 'random' # random' # 'random', 'cluster','fix'
     noise_level: 0 # 10 level in total
+    condition: 'blosum62 average'#  "blosum62 average" # tanimoto average
+    acindex: false
     fix:
-      diff5:
-        all_train_file: "/data/home/scv6872/AMPCliff/data/tanimoto average/grampa_s_aureus_7_25-tanimoto average-all-train.csv" 
-        train_file: "/data/home/scv6872/AMPCliff/data/tanimoto average/grampa_s_aureus_7_25-tanimoto average-train.csv" 
-        valid_file: "/data/home/scv6872/AMPCliff/data/tanimoto average/grampa_s_aureus_7_25-tanimoto average-valid.csv" 
-        test_file: "/data/home/scv6872/AMPCliff/data/tanimoto average/grampa_s_aureus_7_25-tanimoto average-test.csv"     
-      diff4:
-        all_train_file: "/data/home/scv6872/AMPCliff/data/tanimoto average/diff 4/grampa_s_aureus_7_25-tanimoto average-all-train.csv"
-        train_file: "/data/home/scv6872/AMPCliff/data/tanimoto average/diff 4/grampa_s_aureus_7_25-tanimoto average-train.csv" 
-        valid_file: "/data/home/scv6872/AMPCliff/data/tanimoto average/diff 4/grampa_s_aureus_7_25-tanimoto average-valid.csv" 
-        test_file: "/data/home/scv6872/AMPCliff/data/tanimoto average/diff 4/grampa_s_aureus_7_25-tanimoto average-test.csv"
-      diff3:
-        all_train_file: "/data/home/scv6872/AMPCliff/data/tanimoto average/diff 3/grampa_s_aureus_7_25-tanimoto average-all-train.csv"
-        train_file: "/data/home/scv6872/AMPCliff/data/tanimoto average/diff 3/grampa_s_aureus_7_25-tanimoto average-train.csv" 
-        valid_file: "/data/home/scv6872/AMPCliff/data/tanimoto average/diff 3/grampa_s_aureus_7_25-tanimoto average-valid.csv" 
-        test_file: "/data/home/scv6872/AMPCliff/data/tanimoto average/diff 3/grampa_s_aureus_7_25-tanimoto average-test.csv"
-      diff2:
-        all_train_file: "/data/home/scv6872/AMPCliff/data/tanimoto average/diff 2/grampa_s_aureus_7_25-tanimoto average-all-train.csv"
-        train_file: "/data/home/scv6872/AMPCliff/data/tanimoto average/diff 2/grampa_s_aureus_7_25-tanimoto average-train.csv" 
-        valid_file: "/data/home/scv6872/AMPCliff/data/tanimoto average/diff 2/grampa_s_aureus_7_25-tanimoto average-valid.csv" 
-        test_file: "/data/home/scv6872/AMPCliff/data/tanimoto average/diff 2/grampa_s_aureus_7_25-tanimoto average-test.csv"
-    
+      all_train_file: "/data/home/scv6872/AMPCliff/data/blast/{condition}/diff_{diff}/grampa_s_aureus_7_25-all-train.csv"# "/data/home/scv6872/AMPCliff/data/blast/blosum62 average/diff_5/grampa_s_aureus_7_25-all-train.csv"# "/data/home/scv6872/AMPCliff/data/blosum62 average/grampa_s_aureus_7_25-blosum62 average-all-train.csv" 
+      train_file: "/data/home/scv6872/AMPCliff/data/blast/{condition}/diff_{diff}/grampa_s_aureus_7_25-train.csv"#"/data/home/scv6872/AMPCliff/data/blast/blosum62 average/diff_5/grampa_s_aureus_7_25-train.csv"  # "/data/home/scv6872/AMPCliff/data/blosum62 average/grampa_s_aureus_7_25-blosum62 average-train.csv" 
+      valid_file: "/data/home/scv6872/AMPCliff/data/blast/{condition}/diff_{diff}/grampa_s_aureus_7_25-valid.csv"# "/data/home/scv6872/AMPCliff/data/blast/blosum62 average/diff_5/grampa_s_aureus_7_25-valid.csv"# "/data/home/scv6872/AMPCliff/data/blosum62 average/grampa_s_aureus_7_25-blosum62 average-valid.csv" 
+      test_file: "/data/home/scv6872/AMPCliff/data/blast/{condition}/diff_{diff}/grampa_s_aureus_7_25-test.csv"# "/data/home/scv6872/AMPCliff/data/blast/blosum62 average/diff_5/grampa_s_aureus_7_25-test.csv"# "/data/home/scv6872/AMPCliff/data/blosum62 average/grampa_s_aureus_7_25-blosum62 average-test.csv"     
+      
 logger:
   log: True
   log_dir: "outputs"

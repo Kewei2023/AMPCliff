@@ -40,7 +40,7 @@ class FeatureFetcher():
       desc_alpha.calculate_global()  # 计算alpha-螺旋倾向性
       helix = list(desc_alpha.descriptor.reshape(-1))
       
-      
+      # ipdb.set_trace()
       return AAC + DIP + MBA + CCTD + QSO + PAAC + APAAC + Basic + helix
   '''
   for fingerprint feature derive from peptimizer
@@ -61,7 +61,7 @@ class FeatureFetcher():
         peptides_descriptors = {'x':self.build_index(peptides,self.get_dict()),
                                  'length': [len(_) for _ in peptides]}
 
-      if (self.cfg.type == 'CellTree-rnn') or (self.cfg.type == 'CellTree-cnn') or (self.cfg.type == 'SeqUNet'):
+      if (self.cfg.type == 'CellFree-rnn') or (self.cfg.type == 'CellFree-cnn') or (self.cfg.type == 'SeqUNet'):
         
         peptides_descriptors = {'x':self.prepare_Reg(peptides)}
         
@@ -85,12 +85,38 @@ class FeatureFetcher():
         
         peptides_spaced = [' '.join(peptide) for peptide in peptides]
         
-        tokenize_function_partial = partial(self.tokenize_function, add_special_tokens=True)
+        try: # other LLMs
+          tokenize_function_partial = partial(self.tokenize_function, add_special_tokens=True)
+          
+          peptides_descriptors = tokenize_function_partial(peptides_spaced)
+          # ipdb.set_trace()
+          
+        except: # for progen2
+          padded_sequences = []
+          input_ids,attention_mask=[],[]
+          
+          for peptide in peptides:
+            if len(peptide) <= (self.max_length- 4):
+  
+              padded_seq = '<|bos|>' + '1' + peptide + '2' + '<|eos|>'+ '<|pad|>'*(self.max_length - 4 - len(peptide))
+  
+            else:
+              padded_seq = '<|bos|>' + '1' + peptide[:(self.max_length-4)] + '2' + '<|eos|>'
+  
+            padded_sequences.append(padded_seq)
+          
+          outputs = self.tokenizer.encode_batch(padded_sequences)
         
-        peptides_descriptors = tokenize_function_partial(peptides_spaced)
-        # ipdb.set_trace()
+          for output in outputs:
+            input_ids.append(torch.tensor(output.ids).unsqueeze(0))
+            attention_mask.append(torch.tensor(output.attention_mask).unsqueeze(0))
+          
+          
+          input_ids = torch.cat(input_ids, dim=0)
+          attention_mask = torch.cat(attention_mask, dim=0)
         
-        
+          peptides_descriptors = dict(input_ids=input_ids, attention_mask=attention_mask)
+          
       return peptides_descriptors
   
 
@@ -124,7 +150,7 @@ class FeatureFetcher():
           for j in range(len(data[i])):
               tmp.append(Letter_dict[data[i][j]])
           if len(data[i]) < self.max_length:                          
-              npi = np.zeros((self.max_length - len(data[i])), dtype=np.int)
+              npi = np.zeros((self.max_length - len(data[i])), dtype=int)
               tmp.extend(npi)  
           data_process.append(tmp)
       

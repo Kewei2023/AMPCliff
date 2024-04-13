@@ -14,7 +14,7 @@ class ClassificationHead(nn.Module):
         self.out_proj = nn.Linear(config.hidden_size, config.num_labels)
 
     def forward(self, features, **kwargs):
-        x = features[:, 0, :]  # take <s> token (equiv. to [CLS])
+        x = features.mean(1)  # take <s> token (equiv. to mean)
         x = self.dropout(x)
         x = self.dense(x)
         x = torch.tanh(x)
@@ -42,7 +42,6 @@ class RegModel_v1(nn.Module):
     def forward(self, batch1):
         # Feature extraction from sequences
         features1 = self.pretrain_model(**batch1).last_hidden_state # Assuming last layer output
-        # ipdb.set_trace()
         regression_output1 = self.residualcnn_reg(features1)
         
         return regression_output1,features1

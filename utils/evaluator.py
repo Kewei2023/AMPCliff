@@ -6,7 +6,8 @@ from collections import defaultdict
 import ipdb
 from torch.nn import MSELoss
 from itertools import chain
-
+from torch.cuda.amp import autocast as autocast
+from torch.cuda.amp import GradScaler
 
 
 
@@ -22,7 +23,7 @@ class Evaluator():
         self.metrics_func = metric_func
         if cfg.train.loss =='mse':
             self.reg_loss_func = MSELoss()
-        
+        self.scaler = GradScaler()
         
     def run(self,split):
         self.net.eval()
@@ -49,10 +50,16 @@ class Evaluator():
                 noised_labels = torch.tensor(label[f'noised_{self.cfg.task.type}']).to(self.device)
                 true_labels = torch.tensor(label[self.cfg.task.type]).to(self.device)
                 
-                output = self.net(batch)
-                
-                loss = self.reg_loss_func(output[0].squeeze(),noised_labels.squeeze())
+                if self.cfg.mode.amp:
+                    with autocast():
+                        output = self.net(batch)
+                        loss = self.reg_loss_func(output[0].squeeze(),true_labels.squeeze())
 
+                else:
+                    output = self.net(batch)
+                    loss = self.reg_loss_func(output[0].squeeze(),true_labels.squeeze())
+
+                
 
                 y_pred.append(output[0].cpu())
                 y_true.append(true_labels.cpu())

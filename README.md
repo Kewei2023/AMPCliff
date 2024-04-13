@@ -20,7 +20,21 @@ private_key is needed, contact kewei
 ```
 ### Runing
 
+#### Machine Learning Method
+```
+sbatch --gpus=1 machine_learning_train.sh
+```
+*for deep learning method, change `features.type` as follows*
+Here we support the following models:
+| Models      | type|
+|---------------|---------------------------------------|
+| CellFree-cnn     | CellFree-cnn|
+| CellFree-rnn     | CellFree-rnn|
+| AMPSpace     | AMPSpace |
+| peptimizer     | peptimizer |
 #### Deep Learning Method
+
+#### LMs: GLMs and MLMs
 
 **single GPU**
 
@@ -29,37 +43,13 @@ private_key is needed, contact kewei
 sbatch --gpus=1 downstream_train.sh
 ```
 
-**multi GPUs**
-
-
-*NOTE:* 
-1. set `ddp` in `downstream.yaml` to `true`.
-
-2. `CUDA_VISIBLE_DEVICES` start from 0, and `WORLD_SIZE`=`--nproc_per_node`=len(`CUDA_VISIBLE_DEVICES`)=`--gpus`!
-
-```
-for i in {0..0}
-do
-    WORLD_SIZE=3 CUDA_VISIBLE_DEVICES=0,1,2 torchrun \
-                --nproc_per_node=3 \
-                --nnodes=1          \
-                --node_rank=0       \
-                --master_addr=localhost  \
-                --master_port=22226 \
-                downstream_train.py "train.random_seed=$i"
-done
-```
-
-```
-sbatch --gpus=3 distribute_train.sh # maximum 8
-```
 **Changing Models**
 
 the code is developing, will update a easier version in the future.
 
 ***remark for myself**: SEPERATE LLMs with other type of public models*
 
-***to WHOM running this code**: for LLM, `features.type` always `LLM`*
+*for LLM, `features.type` always `LLM`*
 
 **1. modify `configs/downstream.yaml`**
 ```
@@ -71,20 +61,20 @@ model:
 ``` 
 
 Here we support the following models:
-| Models      | config_dir                           |model_name|
-|---------------|---------------------------------------|-|
-| bert-base     | `/data/public/models/bert-base-uncased/`|`/data/public/models/bert-base-uncased/`|
-| protgpt2     | `/data/public/models/ProtGPT2/`|`/data/public/models/ProtGPT2/`|
-| gpt2-large     | `/data/public/models/gpt2-large/`|`/data/public/models/gpt2-large/` |
-| esm2_t12     | `/data/public/models/facebook/esm2_t12_35M_UR50D/`|`/data/public/models/facebook/esm2_t12_35M_UR50D/` |
-| remained to be fullfilled    |remained to be fullfilled|remained to be fullfilled|
-| CellTree-cnn     | -|-|
-| CellTree-rnn     | -|-|
-| AMPSpace     | -|-|
-| SeqUNet     | -|-|
-| peptimizer     | -|-|
+| Models      | config_dir                           |
+|---------------|---------------------------------------|
+| bert-base     | `/data/public/models/bert-base-uncased/`|
+| esm2_t6   | `/data/public/models/facebook/esm2_t6_8M_UR50D/`|
+| esm2_t12     | `/data/public/models/facebook/esm2_t12_35M_UR50D/`|
+| esm2_t33     | `/data/public/models/facebook/esm2_t33_650M_UR50D/`|
+| protgpt2     | `/data/public/models/ProtGPT2/`|
+| gpt2-base   | `/data/public/models/gpt2/`|
+| progen2-small     | `/data/public/models/progen2/progen2_small/`|
+| progen2-base     | `/data/public/models/progen2/progen2_base/`|
+| progen2-medium     | `/data/public/models/progen2/progen2_medium/`|
 
-For more LLM models, please see `/data/public/models/`, feel free to play with it!
+
+
 
 2. modify `factory/initializer.py`
 ```
@@ -110,10 +100,7 @@ set `check_point.load`=`true` and give a model path to `check_point.path`
 ```
 sbatch --gpus=1 downstream_evaluate.sh
 ```
-#### Machine Learning Method
-```
-sbatch --gpus=1 machine_learning_train.sh
-```
+
 
 
 

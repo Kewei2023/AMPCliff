@@ -1,5 +1,0 @@
-model:
-  regression:
-    n_filters: 256
-    kernel_size: 2
-    dropout: 0.1

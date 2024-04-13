@@ -1,6 +1,6 @@
 export MLFLOW_TRACKING_URI=http://192.168.1.23:5002
 export MLFLOW_EXPERIMENT_NAME=breeze
-mlflow server --backend-store-uri /data/home/scv6872/Breeze/mlruns --default-artifact-root /data/home/scv6872/Breeze/mlruns --host 0.0.0.0 -p 5002
+mlflow server --backend-store-uri /data/home/scv6872/AMPCliff/mlruns --default-artifact-root /data/home/scv6872/AMPCliff/mlruns --host 0.0.0.0 -p 5002
 
 
 conda env config vars set MLFLOW_TRACKING_URI=http://192.168.1.23:5002

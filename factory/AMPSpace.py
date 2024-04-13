@@ -27,7 +27,7 @@ class LstmNet(nn.Module):
     def forward(self, sequence):
         
         x = sequence['x']
-        x_org = x.detach().clone()
+        x_org = x.detach().clone().float()
         length = sequence['length'].cpu().int()
         
         x = self.embedding(x.long())

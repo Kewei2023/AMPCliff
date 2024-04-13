@@ -115,12 +115,15 @@ def main(cfg: DictConfig):
         # fix data files
     if cfg.data[cfg.task.type].mode == 'fix':
 
+        diff = cfg.data.diff
         if global_rank == 0:
             Logger.info('loading train data...')
         
+        train_file_path = cfg.data[cfg.task.type].fix.train_file.replace("{diff}",str(diff)).replace("{condition}",cfg.data[cfg.task.type].condition)
+        
         train_dataloader = make_loader(
                                         local_rank=local_rank,
-                                        dataset_file=cfg.data[cfg.task.type].fix.train_file,
+                                        dataset_file=train_file_path,
                                         cfg = cfg,
                                         batch_size=cfg.train.batch_size,
                                         vocab_dict=vocab_dict,
@@ -130,9 +133,12 @@ def main(cfg: DictConfig):
                                     )
         if global_rank == 0:
             Logger.info('loading valid data...')
+        
+        valid_file_path = cfg.data[cfg.task.type].fix.valid_file.replace("{diff}",str(diff)).replace("{condition}",cfg.data[cfg.task.type].condition)
+        
         valid_dataloader = make_loader(
                                         local_rank=local_rank,
-                                        dataset_file=cfg.data[cfg.task.type].fix.valid_file,
+                                        dataset_file=valid_file_path,
                                         cfg = cfg,
                                         batch_size=cfg.train.batch_size,
                                         vocab_dict=vocab_dict,
@@ -142,9 +148,12 @@ def main(cfg: DictConfig):
                                     )
         if global_rank == 0:
             Logger.info('loading test data...')
+        
+        test_file_path = cfg.data[cfg.task.type].fix.test_file.replace("{diff}",str(diff)).replace("{condition}",cfg.data[cfg.task.type].condition)
+        
         test_dataloader = make_loader(
                                         local_rank=local_rank,
-                                        dataset_file=cfg.data[cfg.task.type].fix.test_file,
+                                        dataset_file=test_file_path,
                                         cfg = cfg,
                                         batch_size=cfg.train.batch_size,
                                         vocab_dict=vocab_dict,
@@ -197,9 +206,11 @@ def main(cfg: DictConfig):
           # plot figures
           metric_func(y_pred,y_true ,split='train',plot=True)
           # save results
-          df = pd.read_csv(cfg.data[cfg.task.type].fix[f"diff{cfg.data.diff}"].train_file)
+          df = pd.read_csv(train_file_path)
               
-          pred_df = pd.DataFrame.from_dict(dict(pred=y_pred.squeeze(1).cpu(),true=y_true.cpu(),Idx=ids))
+          pred_df = pd.DataFrame.from_dict({f'{cfg.model[cfg.task.type].version}-pred':y_pred.squeeze(1).cpu(),
+                                            'true':y_true.cpu(),
+                                            'Idx':ids})
           res_df = pd.merge(df,pred_df,on='Idx',how='outer')
           res_df.to_csv(f'./train_result.csv')
         
@@ -232,7 +243,11 @@ def main(cfg: DictConfig):
         
           metric_func(y_pred,y_true ,split='valid',plot=True)
           # save results
-          df = pd.read_csv(cfg.data[cfg.task.type].fix[f"diff{cfg.data.diff}"].valid_file)
+          df = pd.read_csv(valid_file_path)
+              
+          pred_df = pd.DataFrame.from_dict({f'{cfg.model[cfg.task.type].version}-pred':y_pred.squeeze(1).cpu(),
+                                            'true':y_true.cpu(),
+                                            'Idx':ids})
               
           pred_df = pd.DataFrame.from_dict(dict(pred=y_pred.squeeze(1).cpu(),true=y_true.cpu(),Idx=ids))
           res_df = pd.merge(df,pred_df,on='Idx',how='outer')
@@ -269,9 +284,11 @@ def main(cfg: DictConfig):
           # plot figures
           metric_func(y_pred,y_true ,split='test',plot=True)
           # save results
-          df = pd.read_csv(cfg.data[cfg.task.type].fix[f"diff{cfg.data.diff}"].test_file)
+          df = pd.read_csv(test_file_path)
               
-          pred_df = pd.DataFrame.from_dict(dict(pred=y_pred.squeeze(1).cpu(),true=y_true.cpu(),Idx=ids))
+          pred_df = pd.DataFrame.from_dict({f'{cfg.model[cfg.task.type].version}-pred':y_pred.squeeze(1).cpu(),
+                                            'true':y_true.cpu(),
+                                            'Idx':ids})
           res_df = pd.merge(df,pred_df,on='Idx',how='outer')
           res_df.to_csv(f'./test_result.csv')
           pair_df = seq2pair(res_df,cfg.data.diff)

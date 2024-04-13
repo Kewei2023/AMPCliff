@@ -13,7 +13,6 @@ from collections import defaultdict
 import ipdb
 from .utils import is_parallel
 from .std_logger import Logger
-
 import time
 
 class Trainer(object):
@@ -30,6 +29,8 @@ class Trainer(object):
         self.scheduler = scheduler
         self.num_epoch = cfg.train.num_epoch
         self.global_rank = global_rank
+        
+        self.scaler = GradScaler()
         
         self.default_metric = cfg.task[cfg.task.type].default_metric
 
@@ -82,9 +83,14 @@ class Trainer(object):
                 noised_labels = torch.tensor(label[f'noised_{self.cfg.task.type}']).to(self.device)
                 true_labels = torch.tensor(label[self.cfg.task.type]).to(self.device)
                 
-                output = self.net(batch)
-                
-                loss = self.reg_loss_func(output[0].squeeze(),noised_labels.squeeze())
+                if self.cfg.mode.amp:
+                    with autocast():
+                        output = self.net(batch)
+                        loss = self.reg_loss_func(output[0].squeeze(),true_labels.squeeze())
+
+                else:
+                    output = self.net(batch)
+                    loss = self.reg_loss_func(output[0].squeeze(),true_labels.squeeze())
 
                 y_pred.append(output[0])
                 y_true.append(true_labels)
@@ -157,11 +163,18 @@ class Trainer(object):
                     
                     if self.best_model_path.exists():
                         shutil.rmtree(self.best_model_path)
-                    
+                            
                     mlflow.pytorch.save_model(
                         (self.net.module if is_parallel(self.net) else self.net),
                         self.best_model_path,
                         code_paths=[os.path.join(self.root_level_dir, "models")])
+                    
+                    for item in Path(self.best_model_dir).iterdir():
+                          
+                        if item != self.best_model_path:
+                            if item.is_dir():
+                                shutil.rmtree(item)  # delete dictionary
+                                print(f"delete directory: {item}")
                 # ipdb.set_trace()
         return metrics        
 
@@ -180,18 +193,29 @@ class Trainer(object):
             
             labels = torch.tensor(label[self.cfg.task.type]).to(self.device)
                 
-            output = self.net(batch)
-            
-            loss = self.reg_loss_func(output[0].squeeze(),labels.squeeze())
+            if self.cfg.mode.amp:
+                with autocast():
+                    output = self.net(batch)
+                    loss = self.reg_loss_func(output[0].squeeze(),labels.squeeze())
+
+            else:
+                output = self.net(batch)                
+                loss = self.reg_loss_func(output[0].squeeze(),labels.squeeze())
 
             # backward
-            self.optimizer.zero_grad()
-            loss.backward()
-            self.optimizer.step()
+            if self.cfg.mode.amp:
+                self.scaler.scale(loss).backward()
+                self.scaler.step(self.optimizer)
+                self.scaler.update()
+            else:
+                self.optimizer.zero_grad()
+                loss.backward()
+                self.optimizer.step()
 
             if self.cfg.train.lr_scheduler.when == "batch" and self.cfg.train.lr_scheduler.type in ("onecycle", "cosine"):
                 self.scheduler.step()
 
+            
             # logging
 
             if self.global_rank == 0 and (self.global_train_step +

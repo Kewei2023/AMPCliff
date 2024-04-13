@@ -7,7 +7,6 @@ import math
 import numpy as np
 import pandas as pd
 from AMPCliff.features import fingerprint_2d as fingerprint
-# from Breeze.features.feature_fetcher import FeatureFetcher
 from multiprocessing import cpu_count
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import shutil
@@ -17,11 +16,11 @@ from itertools import combinations
 from Levenshtein import distance as levenshtein_distance
 from tqdm import tqdm 
 import ipdb
-
 from Bio import pairwise2
-from Bio.SubsMat import MatrixInfo as matlist
+from Bio.Align import substitution_matrices
 
-def smith_waterman(seq1, seq2, scoring_matrix=matlist.blosum62, gap_open=-10, gap_extend=-0.5, lambda_value=0.251, K=0.031):
+def smith_waterman(seq1, seq2, scoring_matrix=substitution_matrices.load("BLOSUM62"), gap_open=-11, gap_extend=-1, lambda_value=0.251, K=0.031):
+# def smith_waterman(seq1, seq2, scoring_matrix=matlist.blosum62, gap_open=-10, gap_extend=-0.5, lambda_value=0.251, K=0.031):
 
     
     # Smith-Waterman for alignment
