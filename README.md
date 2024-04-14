@@ -73,26 +73,6 @@ Here we support the following models:
 | progen2-base     | `/data/public/models/progen2/progen2_base/`|
 | progen2-medium     | `/data/public/models/progen2/progen2_medium/`|
 
-
-
-
-2. modify `factory/initializer.py`
-```
-if 'gpt2' in self.cfg.model[self.cfg.task.type].version:
-                
-    config = AutoConfig.from_pretrained(self.cfg.model.config_dir)
-    config.output_hidden_states = True
-    tokenizer = AutoTokenizer.from_pretrained(self.cfg.model.config_dir)
-    tokenizer.pad_token = tokenizer.eos_token # in most cases, tokenizer need to be modified
-    
-    model = AutoModel.from_pretrained(self.cfg.model.config_dir).to(self.device)
-    
-    
-    config.problem_type = "regression"
-    config.num_labels = 1
-    config.hidden_dropout_prob = 0
-    train_model = RegModel_v1(model,config).to(self.device)
-``` 
 **load checkpoints**
 
 set `check_point.load`=`true` and give a model path to `check_point.path`

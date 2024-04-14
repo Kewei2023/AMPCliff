@@ -13,7 +13,8 @@ Bert-Protein
 ChatGPT
 *llama*
 slurm*
-
+distribute_train.sh
+mystatistics*
 factory/SeqUNet.py 
 factory/generation.py 
 facorty/residual.py 
