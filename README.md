@@ -32,9 +32,8 @@ conda env create -f environment.yaml
 conda activate AMPCliff 
 ```
 ### 3. Get Data
-```
-private_key is needed, contact kewei
-```
+Save the data in the `./data` folder
+Please contact Kewei for data availability
 ## Running
 
 ### 1. Machine Learning Method
@@ -96,7 +95,6 @@ model:
   config_dir: "/data/public/models/gpt2-large/" 
   regression:
     version: gpt2-large 
-
 ``` 
 
 Here we support the following models:
@@ -119,9 +117,13 @@ set `check_point.load`=`true` and give a model path to `check_point.path`
 ```
 sbatch --gpus=1 downstream_evaluate.sh
 ```
+## Debug Mode
+set `other.debug` to `true`
 
-
-
+```
+other:
+  debug: true # false # false # False
+```
 
 ### MLFlow Setting
 
