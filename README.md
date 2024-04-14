@@ -38,6 +38,7 @@ Please contact Kewei for data availability
 
 ### 1. Machine Learning Method
 *NOTE:* set `model.regression.check_point.load` in `downstream.yaml` to `false`.
+
 If on the supercomputer
 ```
 sbatch --gpus=1 machine_learning_train.sh
