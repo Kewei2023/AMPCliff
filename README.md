@@ -14,27 +14,42 @@ testing plenty of models for AMP activity cliff prediction
 - [Contact](#contact)
 
 ## Getting Started
-### Installation
+### 1. Installation
 ```
 git clone git@github.com:Kewei2023/AMPCliff.git
 
 cd AMPCliff # the folder name must be AMPCliff 
 ```
-### Dependencies
-
+### 2. Dependencies
+If on the supercomputer
 ```
 conda env create -f environment.yaml
+source activate AMPCliff 
 ```
-### Get Data
+If on the local machine
+```
+conda env create -f environment.yaml
+conda activate AMPCliff 
+```
+### 3. Get Data
 ```
 private_key is needed, contact kewei
 ```
 ## Running
 
-### Machine Learning Method
+### 1. Machine Learning Method
+*NOTE:* set `model.regression.check_point.load` in `downstream.yaml` to `false`.
+If on the supercomputer
 ```
 sbatch --gpus=1 machine_learning_train.sh
 ```
+If on the local machine
+```
+python machine_learning_train.py
+```
+### 2. Deep Learning Method
+*NOTE:* set `model.regression.check_point.load` in `downstream.yaml` to `false`.
+
 *for deep learning method, change `features.type` as follows*
 Here we support the following models:
 | Models      | type|
@@ -43,26 +58,39 @@ Here we support the following models:
 | CellFree-rnn     | CellFree-rnn|
 | AMPSpace     | AMPSpace |
 | peptimizer     | peptimizer |
-### Deep Learning Method
 
+1. modify `features.type` in `./config/downstram.yaml`
+```
+features:
+  type: CellFree-cnn # LLM  # CellFree-cnn # CellFree-rnn # AMPSpace # peptimizer
+```
+
+2. modify `model.regression.version`, the **SAME** value as `features.type`
+```
+model:
+  ...
+  regression:
+    version: CellFree-cnn # gpt2-base # progen2-medium # progen2-base # esm2_t12 # progen2-small # gpt2-large # gpt2-base # esm2_t33 # gpt2-large # bert-base # protgpt2 # CellFree-cnn # CellFree-rnn # AMPSpace # v1 # AMPSpace, CellFree-cnn, SeqUNet
+```
 ### LMs: GLMs and MLMs
 
 **single GPU**
 
 *NOTE:* set `ddp` in `downstream.yaml` to `false`.
+
+If on the supercomputer
 ```
 sbatch --gpus=1 downstream_train.sh
 ```
-
+if on the local machine
+```
+python downstream_train.py
+```
 **Changing Models**
 
-the code is developing, will update a easier version in the future.
+*NOTE:* for LLM, `features.type` always `LLM`
 
-***remark for myself**: SEPERATE LLMs with other type of public models*
-
-*for LLM, `features.type` always `LLM`*
-
-**modify `configs/downstream.yaml`**
+modify `configs/downstream.yaml`
 ```
 model:
   config_dir: "/data/public/models/gpt2-large/" 
