@@ -1,6 +1,17 @@
 # AMPCliff
 
 testing plenty of models for AMP activity cliff prediction
+## Table of Contents
+- [Getting Started](#getting-started)
+   - [Installation](#installation)
+   -   [Dependencies](#dependencies)
+   -   [Get Data](#get-data)
+- [Running](#running)
+   -   [Machine Learning Method](#machine-learning-method)
+   -   [Deep Learning Method](#deep-learning-method)
+   -   [LMs: GLMs and MLMs](#lms:glms-and-mlms)
+   -   [MLFlow Setting](#mlfow-setting)
+- [Contact](#contact)
 
 ## Getting Started
 ### Installation
@@ -18,9 +29,9 @@ conda env create -f environment.yaml
 ```
 private_key is needed, contact kewei
 ```
-### Runing
+## Running
 
-#### Machine Learning Method
+### Machine Learning Method
 ```
 sbatch --gpus=1 machine_learning_train.sh
 ```
@@ -32,9 +43,9 @@ Here we support the following models:
 | CellFree-rnn     | CellFree-rnn|
 | AMPSpace     | AMPSpace |
 | peptimizer     | peptimizer |
-#### Deep Learning Method
+### Deep Learning Method
 
-#### LMs: GLMs and MLMs
+### LMs: GLMs and MLMs
 
 **single GPU**
 
@@ -51,7 +62,7 @@ the code is developing, will update a easier version in the future.
 
 *for LLM, `features.type` always `LLM`*
 
-**1. modify `configs/downstream.yaml`**
+**modify `configs/downstream.yaml`**
 ```
 model:
   config_dir: "/data/public/models/gpt2-large/" 
@@ -96,3 +107,6 @@ conda env config vars set MLFLOW_S3_ENDPOINT_URL=http://192.168.1.23:5002 #
 conda env config vars set MLFLOW_TRACKING_URI=http://192.168.1.23:5002
 conda env config vars set REGISTERED_MODEL_NAME=breezeModel
 ```
+
+## Contact
+kwbb1997@gmail.com
