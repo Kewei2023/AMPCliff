@@ -3,13 +3,13 @@
 testing plenty of models for AMP activity cliff prediction
 ## Table of Contents
 - [Getting Started](#getting-started)
-   - [Installation](#installation)
-   -   [Dependencies](#dependencies)
-   -   [Get Data](#get-data)
+   - [Step1. Installation](#step1.-installation)
+   -   [Step2. Dependencies](#step2.dependencies)
+   -   [Step3. Get Data](#step3.get-data)
 - [Running](#running)
-   -   [Machine Learning Method](#machine-learning-method)
-   -   [Deep Learning Method](#deep-learning-method)
-   -   [GLMs and MLMs](#glms-and-mlms)
+   -   [1. Machine Learning Method](#1.-machine-learning-method)
+   -   [2. Deep Learning Method](#2.-deep-learning-method)
+   -   [3. GLMs and MLMs](#3.-glms-and-mlms)
    -   [Other Settings](#other-settings)
 - [Contact](#contact)
 
