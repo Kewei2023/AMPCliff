@@ -9,18 +9,18 @@ testing plenty of models for AMP activity cliff prediction
 - [Running](#running)
    -   [Machine Learning Method](#machine-learning-method)
    -   [Deep Learning Method](#deep-learning-method)
-   -   [LMs: GLMs and MLMs](#lms:glms-and-mlms)
-   -   [MLFlow Setting](#mlfow-setting)
+   -   [GLMs and MLMs](#glms-and-mlms)
+   -   [Other Settings](#other-settings)
 - [Contact](#contact)
 
 ## Getting Started
-### 1. Installation
+### Step1. Installation
 ```
 git clone git@github.com:Kewei2023/AMPCliff.git
 
 cd AMPCliff # the folder name must be AMPCliff 
 ```
-### 2. Dependencies
+### Step2. Dependencies
 If on the supercomputer
 ```
 conda env create -f environment.yaml
@@ -31,7 +31,7 @@ If on the local machine
 conda env create -f environment.yaml
 conda activate AMPCliff 
 ```
-### 3. Get Data
+### Step3. Get Data
 Save the data in the `./data` folder
 Please contact Kewei for data availability
 ## Running
@@ -58,22 +58,34 @@ Here we support the following models:
 | AMPSpace     | AMPSpace |
 | peptimizer     | peptimizer |
 
-1. modify `features.type` in `./config/downstram.yaml`
+**step1.** modify `features.type` in `./config/downstram.yaml`
 ```
 features:
   type: CellFree-cnn # LLM  # CellFree-cnn # CellFree-rnn # AMPSpace # peptimizer
 ```
 
-2. modify `model.regression.version`, the **SAME** value as `features.type`
+**step2.** modify `model.regression.version`, the **SAME** value as `features.type`
 ```
 model:
   ...
   regression:
     version: CellFree-cnn # gpt2-base # progen2-medium # progen2-base # esm2_t12 # progen2-small # gpt2-large # gpt2-base # esm2_t33 # gpt2-large # bert-base # protgpt2 # CellFree-cnn # CellFree-rnn # AMPSpace # v1 # AMPSpace, CellFree-cnn, SeqUNet
 ```
-### LMs: GLMs and MLMs
+### 3. GLMs and MLMs
 
-**single GPU**
+
+**Step1.** Changing Models
+
+*NOTE:* for LLM, `features.type` always `LLM`
+
+modify `configs/downstream.yaml`
+```
+model:
+  config_dir: "/data/public/models/gpt2-large/" 
+  regression:
+    version: gpt2-large 
+``` 
+**Step2.** Run
 
 *NOTE:* set `ddp` in `downstream.yaml` to `false`.
 
@@ -85,18 +97,6 @@ if on the local machine
 ```
 python downstream_train.py
 ```
-**Changing Models**
-
-*NOTE:* for LLM, `features.type` always `LLM`
-
-modify `configs/downstream.yaml`
-```
-model:
-  config_dir: "/data/public/models/gpt2-large/" 
-  regression:
-    version: gpt2-large 
-``` 
-
 Here we support the following models:
 | Models      | config_dir                           |
 |---------------|---------------------------------------|
@@ -110,14 +110,15 @@ Here we support the following models:
 | progen2-base     | `/data/public/models/progen2/progen2_base/`|
 | progen2-medium     | `/data/public/models/progen2/progen2_medium/`|
 
-**load checkpoints**
+## Other Settings
+### load checkpoints
 
 set `check_point.load`=`true` and give a model path to `check_point.path`
 
 ```
 sbatch --gpus=1 downstream_evaluate.sh
 ```
-## Debug Mode
+### Debug Mode
 set `other.debug` to `true`
 
 ```
