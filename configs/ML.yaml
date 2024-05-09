@@ -17,11 +17,11 @@ train:
 
 data:
   max_length: 28
-  diff: 5
+  diff: [2,3,4,5]
   regression:
     mode: 'fix' # 'fixed_cluster' # 'random' # random' # 'random', 'cluster','fix'
     noise_level: 0 # 10 level in total
-    condition: 'blosum62 average'#  "blosum62 average" # tanimoto average
+    condition: ['blosum62 average','tanimoto average']
     acindex: false
     fix:
       all_train_file: "/data/home/scv6872/AMPCliff/data/blast/{condition}/diff_{diff}/grampa_s_aureus_7_25-all-train.csv"# "/data/home/scv6872/AMPCliff/data/blast/blosum62 average/diff_5/grampa_s_aureus_7_25-all-train.csv"# "/data/home/scv6872/AMPCliff/data/blosum62 average/grampa_s_aureus_7_25-blosum62 average-all-train.csv" 

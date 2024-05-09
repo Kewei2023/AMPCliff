@@ -35,6 +35,7 @@ conda activate AMPCliff
 Save the data in the `./data` folder
 Please contact Kewei for data availability
 ## Running
+*NOTE:* change `data.regression.mode` as `ramdom` for 5-fold corss validation, keep `stratified=True`.`fix` as AC Split
 
 ### 1. Machine Learning Method
 *NOTE:* set `model.regression.check_point.load` in `downstream.yaml` to `false`.

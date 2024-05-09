@@ -217,6 +217,6 @@ class FeatureFetcher():
 '''
 if __name__ == "__main__":
 
-    FeatureFetcher(cfg)
+    FeatureFetcher(cfg,tokenizer)
     tmp = cal_pep("RIWVIWRR").values
 '''

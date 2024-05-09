@@ -339,7 +339,155 @@ def main(cfg: DictConfig):
                           mlflow.log_metric("test_final/{}".format(metric_name), metric_v, step=1)
                       elif isinstance(metric_v, str):
                           mlflow.log_text(metric_v, "test_final/report.txt")
+    
+     # 5 fold evaluations
+    if cfg.data[cfg.task.type].mode == 'random':
+        
+        if cfg.data[cfg.task.type].random.stratified:
+            stratified_split_data(data_path = cfg.data[cfg.task.type].random.data_file, 
+                                fold = cfg.data[cfg.task.type].random.fold,
+                                output_dir = cfg.data[cfg.task.type].random.fold_files)
+            # if not os.path.exists(os.path.join(cfg.data[cfg.task.type].random.fold_files,'train_fold_0.csv')):
+        else:
+            random_split_data(data_path = cfg.data[cfg.task.type].random.data_file, 
+                            fold = cfg.data[cfg.task.type].random.fold,
+                            output_dir = cfg.data[cfg.task.type].random.fold_files)
+    
+    
+        # exit()   
+        models = {}
 
+        all_y_true, all_y_pred = [], []
+        results_df = []
+        all_latent = []
+
+        result_dir = 'folds'
+        os.makedirs(result_dir,exist_ok=True)
+
+        for fold in range(cfg.data[cfg.task.type][cfg.data[cfg.task.type].mode].fold):
+            
+            
+            model, tokenizer = ModelInitializer(cfg,device).init()
+
+            optimizer = AdamW(model.parameters(),
+                lr=cfg.train.learning_rate,
+                betas=(0.9, 0.999),
+                eps=cfg.train.adam_epsilon,
+                weight_decay=cfg.train.weight_decay)
+
+            scheduler = lr_scheduler(cfg, optimizer)
+            
+            if global_rank == 0:
+                Logger.info('loading train data...')
+            
+            train_dataloader = make_loader(
+                                            local_rank=local_rank,
+                                            dataset_file=os.path.join(cfg.data[cfg.task.type][cfg.data[cfg.task.type].mode].fold_files,f'train_fold_{fold}.csv'),
+                                            cfg = cfg,
+                                            batch_size=cfg.train.batch_size,
+                                            vocab_dict=vocab_dict,
+                                            pin_memory=False,
+                                            num_workers=cfg.train.num_workers,
+                                            random_seed=random_seed
+                                        )
+            # ipdb.set_trace()
+            if global_rank == 0:
+                Logger.info('loading valid data...')
+            valid_dataloader = make_loader(
+                                            local_rank=local_rank,
+                                            dataset_file=os.path.join(cfg.data[cfg.task.type][cfg.data[cfg.task.type].mode].fold_files,f'test_fold_{fold}.csv'),
+                                            cfg = cfg,
+                                            batch_size=cfg.train.batch_size,
+                                            vocab_dict=vocab_dict,
+                                            pin_memory=False,
+                                            num_workers=cfg.train.num_workers,
+                                            random_seed=random_seed
+                                        )
+
+            dataloaders = {'train': train_dataloader, 'valid': valid_dataloader}
+            
+            if len(cfg.data[cfg.task.type][cfg.data[cfg.task.type].mode].checkpoints) != cfg.data[cfg.task.type][cfg.data[cfg.task.type].mode].fold:
+                
+                trainer = Trainer(model, dataloaders, optimizer, scheduler, metric_func,feature_fetcher,
+                                device, global_rank, cfg, best_model_dir=f'fold {fold}')
+                
+                trainer.run()
+
+                if global_rank == 0:
+                    
+                    Logger.info(f"finished training fold {fold}......")
+                    Logger.info("start evaluating......")
+                    Logger.info("loading best weights from {}......".format(
+                        trainer.best_model_path))
+                    
+                    model = load_weights(model, trainer.best_model_path, device)
+                    # models[fold] = model
+            else:
+                model = load_model(model, cfg.data[cfg.task.type][cfg.data[cfg.task.type].mode].checkpoints[fold], device)
+                # model = load_weights(model, trainer.best_model_path, device)
+            
+            evaluator = Evaluator(model,dataloaders, metric_func,feature_fetcher, device, cfg)
+            
+            # save valid result
+            evaluator.run('valid')
+            
+            y_pred,y_true,ids = evaluator.y_pred,evaluator.y_true,evaluator.ids# ,evaluator.names,evaluator.ids,evaluator.latent
+            
+            
+            all_y_pred.append(y_pred)
+            all_y_true.append(y_true)
+            # all_latent.append(latent)
+
+            df = pd.read_csv(os.path.join(cfg.data[cfg.task.type][cfg.data[cfg.task.type].mode].fold_files,f'test_fold_{fold}.csv'))
+            
+            pred_df = pd.DataFrame.from_dict(dict(pred=y_pred.squeeze(1).cpu(),true=y_true.cpu(),Idx=ids))
+            
+            # ipdb.set_trace()
+            res_df = pd.merge(df,pred_df,on='Idx',how='outer')
+
+            res_df.to_csv(f'{result_dir}/test_fold_{fold}.csv')
+            # ipdb.set_trace()
+            results_df.append(res_df)
+
+            # save train result
+            evaluator.run('train')
+            y_pred,y_true,ids = evaluator.y_pred,evaluator.y_true,evaluator.ids# ,evaluator.latent
+            
+            df = pd.read_csv(os.path.join(cfg.data[cfg.task.type][cfg.data[cfg.task.type].mode].fold_files,f'train_fold_{fold}.csv'))
+            
+            pred_df = pd.DataFrame.from_dict(dict(pred=y_pred.squeeze(1).cpu(),true=y_true.cpu(),Idx=ids))
+            
+            res_df = pd.merge(df,pred_df,on='Idx',how='outer')
+
+            res_df.to_csv(f'{result_dir}/train_fold_{fold}.csv')
+
+        # ipdb.set_trace()
+        all_y_pred = torch.cat(all_y_pred)
+        all_y_true = torch.cat(all_y_true)
+        # all_latent = torch.cat(all_latent).mean(1)
+        # ipdb.set_trace()
+
+        # save results
+        final_results = pd.concat(results_df,0)
+
+        # label_quality_scores = get_label_quality_scores(labels=all_y_true, predictions=all_y_pred)
+        # final_results['is_label_issue'] = label_quality_scores
+        final_results.to_csv(f'{cfg.model[cfg.task.type].version}_final_results.csv')
+
+        # plot scatter
+        metrics = metric_func(all_y_pred, all_y_true,split=f'{cfg.model[cfg.task.type].version}-random-final',plot=True)
+
+        # plot the last hidden_states
+        # plot_low_dimension(all_latent, labels=final_results['group'])
+
+        
+        if global_rank == 0:
+            if not cfg.mode.nni and cfg.logger.log:            
+                for metric_name, metric_v in metrics.items():
+                    if isinstance(metric_v, (float, np.float64, int, np.int)):
+                        mlflow.log_metric("cv_final/{}".format(metric_name), metric_v, step=1)
+                    elif isinstance(metric_v, str):
+                        mlflow.log_text(metric_v, "cv_final/report.txt")
 
     if cfg.mode.ddp:
         cleanup_multinodes()

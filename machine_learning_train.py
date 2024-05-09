@@ -75,80 +75,81 @@ def main(cfg: DictConfig):
     
     scaler = StandardScaler()
     
-    diff = cfg.data.diff
+    for condition in cfg.data[cfg.task.type].condition:
     
-    for diff in [2,3,4,5]:
-      
-      Logger.info(f'testing the diff {diff} data')
-      savedir = f'diff{diff}'
-      os.makedirs(savedir,exist_ok=True)
-      
-      if cfg.data[cfg.task.type].mode == 'fix':
+      for diff in cfg.data.diff: # [2,3,4,5]:
         
+        Logger.info(f'testing the diff {diff} data')
+        savedir = f'./{condition}/diff{diff}'
+        os.makedirs(savedir,exist_ok=True)
         
-        train_file_path = cfg.data[cfg.task.type].fix.all_train_file.replace("{diff}",str(diff)).replace("{condition}",cfg.data[cfg.task.type].condition)
-        train_sequence, train_seqName, train_seqID, train_label_dict = load_raw_seq(dataset_file=train_file_path,
-              vocab_dict=None,
-              cfg=cfg)
-        
-        test_file_path = cfg.data[cfg.task.type].fix.test_file.replace("{diff}",str(diff)).replace("{condition}",cfg.data[cfg.task.type].condition)
-        valid_sequence, valid_seqName, valid_seqID, valid_label_dict = load_raw_seq(dataset_file=test_file_path,
-        vocab_dict=None,
-        cfg=cfg)
-        '''      
-        train_sequence, train_seqName, train_seqID, train_label_dict = load_raw_seq(dataset_file=cfg.data[cfg.task.type].fix[f"diff{diff}"].all_train_file,
-              vocab_dict=None,
-              cfg=cfg)
-              
-        valid_sequence, valid_seqName, valid_seqID, valid_label_dict = load_raw_seq(dataset_file=cfg.data[cfg.task.type].fix[f"diff{diff}"].test_file,
-        vocab_dict=None,
-        cfg=cfg)
-        ''' 
-        # scale the features
-              
-        x_train = scaler.fit_transform(feature_fetcher.query_features(train_sequence)['x'])
-        x_test = scaler.transform(feature_fetcher.query_features(valid_sequence)['x'])
-        
-        # training
-        models.train( X_train = x_train, 
-                      y_train = train_label_dict['regression'])
-        
-        train_result_dict = models.predict(X_test = x_train)
-                                  
-        valid_result_dict = models.predict(X_test = x_test)
-                    
-        
-        df = pd.read_csv(test_file_path,index_col=0)
-        # df = pd.read_csv(cfg.data[cfg.task.type].fix[f"diff{diff}"].test_file)
-  
-        pred_df = pd.DataFrame(valid_result_dict, index = valid_seqName).sort_index()
-        
-        # ipdb.set_trace()
-        res_df = pd.concat([df,pred_df], axis=1)
-        
-        
-        res_df.to_csv(os.path.join(savedir,'test_result.csv'))
-        
-        if cfg.data[cfg.task.type].acindex:
-          pair_df = seq2pair(res_df,diff)
-          pair_df.to_csv(os.path.join(savedir,'test_result_pair.csv'))
-        
-        # 
-        
-  
-        # save train result           
-        df = pd.read_csv(train_file_path,index_col=0)
-        
-        pred_df = pd.DataFrame(train_result_dict, index = train_seqName).sort_index()
-        
-        res_df = pd.concat([df,pred_df], axis=1)
-  
-        res_df.to_csv(os.path.join(savedir,'train_result.csv'))
-        
-        for model in train_result_dict:
-            # plot scatter
-            metrics = metric_func(train_result_dict[model], np.array(train_label_dict['regression']),split=f'{savedir}/train-{model}',plot=True)
-            metrics = metric_func(valid_result_dict[model], np.array(valid_label_dict['regression']),split=f'{savedir}/test-{model}',plot=True)
+        if cfg.data[cfg.task.type].mode == 'fix':
+          
+          
+          train_file_path = cfg.data[cfg.task.type].fix.all_train_file.replace("{diff}",str(diff)).replace("{condition}",condition)
+          train_sequence, train_seqName, train_seqID, train_label_dict = load_raw_seq(dataset_file=train_file_path,
+                vocab_dict=None,
+                cfg=cfg)
+          
+          test_file_path = cfg.data[cfg.task.type].fix.test_file.replace("{diff}",str(diff)).replace("{condition}",condition)
+          valid_sequence, valid_seqName, valid_seqID, valid_label_dict = load_raw_seq(dataset_file=test_file_path,
+          vocab_dict=None,
+          cfg=cfg)
+          '''      
+          train_sequence, train_seqName, train_seqID, train_label_dict = load_raw_seq(dataset_file=cfg.data[cfg.task.type].fix[f"diff{diff}"].all_train_file,
+                vocab_dict=None,
+                cfg=cfg)
+                
+          valid_sequence, valid_seqName, valid_seqID, valid_label_dict = load_raw_seq(dataset_file=cfg.data[cfg.task.type].fix[f"diff{diff}"].test_file,
+          vocab_dict=None,
+          cfg=cfg)
+          ''' 
+          
+          # scale the features
+                
+          x_train = scaler.fit_transform(feature_fetcher.query_features(train_sequence)['x'])
+          x_test = scaler.transform(feature_fetcher.query_features(valid_sequence)['x'])
+          
+          # training
+          models.train( X_train = x_train, 
+                        y_train = train_label_dict['regression'])
+          
+          train_result_dict = models.predict(X_test = x_train)
+                                    
+          valid_result_dict = models.predict(X_test = x_test)
+                      
+          
+          df = pd.read_csv(test_file_path,index_col=0)
+          # df = pd.read_csv(cfg.data[cfg.task.type].fix[f"diff{diff}"].test_file)
+    
+          pred_df = pd.DataFrame(valid_result_dict, index = valid_seqName).sort_index()
+          
+          # ipdb.set_trace()
+          res_df = pd.concat([df,pred_df], axis=1)
+          
+          
+          res_df.to_csv(os.path.join(savedir,'test_result.csv'))
+          
+          if cfg.data[cfg.task.type].acindex:
+            pair_df = seq2pair(res_df,diff)
+            pair_df.to_csv(os.path.join(savedir,'test_result_pair.csv'))
+          
+          # 
+          
+    
+          # save train result           
+          df = pd.read_csv(train_file_path,index_col=0)
+          
+          pred_df = pd.DataFrame(train_result_dict, index = train_seqName).sort_index()
+          
+          res_df = pd.concat([df,pred_df], axis=1)
+    
+          res_df.to_csv(os.path.join(savedir,'train_result.csv'))
+          
+          for model in train_result_dict:
+              # plot scatter
+              metrics = metric_func(train_result_dict[model], np.array(train_label_dict['regression']),split=f'{savedir}/train-{model}',plot=True)
+              metrics = metric_func(valid_result_dict[model], np.array(valid_label_dict['regression']),split=f'{savedir}/test-{model}',plot=True)
     
 
     

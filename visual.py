@@ -29,7 +29,7 @@ from transformers import EsmModel,EsmForSequenceClassification,LlamaForCausalLM,
 from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.optim import AdamW
 from AMPCliff.utils.metrics import Metrics
-from AMPCliff.visualization.plot import plot_low_dimension
+from AMPCliff.visualization.plot import plot_low_dimension,plot_3d_scatter_level
 from cleanlab.regression.rank import get_label_quality_scores
 import mlflow
 import torch
@@ -106,90 +106,115 @@ def main(cfg: DictConfig):
                     output_device=local_rank,
                     find_unused_parameters=True
                     )
-
-    # fix data files
-    if cfg.data[cfg.task.type].mode == 'fix':
-
-        
-        diff = cfg.data.diff
-        
-        if global_rank == 0:
-            Logger.info('loading train data...')
-        
-        train_file_path = cfg.data[cfg.task.type].fix.train_file.replace("{diff}",str(diff)).replace("{condition}",cfg.data[cfg.task.type].condition)
-        
-        train_dataloader = make_loader(
-                                        local_rank=local_rank,
-                                        dataset_file=train_file_path,
-                                        cfg = cfg,
-                                        batch_size=cfg.train.batch_size,
-                                        vocab_dict=vocab_dict,
-                                        pin_memory=False,
-                                        num_workers=cfg.train.num_workers,
-                                        random_seed=random_seed
-                                    )
-        if global_rank == 0:
-            Logger.info('loading valid data...')
-        
-        valid_file_path = cfg.data[cfg.task.type].fix.valid_file.replace("{diff}",str(diff)).replace("{condition}",cfg.data[cfg.task.type].condition)
-        
-        valid_dataloader = make_loader(
-                                        local_rank=local_rank,
-                                        dataset_file=valid_file_path,
-                                        cfg = cfg,
-                                        batch_size=cfg.train.batch_size,
-                                        vocab_dict=vocab_dict,
-                                        pin_memory=False,
-                                        num_workers=cfg.train.num_workers,
-                                        random_seed=random_seed
-                                    )
-        if global_rank == 0:
-            Logger.info('loading test data...')
-        
-        test_file_path = cfg.data[cfg.task.type].fix.test_file.replace("{diff}",str(diff)).replace("{condition}",cfg.data[cfg.task.type].condition)
-        
-        test_dataloader = make_loader(
-                                        local_rank=local_rank,
-                                        dataset_file=test_file_path,
-                                        cfg = cfg,
-                                        batch_size=cfg.train.batch_size,
-                                        vocab_dict=vocab_dict,
-                                        pin_memory=False,
-                                        num_workers=cfg.train.num_workers,
-                                        random_seed=random_seed
-                                    )
-                                    
-        dataloaders = {'train': train_dataloader, 'valid': valid_dataloader, 'test': test_dataloader}
-        
-        
-        
-        evaluator = Evaluator(model,dataloaders, metric_func,feature_fetcher, device, cfg)
-         
-        all_latent = []
-        all_dataset = []
-        evaluate_tr_metrics = evaluator.run('train')
-        y_pred,y_true,latent = evaluator.y_pred,evaluator.y_true,evaluator.latent
-        metric_func(y_pred,y_true ,split='train',plot=True)
-        
-        all_latent.append(latent)
-        all_dataset.extend(['train']*latent.shape[0])
-        
-        evaluate_val_metrics = evaluator.run('valid')
-        y_pred,y_true,latent  = evaluator.y_pred,evaluator.y_true,evaluator.latent
-        metric_func(y_pred,y_true ,split='valid',plot=True)
-        
-        all_latent.append(latent)
-        all_dataset.extend(['valid']*latent.shape[0])
-        
-        evaluate_test_metrics = evaluator.run('test')
-        y_pred,y_true,latent  = evaluator.y_pred,evaluator.y_true,evaluator.latent
-        metric_func(y_pred,y_true ,split='test',plot=True)
-        
-        all_latent.append(latent)
-        all_dataset.extend(['test']*latent.shape[0])
-        
-        plot_low_dimension(torch.cat(all_latent,0),labels=np.array(all_dataset),savedir='visual_latent',alpha=0.3)
+    for condition in cfg.data[cfg.task.type].condition:
+          
+      for diff in cfg.data.diff: #[2,3,4,5]:
+        # fix data files
+        if cfg.data[cfg.task.type].mode == 'fix':
     
+            
+            # diff = cfg.data.diff
+            
+            if global_rank == 0:
+                Logger.info('loading train data...')
+            
+            train_file_path = cfg.data[cfg.task.type].fix.train_file.replace("{diff}",str(diff)).replace("{condition}",condition)
+            
+            train_dataloader = make_loader(
+                                            local_rank=local_rank,
+                                            dataset_file=train_file_path,
+                                            cfg = cfg,
+                                            batch_size=cfg.train.batch_size,
+                                            vocab_dict=vocab_dict,
+                                            pin_memory=False,
+                                            num_workers=cfg.train.num_workers,
+                                            random_seed=random_seed
+                                        )
+            if global_rank == 0:
+                Logger.info('loading valid data...')
+            
+            valid_file_path = cfg.data[cfg.task.type].fix.valid_file.replace("{diff}",str(diff)).replace("{condition}",condition)
+            
+            valid_dataloader = make_loader(
+                                            local_rank=local_rank,
+                                            dataset_file=valid_file_path,
+                                            cfg = cfg,
+                                            batch_size=cfg.train.batch_size,
+                                            vocab_dict=vocab_dict,
+                                            pin_memory=False,
+                                            num_workers=cfg.train.num_workers,
+                                            random_seed=random_seed
+                                        )
+            if global_rank == 0:
+                Logger.info('loading test data...')
+            
+            test_file_path = cfg.data[cfg.task.type].fix.test_file.replace("{diff}",str(diff)).replace("{condition}",condition)
+            
+            test_dataloader = make_loader(
+                                            local_rank=local_rank,
+                                            dataset_file=test_file_path,
+                                            cfg = cfg,
+                                            batch_size=cfg.train.batch_size,
+                                            vocab_dict=vocab_dict,
+                                            pin_memory=False,
+                                            num_workers=cfg.train.num_workers,
+                                            random_seed=random_seed
+                                        )
+                                        
+            dataloaders = {'train': train_dataloader, 'valid': valid_dataloader, 'test': test_dataloader}
+            
+            
+            
+            evaluator = Evaluator(model,dataloaders, metric_func,feature_fetcher, device, cfg)
+             
+            all_latent = []
+            all_dataset = []
+            all_labels = []
+            evaluate_tr_metrics = evaluator.run('train')
+            y_pred,y_true,latent = evaluator.y_pred,evaluator.y_true,evaluator.latent
+            metric_func(y_pred,y_true ,split='train',plot=True)
+            
+            all_latent.append(latent)
+            all_dataset.extend(['train']*latent.shape[0])
+            all_labels.append(y_true)
+            
+            evaluate_val_metrics = evaluator.run('valid')
+            y_pred,y_true,latent  = evaluator.y_pred,evaluator.y_true,evaluator.latent
+            metric_func(y_pred,y_true ,split='valid',plot=True)
+            
+            all_latent.append(latent)
+            all_dataset.extend(['valid']*latent.shape[0])
+            all_labels.append(y_true)
+            
+            evaluate_test_metrics = evaluator.run('test')
+            y_pred,y_true,latent  = evaluator.y_pred,evaluator.y_true,evaluator.latent
+            metric_func(y_pred,y_true ,split='test',plot=True)
+            
+            all_latent.append(latent)
+            all_dataset.extend(['test']*latent.shape[0])
+            all_labels.append(y_true)
+            
+            all_labels = torch.cat(all_labels,0)
+            hidden_states = plot_low_dimension(torch.cat(all_latent,0),labels=np.array(all_dataset),savedir='visual_latent',alpha=0.3)
+            
+            for k in hidden_states:
+              latent_dicts = dict(dim0 = hidden_states[k][:,0],
+                                  dim1 = hidden_states[k][:,1],
+                                  label = all_labels)
+              df = pd.DataFrame(latent_dicts)
+              
+              df.to_csv(f'landscape_{k}.csv')
+              
+              
+              fig,x,y,z = plot_3d_scatter_level(hidden_states[k][:,0], hidden_states[k][:,1],all_labels,True,k,'activity')
+              fig.write_html(f'landscape-{k}-activity-fill.html')
+              fig.write_image(f'landscape-{k}-activity-fill.svg', format='svg',width=800, height=600, scale=5)
+              fig.write_image(f'landscape-{k}-activity-fill.png', width=800, height=600, scale=5)
+              
+              fig,x,y,z = plot_3d_scatter_level(hidden_states[k][:,0], hidden_states[k][:,1],all_labels,False,k,'activity')
+              fig.write_html(f'landscape-{k}-activity-grid.html')
+              fig.write_image(f'landscape-{k}-activity-grid.svg', format='svg',width=800, height=600, scale=5)
+              fig.write_image(f'landscape-{k}-activity-grid.png', width=800, height=600, scale=5)
     if cfg.mode.ddp:
         cleanup_multinodes()
       
