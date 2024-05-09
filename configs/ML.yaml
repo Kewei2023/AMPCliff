@@ -19,7 +19,7 @@ data:
   max_length: 28
   diff: [2,3,4,5]
   regression:
-    mode: 'fix' # 'fixed_cluster' # 'random' # random' # 'random', 'cluster','fix'
+    mode: 'random'# 'fix' # 'fixed_cluster' # 'random' # random' # 'random', 'cluster','fix'
     noise_level: 0 # 10 level in total
     condition: ['blosum62 average','tanimoto average']
     acindex: false
@@ -28,7 +28,12 @@ data:
       train_file: "/data/home/scv6872/AMPCliff/data/blast/{condition}/diff_{diff}/grampa_s_aureus_7_25-train.csv"#"/data/home/scv6872/AMPCliff/data/blast/blosum62 average/diff_5/grampa_s_aureus_7_25-train.csv"  # "/data/home/scv6872/AMPCliff/data/blosum62 average/grampa_s_aureus_7_25-blosum62 average-train.csv" 
       valid_file: "/data/home/scv6872/AMPCliff/data/blast/{condition}/diff_{diff}/grampa_s_aureus_7_25-valid.csv"# "/data/home/scv6872/AMPCliff/data/blast/blosum62 average/diff_5/grampa_s_aureus_7_25-valid.csv"# "/data/home/scv6872/AMPCliff/data/blosum62 average/grampa_s_aureus_7_25-blosum62 average-valid.csv" 
       test_file: "/data/home/scv6872/AMPCliff/data/blast/{condition}/diff_{diff}/grampa_s_aureus_7_25-test.csv"# "/data/home/scv6872/AMPCliff/data/blast/blosum62 average/diff_5/grampa_s_aureus_7_25-test.csv"# "/data/home/scv6872/AMPCliff/data/blosum62 average/grampa_s_aureus_7_25-blosum62 average-test.csv"     
-      
+    random:
+      data_file: "/data/home/scv6872/AMPCliff/data/grampa_s_aureus_7_25.csv" 
+      fold: 5
+      stratified: True
+      fold_files: "/data/home/scv6872/AMPCliff/data/folds"
+      checkpoints: []  
 logger:
   log: True
   log_dir: "outputs"
