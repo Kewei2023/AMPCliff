@@ -1,0 +1,32 @@
+orig_cwd: .
+mode:
+  ddp: false
+  nni: false
+  accelerate: false
+task:
+  type: regression
+features:
+  type: HC
+train:
+  random_seed: 0
+data:
+  max_length: 28
+  diff: 5
+  regression:
+    mode: fix
+    noise_level: 0
+    condition: blosum62 average
+    acindex: false
+    fix:
+      all_train_file: /work/diff_5/grampa_s_aureus_7_25-all-train.csv
+      train_file: /work/diff_5/grampa_s_aureus_7_25-train.csv
+      valid_file: /work/diff_5/grampa_s_aureus_7_25-valid.csv
+      test_file: /work/diff_5/grampa_s_aureus_7_25-test.csv
+logger:
+  log: true
+  log_dir: outputs
+  log_per_steps: 10
+  final_artifact_path: final
+other:
+  debug: false
+  debug_step: 5
