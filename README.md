@@ -157,6 +157,17 @@ conda env config vars set MLFLOW_S3_ENDPOINT_URL=http://192.168.1.23:5002 #
 conda env config vars set MLFLOW_TRACKING_URI=http://192.168.1.23:5002
 conda env config vars set REGISTERED_MODEL_NAME=breezeModel
 ```
+## Citation
+If you find our code or paper useful, please cite:
+```bibtex
+@article{AMPCliff,
+  title={AMPCliff: quantitative definition and benchmarking of activity cliffs in antimicrobial peptides},
+  author={Kewei Li, Yuqian Wu, Yinheng Li, Yutong Guo, Yan Wang, Yiyang Liang, Yusi Fan, Lan Huang, Ruochi Zhang, Fengfeng Zhou},
+  journal={arXiv},
+  year={2024}
+}
+```
+
 
 ## Contact
 kwbb1997@gmail.com
