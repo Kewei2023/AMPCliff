@@ -18,3 +18,4 @@ factory/SeqUNet.py
 factory/generation.py 
 facorty/residual.py 
 random*
+nohup.out

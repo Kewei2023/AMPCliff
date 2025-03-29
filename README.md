@@ -26,19 +26,19 @@ git clone git@github.com:Kewei2023/AMPCliff.git
 cd AMPCliff # the folder name must be AMPCliff 
 ```
 ### Step2. Dependencies
-If on the supercomputer
+- If on the supercomputer
 ```bash
 conda env create -f environment.yaml
 source activate AMPCliff 
 ```
-If on the local machine
+- If on the local machine
 ```bash
 conda env create -f environment.yaml
 conda activate AMPCliff 
 ```
 ### Step3. Get Data
 Save the data in the `./data` folder
-Please contact Kewei for data availability
+ℹ️ Please go to [AMPCliff-generation](https://github.com/Kewei2023/AMPCliff-generation) for AC generation.
 ## Running
 🚀 change `data.regression.mode` as:
 
