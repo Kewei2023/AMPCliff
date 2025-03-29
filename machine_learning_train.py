@@ -209,11 +209,12 @@ def main(cfg: DictConfig):
                       
           
           df = pd.read_csv(test_file_path,index_col=0)
+          df.set_index('Idx', inplace=True)
           # df = pd.read_csv(cfg.data[cfg.task.type].fix[f"diff{diff}"].test_file)
     
-          pred_df = pd.DataFrame(valid_result_dict, index = valid_seqName)
+          pred_df = pd.DataFrame(valid_result_dict, index = valid_seqName).sort_index()
           
-          ipdb.set_trace()
+          # ipdb.set_trace()
           res_df = pd.concat([df,pred_df], axis=1)
           
           
@@ -229,6 +230,7 @@ def main(cfg: DictConfig):
     
           # save train result           
           df = pd.read_csv(train_file_path,index_col=0)
+          df.set_index('Idx', inplace=True)
           
           pred_df = pd.DataFrame(train_result_dict, index = train_seqName).sort_index()
           

@@ -1,8 +1,3 @@
-# Copyright (c) 2022, salesforce.com, inc.
-# All rights reserved.
-# SPDX-License-Identifier: BSD-3-Clause
-# For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
-
 import os
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -79,10 +74,9 @@ def main(cfg: DictConfig):
         for p, v in cfg.mode.items():
             mlflow.log_param(p, v)
             
-        for p, v in cfg.data[cfg.task.type].items():
-           
+        for p, v in cfg.data[cfg.task.type][cfg.data[cfg.task.type].mode].items():
             mlflow.log_param(p, v)
-
+              
         for p, v in cfg.train.items():
             mlflow.log_param(p, v)
 
@@ -112,6 +106,7 @@ def main(cfg: DictConfig):
     
     # diff = cfg.data.diff
     # condition = cfg.data[cfg.task.type].condition
+    threshold = str(cfg.data.threshold)
     for condition in cfg.data[cfg.task.type].condition:
           
       for diff in cfg.data.diff: #[2,3,4,5]:
@@ -133,7 +128,7 @@ def main(cfg: DictConfig):
           if global_rank == 0:
               Logger.info('loading train data...')
           
-          train_file_path = cfg.data[cfg.task.type].fix.train_file.replace("{diff}",str(diff)).replace("{condition}",condition)
+          train_file_path = cfg.data[cfg.task.type].fix.train_file.replace("{diff}",str(diff)).replace("{condition}",condition).replace("{threshold}",threshold)
           
           train_dataloader = make_loader(
                                           local_rank=local_rank,
@@ -148,7 +143,7 @@ def main(cfg: DictConfig):
           if global_rank == 0:
               Logger.info('loading valid data...')
           
-          valid_file_path = cfg.data[cfg.task.type].fix.valid_file.replace("{diff}",str(diff)).replace("{condition}",condition)
+          valid_file_path = cfg.data[cfg.task.type].fix.valid_file.replace("{diff}",str(diff)).replace("{condition}",condition).replace("{threshold}",threshold)
           
           valid_dataloader = make_loader(
                                           local_rank=local_rank,
@@ -163,7 +158,7 @@ def main(cfg: DictConfig):
           if global_rank == 0:
               Logger.info('loading test data...')
           
-          test_file_path = cfg.data[cfg.task.type].fix.test_file.replace("{diff}",str(diff)).replace("{condition}",condition)
+          test_file_path = cfg.data[cfg.task.type].fix.test_file.replace("{diff}",str(diff)).replace("{condition}",condition).replace("{threshold}",threshold)
           
           test_dataloader = make_loader(
                                           local_rank=local_rank,
@@ -182,7 +177,7 @@ def main(cfg: DictConfig):
           if not cfg.model[cfg.task.type].check_point.load:
           
             trainer = Trainer(model, dataloaders, optimizer, scheduler, metric_func,feature_fetcher,
-                          device, global_rank, cfg, best_model_dir=f'{cfg.model[cfg.task.type].version}/{condition}/diff{diff}')
+                          device, global_rank, cfg, best_model_dir=f'{cfg.model[cfg.task.type].version}/{condition}/diff{diff}-trd{threshold}')
                 
             
             trainer.run()
@@ -228,7 +223,7 @@ def main(cfg: DictConfig):
           
           if global_rank == 0:
             # plot figures
-            metric_func(y_pred,y_true ,split=f'train-{cfg.model[cfg.task.type].version}-{condition}-diff{diff}',plot=True)
+            metric_func(y_pred,y_true ,split=f'train-{cfg.model[cfg.task.type].version}-{condition}-diff{diff}-trd{threshold}',plot=True)
             # save results
             df = pd.read_csv(train_file_path)
                 
@@ -236,7 +231,7 @@ def main(cfg: DictConfig):
                                               'true':y_true.cpu(),
                                               'Idx':ids})
             res_df = pd.merge(df,pred_df,on='Idx',how='outer').sort_values(by='Idx')
-            res_df.to_csv(f'./{cfg.model[cfg.task.type].version}-{condition}-diff{diff}-train_result.csv')
+            res_df.to_csv(f'./{cfg.model[cfg.task.type].version}-{condition}-diff{diff}-trd{threshold}-train_result.csv')
           
           
           
@@ -265,7 +260,7 @@ def main(cfg: DictConfig):
               
           if global_rank == 0: 
           
-            metric_func(y_pred,y_true ,split=f'valid-{cfg.model[cfg.task.type].version}-{condition}-diff{diff}',plot=True)
+            metric_func(y_pred,y_true ,split=f'valid-{cfg.model[cfg.task.type].version}-{condition}-diff{diff}-trd{threshold}',plot=True)
             # save results
             df = pd.read_csv(valid_file_path)
                 
@@ -273,7 +268,7 @@ def main(cfg: DictConfig):
                                               'true':y_true.cpu(),
                                               'Idx':ids})
             res_df = pd.merge(df,pred_df,on='Idx',how='outer').sort_values(by='Idx')
-            res_df.to_csv(f'./{cfg.model[cfg.task.type].version}-{condition}-diff{diff}-valid_result.csv')
+            res_df.to_csv(f'./{cfg.model[cfg.task.type].version}-{condition}-diff{diff}-trd{threshold}-valid_result.csv')
           
           
           
@@ -304,7 +299,7 @@ def main(cfg: DictConfig):
           if global_rank == 0: 
           
             # plot figures
-            metric_func(y_pred,y_true ,split=f'test-{cfg.model[cfg.task.type].version}-{condition}-diff{diff}',plot=True)
+            metric_func(y_pred,y_true ,split=f'test-{cfg.model[cfg.task.type].version}-{condition}-diff{diff}-trd{threshold}',plot=True)
             # save results
             df = pd.read_csv(test_file_path)
                 
@@ -312,11 +307,11 @@ def main(cfg: DictConfig):
                                               'true':y_true.cpu(),
                                               'Idx':ids})
             res_df = pd.merge(df,pred_df,on='Idx',how='outer').sort_values(by='Idx')
-            res_df.to_csv(f'./{cfg.model[cfg.task.type].version}-{condition}-diff{diff}-test_result.csv')
+            res_df.to_csv(f'./{cfg.model[cfg.task.type].version}-{condition}-diff{diff}-trd{threshold}-test_result.csv')
             
             if cfg.data[cfg.task.type].acindex:
               pair_df = seq2pair(res_df,cfg.data.diff)
-              pair_df.to_csv(f'./{cfg.model[cfg.task.type].version}-{condition}-diff{diff}-test_pair_result.csv')
+              pair_df.to_csv(f'./{cfg.model[cfg.task.type].version}-{condition}-diff{diff}-trd{threshold}-test_pair_result.csv')
           
           
           

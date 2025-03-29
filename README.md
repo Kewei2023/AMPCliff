@@ -1,33 +1,38 @@
 # AMPCliff
-
+<!-- TOC -->
+<!-- /TOC -->
 testing plenty of models for AMP activity cliff prediction
-## Table of Contents
-- [Getting Started](#getting-started)
-   - [Step1. Installation](#step1.-installation)
-   -   [Step2. Dependencies](#step2.dependencies)
-   -   [Step3. Get Data](#step3.get-data)
-- [Running](#running)
-   -   [1. Machine Learning Method](#1.-machine-learning-method)
-   -   [2. Deep Learning Method](#2.-deep-learning-method)
-   -   [3. GLMs and MLMs](#3.-glms-and-mlms)
-   -   [Other Settings](#other-settings)
-- [Contact](#contact)
+
+- [AMPCliff](#ampcliff)
+  - [Getting Started](#getting-started)
+    - [Step1. Installation](#step1-installation)
+    - [Step2. Dependencies](#step2-dependencies)
+    - [Step3. Get Data](#step3-get-data)
+  - [Running](#running)
+    - [1. Machine Learning Method](#1-machine-learning-method)
+    - [2. Deep Learning Method](#2-deep-learning-method)
+    - [3. GLMs and MLMs](#3-glms-and-mlms)
+  - [Other Settings](#other-settings)
+    - [load checkpoints](#load-checkpoints)
+    - [Debug Mode](#debug-mode)
+    - [MLFlow Setting](#mlflow-setting)
+  - [Contact](#contact)
 
 ## Getting Started
 ### Step1. Installation
-```
+```bash
 git clone git@github.com:Kewei2023/AMPCliff.git
 
 cd AMPCliff # the folder name must be AMPCliff 
 ```
 ### Step2. Dependencies
 If on the supercomputer
-```
+```bash
 conda env create -f environment.yaml
 source activate AMPCliff 
 ```
 If on the local machine
-```
+```bash
 conda env create -f environment.yaml
 conda activate AMPCliff 
 ```
@@ -35,43 +40,47 @@ conda activate AMPCliff
 Save the data in the `./data` folder
 Please contact Kewei for data availability
 ## Running
-*NOTE:* change `data.regression.mode` as:
+🚀 change `data.regression.mode` as:
 
- `random` for 5-fold corss validation, keep `stratified=True`.
+ - `random` for 5-fold corss validation, keep `stratified=True`.
  
- `fix` as AC Split
+ - `fix` as AC Split
 
 ### 1. Machine Learning Method
-*NOTE:* set `model.regression.check_point.load` in `downstream.yaml` to `false`.
+🚀 set `model.regression.check_point.load` in `downstream.yaml` to `false`.
 
-If on the supercomputer
-```
+- If on the supercomputer
+```bash
 sbatch --gpus=1 machine_learning_train.sh
 ```
-If on the local machine
-```
+- If on the local machine
+```bash
 python machine_learning_train.py
 ```
 ### 2. Deep Learning Method
-*NOTE:* set `model.regression.check_point.load` in `downstream.yaml` to `false`.
+🚀 set `model.regression.check_point.load` in `downstream.yaml` to `false`.
 
-*for deep learning method, change `features.type` as follows*
-Here we support the following models:
+📢*for deep learning method, change `features.type` as follows*
+
+
+<div align="center">
+
 | Models      | type|
 |---------------|---------------------------------------|
 | CellFree-cnn     | CellFree-cnn|
 | CellFree-rnn     | CellFree-rnn|
 | AMPSpace     | AMPSpace |
 | peptimizer     | peptimizer |
+</div>
 
-**step1.** modify `features.type` in `./config/downstram.yaml`
-```
+- modify `features.type` in `./config/downstram.yaml`
+```json
 features:
   type: CellFree-cnn # LLM  # CellFree-cnn # CellFree-rnn # AMPSpace # peptimizer
 ```
 
-**step2.** modify `model.regression.version`, the **SAME** value as `features.type`
-```
+- modify `model.regression.version`, the **SAME** value as `features.type`
+```json
 model:
   ...
   regression:
@@ -79,31 +88,33 @@ model:
 ```
 ### 3. GLMs and MLMs
 
+- Changing Models
 
-**Step1.** Changing Models
+🚀 for LLM, `features.type` always `LLM`
 
-*NOTE:* for LLM, `features.type` always `LLM`
-
-modify `configs/downstream.yaml`
-```
+- modify `configs/downstream.yaml`
+```json
 model:
   config_dir: "/data/public/models/gpt2-large/" 
   regression:
     version: gpt2-large 
 ``` 
-**Step2.** Run
+- Run
 
-*NOTE:* set `ddp` in `downstream.yaml` to `false`.
+🚀 set `ddp` in `downstream.yaml` to `false`.
 
-If on the supercomputer
-```
+- If on the supercomputer
+```bash
 sbatch --gpus=1 downstream_train.sh
 ```
-if on the local machine
-```
+- if on the local machine
+```bash
 python downstream_train.py
 ```
-Here we support the following models:
+📢Here we support the following models(the practicer can found these models in [HuggingFace](https://huggingface.co/)):
+
+<div align="center">
+
 | Models      | config_dir                           |
 |---------------|---------------------------------------|
 | bert-base     | `/data/public/models/bert-base-uncased/`|
@@ -115,29 +126,30 @@ Here we support the following models:
 | progen2-small     | `/data/public/models/progen2/progen2_small/`|
 | progen2-base     | `/data/public/models/progen2/progen2_base/`|
 | progen2-medium     | `/data/public/models/progen2/progen2_medium/`|
+</div>
 
 ## Other Settings
 ### load checkpoints
 
 set `check_point.load`=`true` and give a model path to `check_point.path`
 
-```
+```bash
 sbatch --gpus=1 downstream_evaluate.sh
 ```
 ### Debug Mode
 set `other.debug` to `true`
 
-```
+```bash
 other:
   debug: true # false # false # False
 ```
 
 ### MLFlow Setting
 
-**URL:** the URL depends on the IP adress of the machine, for Linux please use `ifconfig` command to check
+- **URL:** the URL depends on the IP adress of the machine, for Linux please use `ifconfig` command to check
 
-**Port:** don't change 
-```
+- **Port:** don't change 
+```bash
 source activate AMPCliff
 conda env config vars set MLFLOW_EXPERIMENT_NAME=breeze
 conda env config vars set MLFLOW_S3_ENDPOINT_URL=http://192.168.1.23:5002 #

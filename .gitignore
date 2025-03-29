@@ -3,7 +3,6 @@ outputs/*
 # But do not ignore 
 # !/data/home/scv6872/AMPCliff/outputs/2024-04-03/13-16-23/esm2_t33/blosum62 average/diff5/
 !/data/home/scv6872/AMPCliff/outputs/2024-04-13/11-45-34/esm2_t6/
-models
 # Ignore log files
 mlruns
 # Ignore data files

@@ -1,0 +1,23 @@
+[2025-03-27 10:03:07 +0800] [51231] [INFO] Starting gunicorn 20.1.0
+[2025-03-27 10:03:07 +0800] [51231] [INFO] Listening at: http://0.0.0.0:5002 (51231)
+[2025-03-27 10:03:07 +0800] [51231] [INFO] Using worker: sync
+[2025-03-27 10:03:07 +0800] [51272] [INFO] Booting worker with pid: 51272
+[2025-03-27 10:03:07 +0800] [51274] [INFO] Booting worker with pid: 51274
+[2025-03-27 10:03:07 +0800] [51275] [INFO] Booting worker with pid: 51275
+[2025-03-27 10:03:07 +0800] [51279] [INFO] Booting worker with pid: 51279
+[2025-03-28 10:53:12 +0800] [51231] [INFO] Handling signal: hup
+[2025-03-28 10:53:12 +0800] [51231] [INFO] Hang up: Master
+[2025-03-28 10:53:12 +0800] [51231] [WARNING] Worker with pid 51275 was terminated due to signal 1
+[2025-03-28 10:53:12 +0800] [51231] [WARNING] Worker with pid 51272 was terminated due to signal 1
+[2025-03-28 10:53:12 +0800] [51231] [WARNING] Worker with pid 51274 was terminated due to signal 1
+[2025-03-28 10:53:12 +0800] [51231] [WARNING] Worker with pid 51279 was terminated due to signal 1
+[2025-03-28 10:53:12 +0800] [146726] [INFO] Booting worker with pid: 146726
+[2025-03-28 10:53:12 +0800] [146725] [INFO] Booting worker with pid: 146725
+[2025-03-28 10:53:12 +0800] [146727] [INFO] Booting worker with pid: 146727
+[2025-03-28 10:53:12 +0800] [146728] [INFO] Booting worker with pid: 146728
+[2025-03-29 13:47:29 +0800] [146728] [INFO] Worker exiting (pid: 146728)
+[2025-03-29 13:47:29 +0800] [51231] [INFO] Handling signal: term
+[2025-03-29 13:47:29 +0800] [146727] [INFO] Worker exiting (pid: 146727)
+[2025-03-29 13:47:29 +0800] [146725] [INFO] Worker exiting (pid: 146725)
+[2025-03-29 13:47:29 +0800] [146726] [INFO] Worker exiting (pid: 146726)
+[2025-03-29 13:47:30 +0800] [51231] [INFO] Shutting down: Master

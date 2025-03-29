@@ -1,11 +1,11 @@
 export MLFLOW_TRACKING_URI=http://192.168.1.23:5002
-export MLFLOW_EXPERIMENT_NAME=breeze
+export MLFLOW_EXPERIMENT_NAME=AMPCliff
 mlflow server --backend-store-uri /data/home/scv6872/AMPCliff/mlruns --default-artifact-root /data/home/scv6872/AMPCliff/mlruns --host 0.0.0.0 -p 5002
 
 
 conda env config vars set MLFLOW_TRACKING_URI=http://192.168.1.23:5002
-conda env config vars set MLFLOW_EXPERIMENT_NAME=breeze
-conda env config vars set REGISTERED_MODEL_NAME=breezeModel
+conda env config vars set MLFLOW_EXPERIMENT_NAME=AMPCliff
+conda env config vars set REGISTERED_MODEL_NAME=AMPCliffModel
 conda env config vars set MLFLOW_S3_ENDPOINT_URL=http://192.168.1.23:5002
 # test
 conda env config vars list

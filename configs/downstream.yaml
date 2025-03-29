@@ -37,31 +37,32 @@ train:
   device_ids: [0,1,2,3,4,5,6,7]
 
 model:
-  config_dir: "/data/public/models/facebook/esm2_t6_8M_UR50D/" # "/data/public/models/facebook/esm2_t6_8M_UR50D/" #"/data/public/models/progen2/progen2_large/"# "/data/public/models/progen2/progen2_medium/"# "/data/public/models/progen2/progen2_base/"# "/data/public/models/progen2/progen2_small/" # "/data/public/models/ProtGPT2/" # "/data/public/models/facebook/esm2_t33_650M_UR50D/" # "/data/public/models/facebook/esm2_t33_650M_UR50D/"# "/data/public/models/gpt2-xl/"# "/data/public/models/facebook/esm2_t12_35M_UR50D" # "/data/public/models/bert-base-uncased/"# "/data/public/models/ProtGPT2/"# "/data/public/models/bert-base-uncased/"# "/data/public/models/ProtGPT2/"# "/data/public/models/facebook/esm2_t12_35M_UR50D/" # esm2_t12_35M_UR50D" # "esm2_t6_8M_UR50D" # "/data/public/models/llama/llama-13b/" # "/data/public/models/facebook/esm2_t48_15B_UR50D/" # "" # "/data/public/models/facebook/esm2_t36_3B_UR50D/" # "roberta-base", "facebook/bart-base","facebook/esm2_t33_650M_UR50D", "facebook/esm1b_t33_650M_UR50S","bert-base-uncased", "xlnet-base-cased", "gpt2"
-  tokenizer: "/data/home/scv6872/AMPCliff/progen2/tokenizer.json"
+  config_dir: "/data/public/models/facebook/esm2_t33_650M_UR50D/" # "/data/public/models/facebook/esm2_t12_35M_UR50D/" # "/data/public/models/facebook/esm2_t6_8M_UR50D/" #"/data/public/models/progen2/progen2_large/"# "/data/public/models/progen2/progen2_medium/"# "/data/public/models/progen2/progen2_base/"# "/data/public/models/progen2/progen2_small/" # "/data/public/models/ProtGPT2/" # "/data/public/models/facebook/esm2_t33_650M_UR50D/" # "/data/public/models/facebook/esm2_t33_650M_UR50D/"# "/data/public/models/gpt2-xl/"# "/data/public/models/facebook/esm2_t12_35M_UR50D" # "/data/public/models/bert-base-uncased/"# "/data/public/models/ProtGPT2/"# "/data/public/models/bert-base-uncased/"# "/data/public/models/ProtGPT2/"# "/data/public/models/facebook/esm2_t12_35M_UR50D/" # esm2_t12_35M_UR50D" # "esm2_t6_8M_UR50D" # "/data/public/models/llama/llama-13b/" # "/data/public/models/facebook/esm2_t48_15B_UR50D/" # "" # "/data/public/models/facebook/esm2_t36_3B_UR50D/" # "roberta-base", "facebook/bart-base","facebook/esm2_t33_650M_UR50D", "facebook/esm1b_t33_650M_UR50S","bert-base-uncased", "xlnet-base-cased", "gpt2"
+  tokenizer: "/data/run01/scv6872/kwli/AMPCliff/progen2/tokenizer.json"
   regression:
-    version: esm2_t6 # gpt2-base # progen2-medium # progen2-base # esm2_t12 # progen2-small # gpt2-large # gpt2-base # esm2_t33 # gpt2-large # bert-base # protgpt2 # CellFree-cnn # CellFree-rnn # AMPSpace # v1 # AMPSpace, CellFree-cnn, SeqUNet
+    version: esm2_t33 # gpt2-base # progen2-medium # progen2-base # esm2_t12 # progen2-small # gpt2-large # gpt2-base # esm2_t33 # gpt2-large # bert-base # protgpt2 # CellFree-cnn # CellFree-rnn # AMPSpace # v1 # AMPSpace, CellFree-cnn, SeqUNet
     check_point: 
       load: false # false
-      path:  "/data/home/scv6872/AMPCliff/outputs/2024-04-13/11-45-34/esm2_t6/blosum62 average/diff5/model_step_20_spearman_0.702/"
+      path:  "/data/run01/scv6872/kwli/AMPCliff/outputs/2024-04-13/11-45-34/esm2_t6/blosum62 average/diff5/model_step_20_spearman_0.702/"
 data:
   max_length: 28
-  diff: [5] # [2,3,4,5]
+  diff: [3,4] # [2,3,4,5]
+  threshold: 0.95
   regression:
-    mode: 'random'# 'fix' #'fix'    
+    mode: 'fix'# 'random'# 'fix' #'fix'    
     noise_level: 0 # 10 level in total
     condition: ['blosum62 average'] # ['blosum62 average','tanimoto average']
     acindex: false
     fix:
-      all_train_file: "/data/home/scv6872/AMPCliff/data/blast/{condition}/diff_{diff}/grampa_s_aureus_7_25-all-train.csv"# "/data/home/scv6872/AMPCliff/data/blast/blosum62 average/diff_5/grampa_s_aureus_7_25-all-train.csv"# "/data/home/scv6872/AMPCliff/data/blosum62 average/grampa_s_aureus_7_25-blosum62 average-all-train.csv" 
-      train_file: "/data/home/scv6872/AMPCliff/data/blast/{condition}/diff_{diff}/grampa_s_aureus_7_25-train.csv"#"/data/home/scv6872/AMPCliff/data/blast/blosum62 average/diff_5/grampa_s_aureus_7_25-train.csv"  # "/data/home/scv6872/AMPCliff/data/blosum62 average/grampa_s_aureus_7_25-blosum62 average-train.csv" 
-      valid_file: "/data/home/scv6872/AMPCliff/data/blast/{condition}/diff_{diff}/grampa_s_aureus_7_25-valid.csv"# "/data/home/scv6872/AMPCliff/data/blast/blosum62 average/diff_5/grampa_s_aureus_7_25-valid.csv"# "/data/home/scv6872/AMPCliff/data/blosum62 average/grampa_s_aureus_7_25-blosum62 average-valid.csv" 
-      test_file: "/data/home/scv6872/AMPCliff/data/blast/{condition}/diff_{diff}/grampa_s_aureus_7_25-test.csv"# "/data/home/scv6872/AMPCliff/data/blast/blosum62 average/diff_5/grampa_s_aureus_7_25-test.csv"# "/data/home/scv6872/AMPCliff/data/blosum62 average/grampa_s_aureus_7_25-blosum62 average-test.csv"     
+      all_train_file: "/data/run01/scv6872/kwli/AMPCliff/data/blast/{condition}/diff_{diff}-trd_{threshold}/grampa_s_aureus_7_25-all-train.csv"# "/data/home/scv6872/AMPCliff/data/blast/blosum62 average/diff_5/grampa_s_aureus_7_25-all-train.csv"# "/data/home/scv6872/AMPCliff/data/blosum62 average/grampa_s_aureus_7_25-blosum62 average-all-train.csv" 
+      train_file: "/data/run01/scv6872/kwli/AMPCliff/data/blast/{condition}/diff_{diff}-trd_{threshold}/grampa_s_aureus_7_25-train.csv"#"/data/home/scv6872/AMPCliff/data/blast/blosum62 average/diff_5/grampa_s_aureus_7_25-train.csv"  # "/data/home/scv6872/AMPCliff/data/blosum62 average/grampa_s_aureus_7_25-blosum62 average-train.csv" 
+      valid_file: "/data/run01/scv6872/kwli/AMPCliff/data/blast/{condition}/diff_{diff}-trd_{threshold}/grampa_s_aureus_7_25-valid.csv"# "/data/home/scv6872/AMPCliff/data/blast/blosum62 average/diff_5/grampa_s_aureus_7_25-valid.csv"# "/data/home/scv6872/AMPCliff/data/blosum62 average/grampa_s_aureus_7_25-blosum62 average-valid.csv" 
+      test_file: "/data/run01/scv6872/kwli/AMPCliff/data/blast/{condition}/diff_{diff}-trd_{threshold}/grampa_s_aureus_7_25-test.csv"# "/data/home/scv6872/AMPCliff/data/blast/blosum62 average/diff_5/grampa_s_aureus_7_25-test.csv"# "/data/home/scv6872/AMPCliff/data/blosum62 average/grampa_s_aureus_7_25-blosum62 average-test.csv"     
     random:
-      data_file: "/data/home/scv6872/AMPCliff/data/grampa_s_aureus_7_25.csv" 
+      data_file: "/data/run01/scv6872/kwli/AMPCliff/data/grampa_e_coli_7_25.csv" 
       fold: 5
       stratified: True
-      fold_files: "/data/home/scv6872/AMPCliff/data/folds"
+      fold_files: "/data/run01/scv6872/kwli/AMPCliff/data/folds_e_coli"
       checkpoints: []  
 logger:
   log: True

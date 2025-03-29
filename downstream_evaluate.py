@@ -75,7 +75,10 @@ def main(cfg: DictConfig):
             
         for p, v in cfg.data[cfg.task.type][cfg.data[cfg.task.type].mode].items():
            
-            mlflow.log_param(p, v)
+            try:
+              mlflow.log_param(p, v)
+            except:
+              mlflow.log_param(p, v[:500])
 
         for p, v in cfg.train.items():
             mlflow.log_param(p, v)
@@ -100,7 +103,7 @@ def main(cfg: DictConfig):
                     )
 
    
-        
+    threshold = str(cfg.data.threshold)
     for condition in cfg.data[cfg.task.type].condition:
           
       for diff in cfg.data.diff: 
@@ -111,7 +114,7 @@ def main(cfg: DictConfig):
             if global_rank == 0:
                 Logger.info('loading train data...')
             
-            train_file_path = cfg.data[cfg.task.type].fix.train_file.replace("{diff}",str(diff)).replace("{condition}",condition)
+            train_file_path = cfg.data[cfg.task.type].fix.train_file.replace("{diff}",str(diff)).replace("{condition}",condition).replace("{threshold}",threshold)
               
             
             train_dataloader = make_loader(
@@ -127,7 +130,7 @@ def main(cfg: DictConfig):
             if global_rank == 0:
                 Logger.info('loading valid data...')
             
-            valid_file_path = cfg.data[cfg.task.type].fix.valid_file.replace("{diff}",str(diff)).replace("{condition}",condition)
+            valid_file_path = cfg.data[cfg.task.type].fix.valid_file.replace("{diff}",str(diff)).replace("{condition}",condition).replace("{threshold}",threshold)
               
             
             valid_dataloader = make_loader(
@@ -143,7 +146,7 @@ def main(cfg: DictConfig):
             if global_rank == 0:
                 Logger.info('loading test data...')
             
-            test_file_path = cfg.data[cfg.task.type].fix.test_file.replace("{diff}",str(diff)).replace("{condition}",condition)
+            test_file_path = cfg.data[cfg.task.type].fix.test_file.replace("{diff}",str(diff)).replace("{condition}",condition).replace("{threshold}",threshold)
               
             
             test_dataloader = make_loader(
@@ -290,19 +293,19 @@ def main(cfg: DictConfig):
             if global_rank == 0:
                 if not cfg.mode.nni and cfg.logger.log:            
                     for metric_name, metric_v in evaluate_tr_metrics.items():
-                        if isinstance(metric_v, (float, np.float64, int, np.int)):
+                        if isinstance(metric_v, (float, np.float64, int)):
                             mlflow.log_metric("train_final/{}".format(metric_name), metric_v, step=1)
                         elif isinstance(metric_v, str):
                             mlflow.log_text(metric_v, "train_final/report.txt")
                     
                     for metric_name, metric_v in evaluate_val_metrics.items():
-                        if isinstance(metric_v, (float, np.float64, int, np.int)):
+                        if isinstance(metric_v, (float, np.float64, int)):
                             mlflow.log_metric("valid_final/{}".format(metric_name), metric_v, step=1)
                         elif isinstance(metric_v, str):
                             mlflow.log_text(metric_v, "valid_final/report.txt")
                     
                     for metric_name, metric_v in evaluate_test_metrics.items():
-                        if isinstance(metric_v, (float, np.float64, int, np.int)):
+                        if isinstance(metric_v, (float, np.float64, int)):
                             mlflow.log_metric("test_final/{}".format(metric_name), metric_v, step=1)
                         elif isinstance(metric_v, str):
                             mlflow.log_text(metric_v, "test_final/report.txt")
