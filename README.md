@@ -1,9 +1,12 @@
 # AMPCliff
 
+
+testing plenty of models for AMP activity cliff prediction
+
+![fitness landscape](./Figure2-e.jpg)
 <!-- TOC -->
 <!-- /TOC -->
-testing plenty of models for AMP activity cliff prediction
-![fitness landscape](./Figure2-e.jpg)
+
 - [AMPCliff](#ampcliff)
   - [Getting Started](#getting-started)
     - [Step1. Installation](#step1-installation)
@@ -17,6 +20,7 @@ testing plenty of models for AMP activity cliff prediction
     - [load checkpoints](#load-checkpoints)
     - [Debug Mode](#debug-mode)
     - [MLFlow Setting](#mlflow-setting)
+  - [Citation](#citation)
   - [Contact](#contact)
 
 ## Getting Started
