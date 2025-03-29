@@ -1,8 +1,9 @@
 # AMPCliff
+
 <!-- TOC -->
 <!-- /TOC -->
 testing plenty of models for AMP activity cliff prediction
-
+![fitness landscape](./Figure2-e.jpg)
 - [AMPCliff](#ampcliff)
   - [Getting Started](#getting-started)
     - [Step1. Installation](#step1-installation)
