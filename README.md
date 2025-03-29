@@ -74,13 +74,13 @@ python machine_learning_train.py
 </div>
 
 - modify `features.type` in `./config/downstram.yaml`
-```json
+```yaml
 features:
   type: CellFree-cnn # LLM  # CellFree-cnn # CellFree-rnn # AMPSpace # peptimizer
 ```
 
 - modify `model.regression.version`, the **SAME** value as `features.type`
-```json
+```yaml
 model:
   ...
   regression:
@@ -93,7 +93,7 @@ model:
 🚀 for LLM, `features.type` always `LLM`
 
 - modify `configs/downstream.yaml`
-```json
+```yaml
 model:
   config_dir: "/data/public/models/gpt2-large/" 
   regression:
