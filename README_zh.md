@@ -280,16 +280,22 @@ python downstream_evaluate.py \
 
 ### AMPCliff（基础平台）
 
-FLaG is built upon AMPCliff. 若使用 activity cliff 数据集或 benchmark 框架，请同时引用：
+FLaG is built upon AMPCliff. 若使用 activity cliff 数据集或 benchmark 框架，请同时引用已发表于 *Journal of Advanced Research*（2026）的 AMPCliff 论文：
 
 ```bibtex
 @article{AMPCliff,
-  title={AMPCliff: quantitative definition and benchmarking of activity cliffs in antimicrobial peptides},
-  author={Kewei Li, Yuqian Wu, Yinheng Li, Yutong Guo, Yan Wang, Yiyang Liang, Yusi Fan, Lan Huang, Ruochi Zhang, Fengfeng Zhou},
-  journal={arXiv},
-  year={2024}
+  title={AMPCliff: Quantitative definition and benchmarking of activity cliffs in antimicrobial peptides},
+  author={Li, Kewei and Wu, Yuqian and Li, Yinheng and Guo, Yutong and Kong, Yanwen and Wang, Yan and Liang, Yiyang and Fan, Yusi and Huang, Lan and Zhang, Ruochi and Zhou, Fengfeng},
+  journal={Journal of Advanced Research},
+  volume={80},
+  pages={287--300},
+  year={2026},
+  issn={2090-1232},
+  doi={10.1016/j.jare.2025.04.046}
 }
 ```
+
+https://doi.org/10.1016/j.jare.2025.04.046
 
 ---
 

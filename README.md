@@ -280,16 +280,22 @@ If you use the FLaG pooling method or this codebase, please cite our paper (bibt
 
 ### AMPCliff (Foundation)
 
-FLaG is built upon AMPCliff. If you use the activity cliff dataset or benchmark framework, please also cite:
+FLaG is built upon AMPCliff. If you use the activity cliff dataset or benchmark framework, please also cite the published AMPCliff paper (*Journal of Advanced Research*, 2026):
 
 ```bibtex
 @article{AMPCliff,
-  title={AMPCliff: quantitative definition and benchmarking of activity cliffs in antimicrobial peptides},
-  author={Kewei Li, Yuqian Wu, Yinheng Li, Yutong Guo, Yan Wang, Yiyang Liang, Yusi Fan, Lan Huang, Ruochi Zhang, Fengfeng Zhou},
-  journal={arXiv},
-  year={2024}
+  title={AMPCliff: Quantitative definition and benchmarking of activity cliffs in antimicrobial peptides},
+  author={Li, Kewei and Wu, Yuqian and Li, Yinheng and Guo, Yutong and Kong, Yanwen and Wang, Yan and Liang, Yiyang and Fan, Yusi and Huang, Lan and Zhang, Ruochi and Zhou, Fengfeng},
+  journal={Journal of Advanced Research},
+  volume={80},
+  pages={287--300},
+  year={2026},
+  issn={2090-1232},
+  doi={10.1016/j.jare.2025.04.046}
 }
 ```
+
+https://doi.org/10.1016/j.jare.2025.04.046
 
 ---
 
