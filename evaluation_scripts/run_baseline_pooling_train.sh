@@ -15,7 +15,7 @@ set -euo pipefail
 # 其他环境变量（常用）：
 #   MODEL_TYPE, DATASET, CONDITION, DIFF, THRESHOLD
 #   TRAIN_FILE, VALID_FILE, TEST_FILE  — 未设置时按 REPO_ROOT 下默认 CSV
-#   CONFIG_DIR — 未设置时按 MODEL_TYPE 选超算共享路径（与 factory/initializer.py、run_new_poolings_train_single.sh 一致）
+#   CONFIG_DIR — 未设置时按 MODEL_TYPE 选超算共享路径（与 factory/initializer.py 一致）
 #   OUTPUT_ROOT, EXP_TAG, OUTPUT_DIR — 输出目录；默认 hydra.run.dir=OUTPUT_DIR
 #   RANDOM_SEED — 若设置：追加 train.random_seed，且在未显式设置 OUTPUT_DIR 时
 #                 使用 ${OUTPUT_ROOT}/${EXP_TAG}/seed_${RANDOM_SEED}，避免多种子互相覆盖
