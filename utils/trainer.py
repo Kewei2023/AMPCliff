@@ -50,9 +50,6 @@ class Trainer(object):
         if cfg.train.loss =='mse':
             self.reg_loss_func = MSELoss()
 
-        # Initialize orthogonal constraint if enabled
-        self._init_orthogonal_constraint(cfg)
-
         # save checkpoint
         self.best_metric = -1
         self.best_model_path = Path('.')
@@ -78,48 +75,6 @@ class Trainer(object):
                 f.write(json.dumps(payload, ensure_ascii=False) + "\n")
         except Exception:
             pass
-
-    def _init_orthogonal_constraint(self, cfg):
-        """Initialize orthogonal constraint from config if enabled."""
-        self.orthogonal_constraint = None
-        self.orthogonal_weight = 0.0
-        self.log_orthogonal_metrics = False
-
-        # Check if orthogonal constraint is configured and enabled
-        if hasattr(cfg, 'orthogonal_constraint') and cfg.orthogonal_constraint is not None:
-            ortho_cfg = cfg.orthogonal_constraint
-
-            # Handle both dict and OmegaConf formats
-            if hasattr(ortho_cfg, 'get'):
-                enabled = ortho_cfg.get('enabled', False)
-            else:
-                enabled = getattr(ortho_cfg, 'enabled', False)
-
-            if enabled:
-                from .orthogonal_constraint import OrthogonalConstraint
-
-                # Get parameters with safe access
-                if hasattr(ortho_cfg, 'get'):
-                    layer_indices = ortho_cfg.get('layer_indices', None)
-                    constraint_type = ortho_cfg.get('constraint_type', 'pairwise')
-                    normalize = ortho_cfg.get('normalize', True)
-                    self.orthogonal_weight = ortho_cfg.get('weight', 0.01)
-                    self.log_orthogonal_metrics = ortho_cfg.get('log_metrics', True)
-                else:
-                    layer_indices = getattr(ortho_cfg, 'layer_indices', None)
-                    constraint_type = getattr(ortho_cfg, 'constraint_type', 'pairwise')
-                    normalize = getattr(ortho_cfg, 'normalize', True)
-                    self.orthogonal_weight = getattr(ortho_cfg, 'weight', 0.01)
-                    self.log_orthogonal_metrics = getattr(ortho_cfg, 'log_metrics', True)
-
-                self.orthogonal_constraint = OrthogonalConstraint(
-                    layer_indices=layer_indices,
-                    constraint_type=constraint_type,
-                    normalize=normalize
-                )
-
-                Logger.info(f"Orthogonal constraint enabled: weight={self.orthogonal_weight}, "
-                           f"type={constraint_type}, layer_indices={layer_indices}")
 
     def evaluate(self,split):
         self.net.eval()
@@ -290,33 +245,9 @@ class Trainer(object):
                     output = self.net(batch)
                     loss = self.reg_loss_func(output[0].squeeze(),labels.squeeze())
 
-                    # Add orthogonal constraint if enabled
-                    ortho_loss = torch.tensor(0.0, device=self.device)
-                    if self.orthogonal_constraint is not None and len(output) >= 3:
-                        if len(output) >= 6 and output[5] is not None:
-                            layer_reps = output[5]  # [B, D, L] from model's task-aligned pooling
-                        else:
-                            layer_reps = output[2]
-                            if layer_reps.dim() == 4:
-                                layer_reps = layer_reps.mean(dim=1)
-                        ortho_loss = self.orthogonal_constraint(layer_reps)
-                        loss = loss + self.orthogonal_weight * ortho_loss
-
             else:
                 output = self.net(batch)
                 loss = self.reg_loss_func(output[0].squeeze(),labels.squeeze())
-
-                # Add orthogonal constraint if enabled
-                ortho_loss = torch.tensor(0.0, device=self.device)
-                if self.orthogonal_constraint is not None and len(output) >= 3:
-                    if len(output) >= 6 and output[5] is not None:
-                        layer_reps = output[5]  # [B, D, L] from model's task-aligned pooling
-                    else:
-                        layer_reps = output[2]
-                        if layer_reps.dim() == 4:
-                            layer_reps = layer_reps.mean(dim=1)
-                    ortho_loss = self.orthogonal_constraint(layer_reps)
-                    loss = loss + self.orthogonal_weight * ortho_loss
 
             # backward
             if self.cfg.mode.amp:
@@ -356,28 +287,6 @@ class Trainer(object):
                     mlflow.log_metric("train/loss",
                                     loss.item(),
                                     step=self.global_train_step)
-
-                    # Log orthogonal loss if enabled
-                    if self.orthogonal_constraint is not None:
-                        mlflow.log_metric("train/ortho_loss",
-                                        ortho_loss.item(),
-                                        step=self.global_train_step)
-
-                        # Log detailed orthogonality metrics periodically
-                        if self.log_orthogonal_metrics and self.global_train_step % 100 == 0:
-                            from .orthogonal_metrics import log_orthogonality_to_mlflow
-                            with torch.no_grad():
-                                if len(output) >= 6 and output[5] is not None:
-                                    layer_reps_log = output[5].detach()
-                                else:
-                                    layer_reps_log = output[2].detach()
-                                    if layer_reps_log.dim() == 4:
-                                        layer_reps_log = layer_reps_log.mean(dim=1)
-                                log_orthogonality_to_mlflow(
-                                    layer_reps_log,
-                                    step=self.global_train_step,
-                                    prefix="orthogonality"
-                                )
 
             self.global_train_step += 1
 

@@ -343,9 +343,7 @@ def parse_experiment_config(rel_posix: str, parent_dir_name: str) -> Dict[str, s
                     )
         return config
 
-    if 'orthogonal' in parent_dir_name:
-        config['experiment_type'] = 'orthogonal_constraint'
-    elif 'pooling' in parent_dir_name:
+    if 'pooling' in parent_dir_name:
         config['experiment_type'] = 'pooling_baseline'
     elif 'spectral_anchor_dc' in parent_dir_name:
         config['experiment_type'] = 'spectral_anchor_dc'
@@ -359,15 +357,7 @@ def parse_experiment_config(rel_posix: str, parent_dir_name: str) -> Dict[str, s
         config['path_s'] = sa_dc_m.group('path_s')
         config['path_d'] = sa_dc_m.group('path_d')
 
-    if config['experiment_type'] == 'orthogonal_constraint':
-        match = re.search(r'enabled_(True|False)_w([\d.]+)_t(\w+)_l(\[.*?\]|None)', leaf)
-        if match:
-            config['orthogonal_enabled'] = match.group(1)
-            config['orthogonal_weight'] = match.group(2)
-            config['orthogonal_type'] = match.group(3)
-            config['orthogonal_layers'] = match.group(4)
-
-    elif config['experiment_type'] == 'pooling_baseline':
+    if config['experiment_type'] == 'pooling_baseline':
         match = re.search(r'(\w+)_k(\d+)_fft(True|False)', leaf)
         if match:
             config['pooling'] = match.group(1)

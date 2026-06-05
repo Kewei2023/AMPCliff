@@ -411,18 +411,6 @@ model:
       mode: real
       use_rfft: True
 
-# =============================================================================
-# Orthogonal Constraint Configuration
-# Constrains different layers' output representations to be orthogonal
-# =============================================================================
-orthogonal_constraint:
-  enabled: false              # Set to true to enable orthogonal constraint
-  weight: 0.01                # Regularization strength (lambda in loss)
-  layer_indices: null         # null = all layers, or list like [0,2,4,6]
-  constraint_type: "pairwise" # "pairwise" (all pairs), "sequential" (adjacent), "gram"
-  normalize: true             # L2 normalize representations before computing
-  log_metrics: true           # Log orthogonality metrics to MLflow
-
 # Input perturbation robustness + representation consistency (downstream_evaluate_perturbation.py)
 perturbation:
   ratios: [0.1, 0.2, 0.3]
