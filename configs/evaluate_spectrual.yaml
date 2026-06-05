@@ -147,10 +147,10 @@ data:
     acindex: false
     dataset: "s_aureus" # "e_coli" or "s_aureus"
     fix:
-      all_train_file: "/mnt/g/likw/AMPCliff/AMPCliff/data/blast/{condition}/diff_{diff}/grampa_{dataset}_7_25-all-train.csv"
-      train_file: "/mnt/g/likw/AMPCliff/AMPCliff/data/blast/{condition}/diff_{diff}/grampa_{dataset}_7_25-train.csv"
-      valid_file: "/mnt/g/likw/AMPCliff/AMPCliff/data/blast/{condition}/diff_{diff}/grampa_{dataset}_7_25-valid.csv"
-      test_file: "/mnt/g/likw/AMPCliff/AMPCliff/data/blast/{condition}/diff_{diff}/grampa_{dataset}_7_25-test.csv"     
+      all_train_file: "./data/blosum62 average/diff_{diff}-trd_{threshold}/grampa_{dataset}_7_25-all-train.csv"
+      train_file: "./data/blosum62 average/diff_{diff}-trd_{threshold}/grampa_{dataset}_7_25-train.csv"
+      valid_file: "./data/blosum62 average/diff_{diff}-trd_{threshold}/grampa_{dataset}_7_25-valid.csv"
+      test_file: "./data/blosum62 average/diff_{diff}-trd_{threshold}/grampa_{dataset}_7_25-test.csv"     
     random:
       data_file: "/data/run01/scv6872/kwli/AMPCliff/data/grampa_e_coli_7_25.csv" 
       fold: 5

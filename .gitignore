@@ -14,7 +14,11 @@ outputs/
 logs/
 mlruns/
 models/
-data/
+data/*
+!data/README.md
+!data/blosum62 average/
+!data/blosum62 average/diff_5-trd_0.9/
+!data/blosum62 average/diff_5-trd_0.9/**
 statics/
 *.pth
 *.pt
