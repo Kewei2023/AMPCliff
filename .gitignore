@@ -63,3 +63,16 @@ factory/SeqUNet.py
 factory/generation.py
 facorty/residual.py
 random*
+
+# ===== Internal docs (not for public release) =====
+paper/
+note/
+taichinet/distill-vc/
+taichinet/README.txt
+CLAUDE.md
+AGENTS.md
+*实验记录*.md
+*试验记录*.md
+test_bnn*.jpg
+ESMT12_VALIDATION_PLAN.md
+RE_TRAIN_README.md
