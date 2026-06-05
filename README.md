@@ -2,11 +2,11 @@
   <strong>English</strong> · <a href="README_zh.md">中文</a>
 </p>
 
-# FLaG — FFT Latent Attention Gate for Activity Cliff Prediction
+# FLaG — Frequency-Domain Latent Attention Gating for Cross-Domain Token Aggregation
 
 *Built on [AMPCliff](https://github.com/Kewei2023/AMPCliff)*
 
-**FLaG** (FFT Latent Attention Gate) is an independent research project built on [AMPCliff](https://github.com/Kewei2023/AMPCliff) for antimicrobial peptide **activity cliff** prediction. AMPCliff provides the activity cliff dataset, benchmark framework, and ESM2 downstream training infrastructure; FLaG introduces the core pooling method `fft_latent_attn_gate` along with mechanism analysis and ablation experiments.
+**FLaG** (Frequency-Domain Latent Attention Gating for Cross-Domain Token Aggregation) is an independent research project built on [AMPCliff](https://github.com/Kewei2023/AMPCliff) for antimicrobial peptide **activity cliff** prediction. AMPCliff provides the activity cliff dataset, benchmark framework, and ESM2 downstream training infrastructure; FLaG introduces the core pooling method `fft_latent_attn_gate` along with mechanism analysis and ablation experiments.
 
 Code is hosted on the **`FLaG` branch** of the AMPCliff repository (the `AMPCliff` Python package name and directory layout are retained for historical reasons).
 
