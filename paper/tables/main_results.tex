@@ -1,0 +1,23 @@
+% Table generated from outputs/2026-04-03/local_spectral_anchor_grid_2x2_with_pooling_mean_max_attn_merged.xlsx
+% Metrics: test Spearman correlation (higher is better). See paper/main.tex for discussion.
+\begin{table*}[t]
+  \centering
+  \small
+  \caption{Test Spearman correlation ($\rho$) on AMP activity-cliff regression. All readouts use the same frozen PLM backbone with \texttt{apply=none} unless noted. Best MLSAP denotes the strongest \texttt{local\_spectral\_anchor} row from the local $2\times2$ grid (heads $\times$ anchors) and toggle ablations in the merged workbook. ``---'' indicates missing baseline rows in the merged sheet for that backbone/dataset.}
+  \label{tab:main}
+  \begin{tabular}{lcccc}
+    \toprule
+    Readout / pooling & \multicolumn{2}{c}{ESM2-t12} & \multicolumn{2}{c}{ESM2-t6} \\
+    \cmidrule(lr){2-3} \cmidrule(lr){4-5}
+    & \textit{E.\,coli} & \textit{S.\,aureus} & \textit{E.\,coli} & \textit{S.\,aureus} \\
+    \midrule
+    Mean / max / attn (classic) & 0.531 / 0.537 / --- & --- / --- / --- & 0.532 / 0.536 / 0.523 & 0.394 / 0.414 / 0.438 \\
+    SpectralAnchorV2 (mean / max / attn) & 0.504 / 0.553 / 0.555 & 0.388 / 0.427 / 0.406 & --- & --- \\
+    Last-token & \textbf{0.563} & 0.443 & 0.517 & 0.389 \\
+    Latent attention & 0.535 & 0.440 & 0.534 & 0.424 \\
+    Sliced-Wasserstein / OT-style & 0.558 & 0.451 & 0.536 & 0.436 \\
+    Multi-layer trainable pooling & 0.541 & 0.418 & 0.520 & 0.334 \\
+    Best MLSAP (ours) & 0.559 & \textbf{0.462} & \textbf{0.540} & \textbf{0.464} \\
+    \bottomrule
+  \end{tabular}
+\end{table*}

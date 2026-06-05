@@ -1,0 +1,170 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+
+\title{Multi-Head Spectral Anchor Pooling for Protein Language Model Representations in Antimicrobial Peptide Activity-Cliff Regression}
+\author{Anonymous Draft / AMPCliff}
+\date{March 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We introduce \textbf{multi-head spectral anchor pooling}, a sequence-to-vector module for fine-tuning protein language models (PLMs) on regression over antimicrobial peptide (AMP) \emph{activity cliffs}. Pooling is difficult because cliff labels depend on subtle sequence edits; standard mean, max, or learned attention pooling may under-use structure in the token trajectory. Our module optionally maps hidden states along the sequence dimension with an \textbf{FFT-based linear transform} (real and imaginary parts of \texttt{rfft}), splits representations into \textbf{multiple heads}, and assigns each position a weight from \textbf{learnable anchor prototypes} with \textbf{per-head temperature}. Crucially, weights are inferred from (optional) spectral features, but \textbf{aggregation uses the original time-domain token representations}, decoupling ``where to attend'' from ``what to pool.'' An optional \textbf{sigmoid gate} and output projection follow head concatenation. Under a fixed \textbf{ESM-2-t12} backbone and a fixed activity-cliff split (\texttt{diff=5}) on \textit{E.~coli} and \textit{S.~aureus} datasets, we compare against mean, max, attention pooling, and single-stream \texttt{spectral\_anchor}. Training uses \texttt{model.regression.apply=none} (no DC filtering in this study). On \textit{E.~coli} test Spearman correlation, the best multi-head configuration reaches \textbf{0.558} versus \textbf{0.555} for attention pooling and \textbf{0.504} for mean pooling. On \textit{S.~aureus}, the best multi-head configuration reaches \textbf{0.453} versus \textbf{0.406} for attention pooling; \textbf{test metrics are missing} for the exported mean/max baselines in our metrics sheet and must be re-run before claiming a full baseline table.
+\end{abstract}
+
+\section{Introduction}
+Predicting whether a small sequence change induces a large potency jump---an \emph{activity cliff}---is central to peptide lead optimization. PLMs such as ESM-2 provide contextual embeddings per residue, but downstream models require a \textbf{single vector} per sequence. Common poolings (mean, max, attention) treat the trajectory uniformly or learn content-based weights entirely in the time domain, which may not align with periodic or multi-scale structure along the sequence.
+
+We propose \textbf{multi-head spectral anchor pooling} with three design goals: (i) an \textbf{optional harmonic decomposition} along sequence length as an inductive bias complementary to the PLM's implicit modeling; (ii) \textbf{prototype-style} assignment to learnable anchors; (iii) \textbf{multi-head subspaces} with independent temperatures and anchor sets.
+
+\paragraph{Contributions.}
+\begin{itemize}
+  \item A pooling layer that combines \textbf{FFT-feature-driven weights} with \textbf{time-domain aggregation} over the original hidden states.
+  \item A \textbf{multi-head} extension with orthogonal anchor initialization, per-head softmax temperatures, optional gating, and Hydra wiring \texttt{num\_anchor\_per\_head = num\_anchor // num\_heads} when \texttt{num\_anchor >= num\_heads}, else \texttt{2} (see \texttt{factory/pooling/registry.py}).
+  \item Empirical results on AMP activity-cliff regression (ESM-2-t12, two organisms) against mean / max / attention / \texttt{spectral\_anchor}, plus ablations over \texttt{num\_heads}, \texttt{use\_fft}, and \texttt{gated}, from \texttt{outputs/ablation\_metrics\_exports/ablation\_metrics\_summary.csv}.
+\end{itemize}
+
+We \textbf{do not} report DC-component processing (\texttt{filter\_dc}, \texttt{scale\_dc}, etc.); the ablation driver sets \texttt{model.regression.apply=none} (\texttt{evaluation\_scripts/run\_spectral\_anchor\_v2\_ablation.sh}).
+
+\section{Method}
+\subsection{Backbone and task}
+Given a sequence, a PLM yields hidden states $X \in \mathbb{R}^{B \times T \times d}$ and a mask over valid positions. A regression head predicts a scalar target. Only the pooling operator changes across runs.
+
+\subsection{Multi-head spectral anchor pooling}
+\paragraph{Optional spectral path.} If \texttt{use\_fft} is true, compute $Z = \mathrm{rfft}(X)$ along the sequence axis. Concatenate real and imaginary parts along the feature axis, truncate or pad to width $2d$, and apply a learned linear map $W_s : \mathbb{R}^{2d} \to \mathbb{R}^{d}$ to obtain $H$. If \texttt{use\_fft} is false, $H = X$.
+
+\paragraph{Multi-head split.} Reshape $H$ into $H_{\text{heads}}$ subspaces of dimension $d_h = d / H_{\text{heads}}$ per head (implementation uses \texttt{view} after FFT; sequence length may be $T' = \lfloor T/2 \rfloor + 1$).
+
+\paragraph{Anchor assignment.} Per head $h$, learn anchors $A_h \in \mathbb{R}^{K \times d_h}$ (orthogonal init). Euclidean distances yield softmax weights over anchors with learnable temperature $\tau_h$; a \textbf{mean} over anchor indices yields one scalar weight per time step for that head.
+
+\paragraph{Align length and aggregate.} Interpolate weights to length $T$ if needed, apply the mask, renormalize. For each head, \textbf{pool the original} $X$ slice: $p_h = \sum_t w_{t,h} \odot x_{t,h}$. Concatenate heads, optionally apply $\sigma(W_g p) \odot p$, then a linear output projection.
+
+\subsection{Configuration}
+The ablation script sweeps \texttt{num\_heads} $\in \{2,4,8\}$, \texttt{use\_fft} $\in \{\text{true},\text{false}\}$, \texttt{gated} $\in \{\text{true},\text{false}\}$, with default \texttt{num\_anchor=8} unless overridden.
+
+\subsection{Pseudocode}
+\begin{verbatim}
+Input: X (B,T,d), mask M
+if use_fft:
+    Z = rfft(X, dim=sequence)
+    S = concat(Re(Z), Im(Z)); F = Linear_{2d->d}(S)
+else: F = X
+split F into H heads -> per-head anchor softmax -> weights W_h
+interpolate W_h to length T; normalize(W_h * M)
+for each head h: p_h = sum_t W_h[t] * X[t, head h]
+p = concat(p_h); optional gate; return Linear_out(p)
+\end{verbatim}
+
+\section{Experiments}
+\subsection{Setup}
+Model: ESM-2-t12. Data: activity-cliff splits for \textit{E.~coli} and \textit{S.~aureus}, \texttt{diff=5}, fixed CSVs. Metric: test Spearman from the exported CSV. Training aligns with \texttt{run\_spectral\_anchor\_v2\_ablation.sh} (\texttt{apply=none}).
+
+\subsection{Main comparison}
+\begin{table}[h]
+\centering
+\caption{Test Spearman (ESM-2-t12, \texttt{spectral\_anchor\_v2\_ablation} rows, \texttt{diff=5}).}
+\begin{tabular}{lcc}
+\toprule
+Pooling & \textit{E.~coli} & \textit{S.~aureus} \\
+\midrule
+mean & 0.5038 & --- (missing in export) \\
+max & 0.5525 & --- (missing in export) \\
+attn & 0.5547 & 0.4060 \\
+multi\_head (best) & \textbf{0.5584} & \textbf{0.4531} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent Best multi-head settings: \textit{E.~coli}: $H{=}8$, FFT on, gated on. \textit{S.~aureus}: $H{=}2$, FFT on, gated off.
+
+\subsection{Ablations}
+\begin{table}[h]
+\centering
+\caption{\textit{E.~coli}: multi-head spectral, test Spearman.}
+\begin{tabular}{ccc c}
+\toprule
+$H$ & FFT & Gated & Test Spearman \\
+\midrule
+2 & off & off & 0.5405 \\
+2 & off & on & 0.5262 \\
+2 & on & off & 0.5182 \\
+2 & on & on & 0.5052 \\
+4 & off & off & 0.5367 \\
+4 & off & on & 0.5445 \\
+4 & on & off & 0.5493 \\
+4 & on & on & 0.5499 \\
+8 & off & off & 0.5358 \\
+8 & off & on & 0.5425 \\
+8 & on & off & 0.5579 \\
+8 & on & on & \textbf{0.5584} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{\textit{S.~aureus}: multi-head spectral, test Spearman.}
+\begin{tabular}{ccc c}
+\toprule
+$H$ & FFT & Gated & Test Spearman \\
+\midrule
+2 & off & off & 0.4130 \\
+2 & off & on & 0.4256 \\
+2 & on & off & \textbf{0.4531} \\
+2 & on & on & 0.4559 \\
+4 & off & off & 0.4285 \\
+4 & off & on & 0.4443 \\
+4 & on & off & 0.4372 \\
+4 & on & on & 0.4293 \\
+8 & off & off & 0.4197 \\
+8 & off & on & 0.4206 \\
+8 & on & off & 0.3971 \\
+8 & on & on & 0.4247 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Related Work}
+We cite only verified bibliography later; placeholders: PLMs \cite{PLACEHOLDER_esm2}; Fourier layers \cite{PLACEHOLDER_fnet,PLACEHOLDER_afno,PLACEHOLDER_fedformer}; set pooling \cite{PLACEHOLDER_set_transformer,PLACEHOLDER_deep_sets}; multi-head attention \cite{PLACEHOLDER_transformer2017}; gating \cite{PLACEHOLDER_glu,PLACEHOLDER_senet}; non-local weighting \cite{PLACEHOLDER_nonlocal}.
+
+\section{Limitations}
+Incomplete \textit{S.~aureus} mean/max test rows in CSV; single-seed runs; no DC pipelines in this draft; frequency--motif interpretability and formal theory left to future work.
+
+\begin{thebibliography}{99}
+\bibitem{PLACEHOLDER_esm2}
+\textit{[PLACEHOLDER]} Protein language model (e.g., ESM-2) --- verify authors, title, venue, DOI before submission.
+
+\bibitem{PLACEHOLDER_fnet}
+\textit{[PLACEHOLDER]} FNet (Lee-Thorp et al.) --- verify.
+
+\bibitem{PLACEHOLDER_afno}
+\textit{[PLACEHOLDER]} AFNO --- verify.
+
+\bibitem{PLACEHOLDER_fedformer}
+\textit{[PLACEHOLDER]} FEDformer --- verify.
+
+\bibitem{PLACEHOLDER_set_transformer}
+\textit{[PLACEHOLDER]} Set Transformer --- verify.
+
+\bibitem{PLACEHOLDER_deep_sets}
+\textit{[PLACEHOLDER]} Deep Sets --- verify.
+
+\bibitem{PLACEHOLDER_transformer2017}
+\textit{[PLACEHOLDER]} Vaswani et al., Transformer --- verify.
+
+\bibitem{PLACEHOLDER_glu}
+\textit{[PLACEHOLDER]} GLU (Dauphin et al.) --- verify.
+
+\bibitem{PLACEHOLDER_senet}
+\textit{[PLACEHOLDER]} SENet --- verify.
+
+\bibitem{PLACEHOLDER_nonlocal}
+\textit{[PLACEHOLDER]} Non-local Neural Networks --- verify.
+\end{thebibliography}
+
+\end{document}

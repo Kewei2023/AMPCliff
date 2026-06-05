@@ -1,0 +1,65 @@
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.coverage
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+
+# ===== Data / Model weights / Training outputs =====
+outputs/
+logs/
+mlruns/
+models/
+data/
+statics/
+*.pth
+*.pt
+*.bin
+*.h5
+*.hdf5
+
+# ===== Training logs =====
+*.log
+slurm-*.out
+slurm-*.err
+nohup.out
+*.err
+
+# ===== IDE / Tools =====
+.vscode/
+.idea/
+.claude/
+.cursor/
+.opencode/
+.sisyphus/
+.dvc/cache
+.dvc/tmp
+*.swp
+*~
+.DS_Store
+
+# ===== Temp / Personal =====
+*.bak
+*.zip
+.write_test
+1
+variables.txt
+train_files.txt
+seed_metrics_*.csv
+seed_metrics_*.json
+learned_bagua/
+
+# ===== Legacy =====
+Bert-Protein
+ChatGPT
+*llama*
+distribute_train.sh
+mystatistics*
+factory/SeqUNet.py
+factory/generation.py
+facorty/residual.py
+random*

@@ -1,0 +1,168 @@
+orig_cwd: "."
+# from debug to cluster running: change ddp => true, change logger => true
+mode:
+  ddp: false # false # true # false 
+  amp: false # true # true # false autocast training
+  nni: false
+
+task:
+  type: regression 
+  
+  regression: 
+    default_metric: spearman # spearman
+
+
+features:
+  type: LLM # LLM  # CellFree-cnn # CellFree-rnn # AMPSpace # peptimizer
+
+
+train:
+  random_seed: 0
+  num_epoch: 50 # 2 # 50
+  batch_size: 4 # 2 for multi GPUs, regularly 4 for single GPU
+  num_workers: 1
+  learning_rate: 1e-5 # 2e-3 for DL # 1e-5 for LLM
+  adam_epsilon: 1e-8
+  weight_decay: 0.1 # 0.2 0.01
+  loss: 'mse' # 'huber' # 'mse','huber','tmse'
+  lr_scheduler:
+    type: cosine # cosine, plateau
+    when: batch  # batch, epoch
+    cosine:
+      T_0: 10
+      T_mult: 2
+      eta_min: 1e-6
+  eval_epoch: 2
+  pin_memory: False
+  device_ids: [0,1,2,3,4,5,6,7]
+
+model:
+  config_dir: "/data/public/models/facebook/esm2_t6_8M_UR50D/" # "/data/public/models/facebook/esm2_t12_35M_UR50D/" # "/data/public/models/facebook/esm2_t6_8M_UR50D/" #"/data/public/models/progen2/progen2_large/"# "/data/public/models/progen2/progen2_medium/"# "/data/public/models/progen2/progen2_base/"# "/data/public/models/progen2/progen2_small/" # "/data/public/models/ProtGPT2/" # "/data/public/models/facebook/esm2_t33_650M_UR50D/" # "/data/public/models/facebook/esm2_t33_650M_UR50D/"# "/data/public/models/gpt2-xl/"# "/data/public/models/facebook/esm2_t12_35M_UR50D" # "/data/public/models/bert-base-uncased/"# "/data/public/models/ProtGPT2/"# "/data/public/models/bert-base-uncased/"# "/data/public/models/ProtGPT2/"# "/data/public/models/facebook/esm2_t12_35M_UR50D/" # esm2_t12_35M_UR50D" # "esm2_t6_8M_UR50D" # "/data/public/models/llama/llama-13b/" # "/data/public/models/facebook/esm2_t48_15B_UR50D/" # "" # "/data/public/models/facebook/esm2_t36_3B_UR50D/" # "roberta-base", "facebook/bart-base","facebook/esm2_t33_650M_UR50D", "facebook/esm1b_t33_650M_UR50S","bert-base-uncased", "xlnet-base-cased", "gpt2"
+  tokenizer: "/data/run01/scv6872/kwli/AMPCliff/progen2/tokenizer.json"
+  regression:
+    version: esm2_t6 # gpt2-base # progen2-medium # progen2-base # esm2_t12 # progen2-small # gpt2-large # gpt2-base # esm2_t33 # gpt2-large # bert-base # protgpt2 # CellFree-cnn # CellFree-rnn # AMPSpace # v1 # AMPSpace, CellFree-cnn, SeqUNet
+    pooling: attn # mean max spectral_anchor
+    num_anchor: 8
+    use_fft: true
+    apply: none # scale_dc none
+    filter_dc: 
+      # apply: true
+      opposite: false
+      dim: seq_len # hidden_dim
+      mode: dct # dct fft
+    scale_dc:
+      # apply: True
+      scale: 0.01
+      dim: seq_len # hidden_dim
+      mode: dct # dct fft
+    concat_dc:
+      # apply: True
+      dim: seq_len # hidden_dim
+      mode: dct # dct fft
+    distill_vc:
+      # apply: True
+      scale: 2.5 # amplify vc
+      dim: seq_len # hidden_dim
+      mode: dct # dct fft
+    inter_layer:
+      save_type: real
+      n_rotations: 8
+      pool: max
+    intra_layer:
+      return_time : false
+      save_type: real
+      out_dim_per_layer: 53 # 53
+      fft: true
+    spectrual_filter:
+      k_bands: 20
+      base: 4
+      band_mode: 'uniform' # 'geometric' or 'uniform'
+      band_index: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]
+      mode: 'notch'
+      preserve_norm: true
+      dim: hidden_dim # seq_len # seq_len or hidden_sim
+      rotary_knock: [5]
+      split_for_plot: ["test","valid"]
+    check_point: 
+      load: true # false
+      path: "/data/home/scv6872/run/kwli/AMPCliff/outputs/2025-11-01/08-35-12/esm2_t6/blosum62 average/diff5-trd0.9/model_step_25_spearman_0.768" 
+      # max pooling
+      # e_coli
+      # /data/home/scv6872/run/kwli/AMPCliff/outputs/2025-11-01/10-01-22/esm2_t6/blosum62 average/diff5-trd0.9/model_step_25_spearman_0.756
+      # s_aureus
+      # /data/home/scv6872/run/kwli/AMPCliff/outputs/2025-11-01/11-48-23/esm2_t6/blosum62 average/diff5-trd0.9/model_step_21_spearman_0.714
+      # attention pooling
+      # e_coli
+      # /data/home/scv6872/run/kwli/AMPCliff/outputs/2025-11-01/08-35-12/esm2_t6/blosum62 average/diff5-trd0.9/model_step_25_spearman_0.768
+      # s_aureus
+      # /data/home/scv6872/run/kwli/AMPCliff/outputs/2025-11-01/07-56-10/esm2_t6/blosum62 average/diff5-trd0.9/model_step_20_spearman_0.724
+      
+      # 20251019 开始复现之前的结果
+      # s_aureus v1 5-fold
+      # /data/home/scv6872/run/kwli/AMPCliff/outputs/2025-10-18/20-08-07/esm2_t6/blosum62 average/diff5-trd0.9/model_step_13_spearman_0.727
+      # s_aureus none 5-fold
+      # /data/home/scv6872/run/kwli/AMPCliff/outputs/2025-10-19/17-44-03/esm2_t6/blosum62 average/diff5-trd0.9/model_step_20_spearman_0.704
+      # e_coli v1 5-fold
+      # /data/home/scv6872/run/kwli/AMPCliff/outputs/2025-10-19/11-08-34/esm2_t6/blosum62 average/diff5-trd0.9/model_step_18_spearman_0.736
+      # e_coli none 5-fold
+      # /data/home/scv6872/run/kwli/AMPCliff/outputs/2025-10-19/17-41-23/esm2_t6/blosum62 average/diff5-trd0.9/model_step_19_spearman_0.755
+      
+      # e coli
+      # *v1-2 inter ifft, intra fft real:/data/home/scv6872/run/kwli/AMPCliff/outputs/2025-08-28/20-09-36/esm2_t6/blosum62 average/diff5-trd0.9/model_step_20_spearman_0.73
+      # v1-1 inter irfft, intra fft real: /data/home/scv6872/run/kwli/AMPCliff/outputs/2025-08-28/17-56-00/esm2_t6/blosum62 average/diff5-trd0.9/model_step_9_spearman_0.735
+      # *v1: /data/home/scv6872/run/kwli/AMPCliff/outputs/2025-08-28/20-38-42/esm2_t6/blosum62 average/diff5-trd0.9/model_step_18_spearman_0.736
+      # s aureus 
+      # v1-1 inter time, intra time real: /data/home/scv6872/run/kwli/AMPCliff/outputs/2025-08-28/16-21-53/esm2_t6/blosum62 average/diff5-trd0.9/model_step_22_spearman_0.708
+      # *v1-2 inter ifft, intra fft real: /data/home/scv6872/run/kwli/AMPCliff/outputs/2025-08-28/20-43-02/esm2_t6/blosum62 average/diff5-trd0.9/model_step_9_spearman_0.728
+      # v1-1 *best-top1* inter time, intra fft real: /data/home/scv6872/run/kwli/AMPCliff/outputs/2025-08-28/16-14-03/esm2_t6/blosum62 average/diff5-trd0.9/model_step_20_spearman_0.727
+      # v6 real: /data/home/scv6872/run/kwli/AMPCliff/outputs/2025-08-27/17-35-47/esm2_t6/blosum62 average/diff5-trd0.9/model_step_23_spearman_0.709
+      # v5 real: /data/home/scv6872/run/kwli/AMPCliff/outputs/2025-08-27/16-58-04/esm2_t6/blosum62 average/diff5-trd0.9/model_step_21_spearman_0.712
+      # v4 real: /data/home/scv6872/run/kwli/AMPCliff/outputs/2025-08-27/00-41-30/esm2_t6/blosum62 average/diff5-trd0.9/model_step_43_spearman_0.726
+      # v3 real: /data/home/scv6872/run/kwli/AMPCliff/outputs/2025-08-26/18-42-33/esm2_t6/blosum62 average/diff5-trd0.9/model_step_49_spearman_0.707
+      # *v1 real only: /data/home/scv6872/run/kwli/AMPCliff/outputs/2025-08-26/11-24-59/esm2_t6/blosum62 average/diff5-trd0.9/model_step_19_spearman_0.712
+      # v1 image only: /data/home/scv6872/run/kwli/AMPCliff/outputs/2025-08-26/11-28-22/esm2_t6/blosum62 average/diff5-trd0.9/model_step_23_spearman_0.7
+      # v1 proj to img: "/data/home/scv6872/run/kwli/AMPCliff/outputs/2025-08-25/16-20-07/esm2_t6/blosum62 average/diff5-trd0.9/model_step_13_spearman_0.699" 
+      # v2 imag only: "/data/home/scv6872/run/kwli/AMPCliff/outputs/2025-08-26/08-41-49/esm2_t6/blosum62 average/diff5-trd0.9/model_step_21_spearman_0.685" 
+      # v2 real only: /data/home/scv6872/run/kwli/AMPCliff/outputs/2025-08-26/08-44-44/esm2_t6/blosum62 average/diff5-trd0.9/model_step_24_spearman_0.649
+      # v1 bagua return time true: /data/home/scv6872/run/kwli/AMPCliff/outputs/2025-08-24/20-25-55/esm2_t6/blosum62 average/diff5-trd0.9/model_step_23_spearman_0.694
+      # v1 *best-top2* bagua return time false: /data/run01/scv6872/kwli/AMPCliff/outputs/2025-08-25/07-03-50/esm2_t6/blosum62 average/diff5-trd0.9/model_step_24_spearman_0.72" 
+      # baseline:
+      # s.aureus
+      # 5-fold /data/run01/scv6872/kwli/AMPCliff/outputs/2025-08-18/22-11-25/esm2_t6/blosum62 average/diff5-trd0.9/model_step_2_spearman_0.957/" 
+      # 3-fold "/data/run01/scv6872/kwli/AMPCliff/outputs/2025-08-18/22-11-25/esm2_t6/blosum62 average/diff3-trd0.9/model_step_24_spearman_0.665/" 
+      # 4-fold "/data/run01/scv6872/kwli/AMPCliff/outputs/2025-08-18/22-11-25/esm2_t6/blosum62 average/diff4-trd0.9/model_step_2_spearman_0.922/" # 5-fold "/data/run01/scv6872/kwli/AMPCliff/outputs/2025-08-18/22-11-25/esm2_t6/blosum62 average/diff5-trd0.9/model_step_2_spearman_0.957/"
+      # e.coli
+      # 5-fold /data/home/scv6872/run/kwli/AMPCliff/outputs/2025-08-28/13-37-32/esm2_t6/blosum62 average/diff5-trd0.9/model_step_19_spearman_0.755
+    visual:
+      mode: real
+      use_rfft: True
+data:
+  max_length: 28
+  diff: [5] # [2,3,4,5]
+  threshold: 0.9
+  regression:
+    mode: 'fix' # 'random'# 'fix' #'fix'    
+    noise_level: 0 # 10 level in total
+    condition: ['blosum62 average'] # ['blosum62 average','tanimoto average']
+    acindex: false
+    dataset: "s_aureus" # "e_coli" or "s_aureus"
+    fix:
+      all_train_file: "/mnt/g/likw/AMPCliff/AMPCliff/data/blast/{condition}/diff_{diff}/grampa_{dataset}_7_25-all-train.csv"
+      train_file: "/mnt/g/likw/AMPCliff/AMPCliff/data/blast/{condition}/diff_{diff}/grampa_{dataset}_7_25-train.csv"
+      valid_file: "/mnt/g/likw/AMPCliff/AMPCliff/data/blast/{condition}/diff_{diff}/grampa_{dataset}_7_25-valid.csv"
+      test_file: "/mnt/g/likw/AMPCliff/AMPCliff/data/blast/{condition}/diff_{diff}/grampa_{dataset}_7_25-test.csv"     
+    random:
+      data_file: "/data/run01/scv6872/kwli/AMPCliff/data/grampa_e_coli_7_25.csv" 
+      fold: 5
+      stratified: True
+      fold_files: "/data/run01/scv6872/kwli/AMPCliff/data/folds_e_coli"
+      checkpoints: []  
+logger:
+  log: True
+  log_dir: "outputs"
+  log_per_steps: 10
+  final_artifact_path: final
+
+other:
+  debug: false # false # false # False
+  debug_step: 5

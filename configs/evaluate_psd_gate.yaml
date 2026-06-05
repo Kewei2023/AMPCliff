@@ -1,0 +1,4 @@
+defaults:
+  - evaluate_fftlag_mechanism
+
+# Exp2: Gate PSD analysis uses evaluate_fftlag_mechanism defaults.

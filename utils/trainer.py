@@ -1,0 +1,415 @@
+import torch
+# import nni
+from torch.cuda.amp import autocast as autocast
+from torch.cuda.amp import GradScaler
+from torch.nn import MSELoss
+import numpy as np
+from pathlib import Path
+import mlflow
+from tqdm import tqdm
+import shutil
+import os
+from collections import defaultdict
+import ipdb
+from .utils import is_parallel
+from .std_logger import Logger
+import time
+import json
+import uuid
+
+
+class Trainer(object):
+
+    def __init__(self, net, dataloaders, optimizer, scheduler, metrics, feature_fetcher,
+                 device, global_rank, cfg, best_model_dir = None):
+
+        self.net = net
+        self.feature_fetcher = feature_fetcher
+        self.device = device
+        # self.criterion = criterion
+        self.dataloaders = dataloaders
+        self.optimizer = optimizer
+        self.scheduler = scheduler
+        self.num_epoch = cfg.train.num_epoch
+        self.global_rank = global_rank
+
+        self.scaler = GradScaler()
+
+        self.default_metric = cfg.task[cfg.task.type].default_metric
+
+        self.cfg = cfg
+
+        self.global_train_step = 0
+        self.global_valid_eval_epoch = 0
+        self.global_train_eval_epoch = 0
+        # self.global_test_eval_epoch = 0
+
+        # metrics
+        self.metrics_func = metrics
+
+        if cfg.train.loss =='mse':
+            self.reg_loss_func = MSELoss()
+
+        # Initialize orthogonal constraint if enabled
+        self._init_orthogonal_constraint(cfg)
+
+        # save checkpoint
+        self.best_metric = -1
+        self.best_model_path = Path('.')
+        self.best_model_dir = best_model_dir
+
+        self.root_level_dir = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        self._debug_logged_first_train_batch = False
+
+    def _debug_log(self, hypothesis_id: str, location: str, message: str, data: dict):
+        payload = {
+            "sessionId": "e8e7a4",
+            "runId": f"trainer_{int(time.time())}",
+            "hypothesisId": hypothesis_id,
+            "location": location,
+            "message": message,
+            "data": data,
+            "timestamp": int(time.time() * 1000),
+            "id": f"log_{int(time.time() * 1000)}_{uuid.uuid4().hex[:8]}",
+        }
+        try:
+            with open("/mnt/d/AMPCliff/.cursor/debug-e8e7a4.log", "a", encoding="utf-8") as f:
+                f.write(json.dumps(payload, ensure_ascii=False) + "\n")
+        except Exception:
+            pass
+
+    def _init_orthogonal_constraint(self, cfg):
+        """Initialize orthogonal constraint from config if enabled."""
+        self.orthogonal_constraint = None
+        self.orthogonal_weight = 0.0
+        self.log_orthogonal_metrics = False
+
+        # Check if orthogonal constraint is configured and enabled
+        if hasattr(cfg, 'orthogonal_constraint') and cfg.orthogonal_constraint is not None:
+            ortho_cfg = cfg.orthogonal_constraint
+
+            # Handle both dict and OmegaConf formats
+            if hasattr(ortho_cfg, 'get'):
+                enabled = ortho_cfg.get('enabled', False)
+            else:
+                enabled = getattr(ortho_cfg, 'enabled', False)
+
+            if enabled:
+                from .orthogonal_constraint import OrthogonalConstraint
+
+                # Get parameters with safe access
+                if hasattr(ortho_cfg, 'get'):
+                    layer_indices = ortho_cfg.get('layer_indices', None)
+                    constraint_type = ortho_cfg.get('constraint_type', 'pairwise')
+                    normalize = ortho_cfg.get('normalize', True)
+                    self.orthogonal_weight = ortho_cfg.get('weight', 0.01)
+                    self.log_orthogonal_metrics = ortho_cfg.get('log_metrics', True)
+                else:
+                    layer_indices = getattr(ortho_cfg, 'layer_indices', None)
+                    constraint_type = getattr(ortho_cfg, 'constraint_type', 'pairwise')
+                    normalize = getattr(ortho_cfg, 'normalize', True)
+                    self.orthogonal_weight = getattr(ortho_cfg, 'weight', 0.01)
+                    self.log_orthogonal_metrics = getattr(ortho_cfg, 'log_metrics', True)
+
+                self.orthogonal_constraint = OrthogonalConstraint(
+                    layer_indices=layer_indices,
+                    constraint_type=constraint_type,
+                    normalize=normalize
+                )
+
+                Logger.info(f"Orthogonal constraint enabled: weight={self.orthogonal_weight}, "
+                           f"type={constraint_type}, layer_indices={layer_indices}")
+
+    def evaluate(self,split):
+        self.net.eval()
+        # loss_dict = defaultdict(list)
+        # y_true_list = []
+        # y_pred_list = []
+        
+        with torch.no_grad():
+            # total_loss = []
+            loss = 0
+            y_pred, y_true = [],[]
+            # latent = []
+            # metrics = {}
+            for step, data in tqdm(
+                    enumerate(self.dataloaders[split]),
+                    total=len(self.dataloaders[split]),
+                    desc="evaluating {}| loss: {:.4f}".format(split,loss)):
+
+                sequence, name2id, label = data
+                
+                # feature_fetcher here
+                token_sequence = self.feature_fetcher.query_features(sequence['peptide'])
+                batch = {k: torch.tensor(v).to(self.device) for k, v in token_sequence.items()}
+                # ipdb.set_trace()
+                noised_labels = torch.tensor(label[f'noised_{self.cfg.task.type}']).to(self.device)
+                true_labels = torch.tensor(label[self.cfg.task.type]).to(self.device)
+                
+                if self.cfg.mode.amp:
+                    with autocast():
+                        output = self.net(batch)
+                        loss = self.reg_loss_func(output[0].squeeze(),true_labels.squeeze())
+
+                else:
+                    output = self.net(batch)
+                    loss = self.reg_loss_func(output[0].squeeze(),true_labels.squeeze())
+
+                y_pred.append(output[0])
+                y_true.append(true_labels)
+                # latent.append(output.hidden_states[-1])
+                # y_pred = output.logits
+                # y_true = batch['labels']
+                # total_loss.append(loss)
+                # batch_metrics = self.metrics_func(y_pred, y_true,split)
+
+                # for k, v in batch_metrics.items():
+                #     if k not in metrics:
+                #         metrics[k] = [v]
+                #     else:
+                #         metrics[k].append(v)
+                # mask_pos.extend(label['pos'])
+            y_pred = torch.cat(y_pred)
+            y_true = torch.cat(y_true)
+            
+        metrics = self.metrics_func(y_pred, y_true,split)
+        # ipdb.set_trace()
+        
+        res_dict = {}
+        # for k,v in loss_dict.items():
+        #     res_dict["{}_{}".format(split, k )] = np.mean(v)
+        # res_dict['loss'] = np.mean(total_loss)
+        for k, v in metrics.items():
+            res_dict[f"{split}-{k}"] = np.mean(v)
+            
+        return res_dict
+
+    def eval_epoch(self,split):
+
+        metrics = self.evaluate(split)
+
+        if split == "valid":
+            self.global_valid_eval_epoch += 1
+            step = self.global_valid_eval_epoch
+        elif split == "train":
+            self.global_train_eval_epoch += 1
+            step = self.global_train_eval_epoch
+
+        if self.global_rank == 0:
+
+            for metric_name, metric_v in metrics.items():
+                if isinstance(metric_v,  (float, np.float64, int, np.int_)):
+                    metric_v = round(metric_v, 5)
+                elif isinstance(metric_v,  str):
+                    metric_v = "\n" + metric_v
+                Logger.info("{} | step: {} | {}: {}".format(split,step, metric_name, metric_v))
+            
+
+            if not self.cfg.mode.nni and self.global_rank == 0 and self.cfg.logger.log:
+                for metric_name, metric_v in metrics.items():
+                    if isinstance(metric_v,  (float, np.float64, int, np.int_)):
+                        mlflow.log_metric("{}_eval/{}".format(split,metric_name),
+                                        metric_v,
+                                        step=step)
+                    elif isinstance(metric_v, str):
+                        mlflow.log_text(metric_v, "{}_eval/{}_report.txt".format(split,step))
+        
+        if split == "valid":
+
+            if metrics[f"{split}-{self.default_metric}"] >= self.best_metric:
+                self.best_metric = metrics[f"{split}-{self.default_metric}"]
+
+                self.best_model_path = Path("{}/model_step_{}_{}_{}".format(
+                    self.best_model_dir,self.global_valid_eval_epoch, self.default_metric, round(metrics[f"{split}-{self.default_metric}"], 3)))
+                
+                if self.global_rank == 0:
+                    # #region agent log
+                    self._debug_log(
+                        hypothesis_id="H5",
+                        location="utils/trainer.py:eval_epoch:best_update",
+                        message="best checkpoint updated",
+                        data={
+                            "valid_step": int(self.global_valid_eval_epoch),
+                            "default_metric": str(self.default_metric),
+                            "best_metric": float(self.best_metric),
+                            "best_model_path": str(self.best_model_path),
+                        },
+                    )
+                    # #endregion
+                    
+                    if self.best_model_path.exists():
+                        shutil.rmtree(self.best_model_path)
+                            
+                    mlflow.pytorch.save_model(
+                        (self.net.module if is_parallel(self.net) else self.net),
+                        self.best_model_path,
+                        code_paths=[os.path.join(self.root_level_dir, "factory")])
+                    
+                    for item in Path(self.best_model_dir).iterdir():
+                          
+                        if item != self.best_model_path:
+                            if item.is_dir():
+                                shutil.rmtree(item)  # delete dictionary
+                                print(f"delete directory: {item}")
+                # ipdb.set_trace()
+        return metrics        
+
+        
+    def train_epoch(self):
+
+        self.net.train()
+
+        for _, data in enumerate(self.dataloaders['train']):
+
+            sequence, name2id, label = data
+            if (not self._debug_logged_first_train_batch) and self.global_rank == 0:
+                # #region agent log
+                self._debug_log(
+                    hypothesis_id="H6",
+                    location="utils/trainer.py:train_epoch:first_batch",
+                    message="first train batch sample identifiers",
+                    data={
+                        "epoch": int(self.epoch),
+                        "global_train_step": int(self.global_train_step),
+                        "batch_size": int(len(sequence['peptide'])) if 'peptide' in sequence else -1,
+                        "first_peptides_head": sequence['peptide'][:3] if 'peptide' in sequence else [],
+                    },
+                )
+                # #endregion
+                self._debug_logged_first_train_batch = True
+
+            token_sequence = self.feature_fetcher.query_features(sequence['peptide'])
+
+            batch = {k: torch.tensor(v).to(self.device) for k, v in token_sequence.items()}
+
+            labels = torch.tensor(label[self.cfg.task.type]).to(self.device)
+
+            if self.cfg.mode.amp:
+                with autocast():
+                    output = self.net(batch)
+                    loss = self.reg_loss_func(output[0].squeeze(),labels.squeeze())
+
+                    # Add orthogonal constraint if enabled
+                    ortho_loss = torch.tensor(0.0, device=self.device)
+                    if self.orthogonal_constraint is not None and len(output) >= 3:
+                        if len(output) >= 6 and output[5] is not None:
+                            layer_reps = output[5]  # [B, D, L] from model's task-aligned pooling
+                        else:
+                            layer_reps = output[2]
+                            if layer_reps.dim() == 4:
+                                layer_reps = layer_reps.mean(dim=1)
+                        ortho_loss = self.orthogonal_constraint(layer_reps)
+                        loss = loss + self.orthogonal_weight * ortho_loss
+
+            else:
+                output = self.net(batch)
+                loss = self.reg_loss_func(output[0].squeeze(),labels.squeeze())
+
+                # Add orthogonal constraint if enabled
+                ortho_loss = torch.tensor(0.0, device=self.device)
+                if self.orthogonal_constraint is not None and len(output) >= 3:
+                    if len(output) >= 6 and output[5] is not None:
+                        layer_reps = output[5]  # [B, D, L] from model's task-aligned pooling
+                    else:
+                        layer_reps = output[2]
+                        if layer_reps.dim() == 4:
+                            layer_reps = layer_reps.mean(dim=1)
+                    ortho_loss = self.orthogonal_constraint(layer_reps)
+                    loss = loss + self.orthogonal_weight * ortho_loss
+
+            # backward
+            if self.cfg.mode.amp:
+                self.scaler.scale(loss).backward()
+                self.scaler.step(self.optimizer)
+                self.scaler.update()
+            else:
+                self.optimizer.zero_grad()
+                loss.backward()
+                self.optimizer.step()
+
+            if self.cfg.train.lr_scheduler.when == "batch" and self.cfg.train.lr_scheduler.type in ("onecycle", "cosine"):
+                self.scheduler.step()
+
+
+            # logging
+
+            if self.global_rank == 0 and (self.global_train_step +
+                    1) % self.cfg.logger.log_per_steps == 0:
+
+                cur_lr = self.scheduler.optimizer.state_dict(
+                )['param_groups'][0]['lr']
+
+                Logger.info("lr: {:.8f}".format(cur_lr))
+
+                # for k, v in loss_dict.items():
+
+                Logger.info(
+                    "train | epoch: {:d}  step: {:d} | loss: {:.4f}".
+                    format(self.epoch, self.global_train_step,loss.item()))
+
+                if not self.cfg.mode.nni and self.global_rank == 0 and self.cfg.logger.log:
+                    mlflow.log_metric("lr",
+                                      float(cur_lr),
+                                      step=self.global_train_step)
+                    # for k, v in loss_dict.items():
+                    mlflow.log_metric("train/loss",
+                                    loss.item(),
+                                    step=self.global_train_step)
+
+                    # Log orthogonal loss if enabled
+                    if self.orthogonal_constraint is not None:
+                        mlflow.log_metric("train/ortho_loss",
+                                        ortho_loss.item(),
+                                        step=self.global_train_step)
+
+                        # Log detailed orthogonality metrics periodically
+                        if self.log_orthogonal_metrics and self.global_train_step % 100 == 0:
+                            from .orthogonal_metrics import log_orthogonality_to_mlflow
+                            with torch.no_grad():
+                                if len(output) >= 6 and output[5] is not None:
+                                    layer_reps_log = output[5].detach()
+                                else:
+                                    layer_reps_log = output[2].detach()
+                                    if layer_reps_log.dim() == 4:
+                                        layer_reps_log = layer_reps_log.mean(dim=1)
+                                log_orthogonality_to_mlflow(
+                                    layer_reps_log,
+                                    step=self.global_train_step,
+                                    prefix="orthogonality"
+                                )
+
+            self.global_train_step += 1
+
+    def run(self):
+        
+        self.eval_epoch('train')
+
+        for epoch in range(1, self.num_epoch+1):
+
+            
+            
+            self.epoch = epoch
+            
+            if self.cfg.mode.ddp:
+                self.dataloaders["train"].sampler.set_epoch(self.epoch)
+            
+            # if not self.cfg.mode.full:
+            if self.global_rank == 0 and self.epoch % self.cfg.train.eval_epoch == 0:
+                train_metrics = self.eval_epoch('train')
+                valid_metrics = self.eval_epoch("valid")    
+
+                # learning rate scheduler
+                if self.cfg.train.lr_scheduler.when == "epoch":
+                    if self.cfg.train.lr_scheduler.type in ("plateau",):
+                        self.scheduler.step(valid_metrics[f"valid_{self.default_metric}"])
+                    elif self.cfg.train.lr_scheduler.type in ("onecycle", "cosine"):
+                        self.scheduler.step()
+
+            start = time.time()
+            self.train_epoch()
+            end = time.time()     
+
+            Logger.info(f'epoch {epoch}:cost {end-start}s')
+
+            
