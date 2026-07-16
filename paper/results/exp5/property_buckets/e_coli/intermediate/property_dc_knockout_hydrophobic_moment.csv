@@ -1,0 +1,7 @@
+species,property_bucket,band,signed_mse_diff,abs_mse_diff,n,property
+e_coli,bottom_30,0,0.9795815912188879,1.1092416846140194,206,hydrophobic_moment
+e_coli,bottom_30,1,0.04709093245750145,0.32440167231865846,206,hydrophobic_moment
+e_coli,middle_40,0,0.9111983476178686,1.0406328569442154,275,hydrophobic_moment
+e_coli,middle_40,1,0.0037159099007547853,0.3060520485605697,275,hydrophobic_moment
+e_coli,top_30,0,1.016726544255492,1.1276025805132541,206,hydrophobic_moment
+e_coli,top_30,1,0.03047009723227571,0.33290083532668063,206,hydrophobic_moment

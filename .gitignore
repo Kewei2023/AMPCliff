@@ -69,7 +69,11 @@ facorty/residual.py
 random*
 
 # ===== Internal docs (not for public release) =====
-paper/
+# Ignore paper drafts, but keep curated Exp5 preset results trackable.
+paper/**
+!paper/results/
+!paper/results/exp5/
+!paper/results/exp5/**
 note/
 taichinet/distill-vc/
 taichinet/README.txt

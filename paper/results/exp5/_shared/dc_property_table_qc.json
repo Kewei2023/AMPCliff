@@ -1,0 +1,19 @@
+{
+  "n_rows": 5775,
+  "n_species": [
+    "e_coli",
+    "s_aureus"
+  ],
+  "n_splits": [
+    "test",
+    "train",
+    "valid"
+  ],
+  "duplicate_idx_count": 2757,
+  "duplicate_sequence_count": 2465,
+  "invalid_sequence_count": 0,
+  "invalid_sequences_sample": [],
+  "activity_score_min": 2.117967636,
+  "activity_score_max": 8.397408385,
+  "activity_score_mean": 4.7412186658507585
+}

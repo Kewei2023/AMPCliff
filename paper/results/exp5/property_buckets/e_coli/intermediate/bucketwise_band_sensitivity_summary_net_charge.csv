@@ -1,0 +1,4 @@
+property_bucket,mean_abs_mse_diff,n_samples
+bottom_30,0.4266463956044823,206
+middle_40,0.37151530926028936,275
+top_30,0.50171270676502,206

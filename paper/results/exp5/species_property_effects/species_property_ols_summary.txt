@@ -1,0 +1,34 @@
+                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:         activity_score   R-squared:                       0.132
+Model:                            OLS   Adj. R-squared:                  0.130
+Method:                 Least Squares   F-statistic:                     64.18
+Date:                Mon, 13 Jul 2026   Prob (F-statistic):          2.14e-124
+Time:                        08:55:32   Log-Likelihood:                -5867.1
+No. Observations:                5775   AIC:                         1.176e+04
+Df Residuals:                    5764   BIC:                         1.183e+04
+Df Model:                          10                                         
+Covariance Type:                  HC3                                         
+=================================================================================================
+                                    coef    std err          z      P>|z|      [0.025      0.975]
+-------------------------------------------------------------------------------------------------
+Intercept                         4.7280      0.012    400.075      0.000       4.705       4.751
+z_charge                          0.3440      0.019     18.024      0.000       0.307       0.381
+z_hydrophobicity                  0.0691      0.017      4.111      0.000       0.036       0.102
+z_length                          0.0180      0.010      1.718      0.086      -0.003       0.039
+z_helix                          -0.0593      0.014     -4.110      0.000      -0.088      -0.031
+z_hmoment                         0.0093      0.013      0.698      0.485      -0.017       0.036
+species_code                      0.0257      0.018      1.449      0.147      -0.009       0.061
+z_charge:species_code            -0.0872      0.028     -3.161      0.002      -0.141      -0.033
+z_hydrophobicity:species_code     0.0632      0.024      2.600      0.009       0.016       0.111
+z_hmoment:species_code           -0.0130      0.020     -0.647      0.517      -0.052       0.026
+z_helix:species_code             -0.0194      0.021     -0.921      0.357      -0.061       0.022
+==============================================================================
+Omnibus:                       30.795   Durbin-Watson:                   1.869
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):               38.813
+Skew:                           0.089   Prob(JB):                     3.73e-09
+Kurtosis:                       3.360   Cond. No.                         5.81
+==============================================================================
+
+Notes:
+[1] Standard Errors are heteroscedasticity robust (HC3)

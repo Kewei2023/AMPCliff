@@ -221,6 +221,7 @@ def plot_exp1_mse_diff_by_band(
         layer_sub = sub[sub["layer"] == layer].sort_values("band")
         x = layer_sub["band"].to_numpy(dtype=float)
         mean, std, _ = _metric_series(layer_sub, "mse_diff")
+        mean = np.abs(mean)
         _plot_line_band(
             ax,
             x,
@@ -230,17 +231,16 @@ def plot_exp1_mse_diff_by_band(
             color="steelblue",
             n_seeds=n_seeds,
         )
-        ax.axhline(0.0, color="gray", linewidth=0.8, alpha=0.7)
         ax.set_title(f"Layer {int(layer)}")
         ax.set_xlabel("Band")
-        ax.set_ylabel("MSE diff")
+        ax.set_ylabel(r"$|\Delta\mathrm{MSE}|$")
         ax.grid(True, alpha=0.25)
 
     for j in range(n_layers, len(axes_flat)):
         axes_flat[j].set_visible(False)
 
     fig.suptitle(
-        f"Exp1 band knockout — {_dataset_display(dataset)} idx={idx} (n_seeds={n_seeds})",
+        f"Exp1 band knockout |ΔMSE| — {_dataset_display(dataset)} idx={idx} (n_seeds={n_seeds})",
         fontsize=11,
         y=1.02,
     )
@@ -491,11 +491,12 @@ def plot_exp1_mean_style_plots(
 
     viz = _mean_cols_to_viz_df(sub, {"mse_diff_mean": "mse_diff"})
     plot_df = viz[["layer", "band", "mse_diff"]].copy()
+    plot_df["mse_diff"] = plot_df["mse_diff"].astype(float).abs()
     plot_df["split"] = split
 
     base_title = (
-        f"Exp1 band knockout — {sample_label}\n"
-        "MSE difference: (with-filter − baseline) — {{split}} (k={{k}}, base={{base}})"
+        f"Exp1 band knockout |ΔMSE| — {sample_label}\n"
+        "Absolute MSE difference: |with-filter − baseline| — {{split}} (k={{k}}, base={{base}})"
     )
     plot_mse_diff_in_groups(
         plot_df,
@@ -514,16 +515,15 @@ def plot_exp1_mean_style_plots(
     fig, ax = plt.subplots(figsize=(8, 5))
     sns.heatmap(
         pivot,
-        center=0.0,
-        cmap="RdBu_r",
+        cmap="YlOrRd",
         annot=False,
         linewidths=0.5,
-        cbar_kws={"label": "MSE diff"},
+        cbar_kws={"label": r"$|\Delta\mathrm{MSE}|$"},
         ax=ax,
     )
     ax.set_xlabel("Band")
     ax.set_ylabel("Layer")
-    ax.set_title(f"Exp1 MSE diff layer×band — {sample_label}")
+    ax.set_title(f"Exp1 |ΔMSE| layer×band — {sample_label}")
     fig.tight_layout()
     fig.savefig(out_dir / "mse_diff_layer_band_heatmap.png", dpi=200, bbox_inches="tight")
     plt.close(fig)

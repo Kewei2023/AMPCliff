@@ -1,0 +1,15 @@
+species,property,n_seeds_total,n_seeds_dc_preferred,passes_7of10,passes_8of10
+e_coli,charge_density,10,10,True,True
+e_coli,helix_propensity,10,10,True,True
+e_coli,hydrophilic_fraction,10,10,True,True
+e_coli,hydrophobic_moment,10,10,True,True
+e_coli,mean_hydrophobicity,10,10,True,True
+e_coli,net_charge,10,10,True,True
+e_coli,pI,10,10,True,True
+s_aureus,charge_density,10,10,True,True
+s_aureus,helix_propensity,10,10,True,True
+s_aureus,hydrophilic_fraction,10,10,True,True
+s_aureus,hydrophobic_moment,10,10,True,True
+s_aureus,mean_hydrophobicity,10,10,True,True
+s_aureus,net_charge,10,10,True,True
+s_aureus,pI,10,10,True,True

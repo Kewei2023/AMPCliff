@@ -127,25 +127,52 @@ python evaluation_scripts/aggregate_pooling_seed_metrics.py
 
 Mechanism experiments analyze FLaG's internal behavior on the activity cliff task. **Train FLaG models first** (checkpoints are resolved by default from `outputs/ablation_new_data/{model}_fft_latent_attn_gate_{dataset}_diff5/seed_*/data/model.pth`).
 
-| Exp | Purpose | Main Python Script | Batch / Utilities |
-|-----|---------|-------------------|-------------------|
-| **Exp1** Band knockout | Sequence band notch sensitivity | `downstream_evaluate_spectrual_filter.py` | `evaluation_scripts/run_fftlag_mechanism_experiments.sh` (`RUN_EXPS` includes `1`) |
-| **Exp2** Gate PSD | Spectral energy change before/after gate | `downstream_evaluate_psd_gate.py` | Same script (`RUN_EXPS` includes `2`) |
-| **Exp3** Token knockout | Token perturbation response distribution | `downstream_evaluate_knockout.py` | `downstream_evaluate_knockout.sh`; aggregate `evaluation_scripts/aggregate_amp_knockout_seed_csvs.py`; plot `evaluation_scripts/plot_amp_knockout_figure.py` |
-| **Exp4** Latent viz | Latent query band mass distribution | `downstream_evaluate_fft_lag_latent.py` | Same script (`RUN_EXPS=4`) or `evaluation_scripts/run_fftlag_exp4_only.sh`; attn-score variant `evaluation_scripts/run_fftlag_exp4_attn_score_raw.sh` |
-| **Exp5** Structure | Structure-stratified secondary analysis | `analyze_fft_lag_mechanism_by_structure.py` | Called at end of `evaluation_scripts/run_fftlag_mechanism_experiments.sh` when `RUN_EXP5=1` |
+### Exp1–4: mechanism statistics on the full test set
+
+Exp1–4 reuse the original mechanism probes; the main update is **full-test coverage** (all test peptides) instead of a 30-peptide manifest subset. Exp1 plots report **absolute** \(\lvert\Delta\mathrm{MSE}\rvert\).
+
+| Exp | Purpose | Main Python Script | Full-test batch |
+|-----|---------|-------------------|-----------------|
+| **Exp1** Band knockout | Sequence band notch sensitivity | `downstream_evaluate_spectrual_filter.py` | `evaluation_scripts/run_fftlag_exp1_fulltest.sh` (+ `_slurm`) |
+| **Exp2** Gate PSD | Spectral energy change before/after gate | `downstream_evaluate_psd_gate.py` | `evaluation_scripts/run_fftlag_exp2_fulltest.sh` (+ `_slurm`) |
+| **Exp3** Token knockout | Token perturbation response distribution | `downstream_evaluate_knockout.py` | `evaluation_scripts/run_fftlag_exp3_fulltest.sh` (+ `_slurm`) |
+| **Exp4** Latent viz | Latent query band mass distribution | `downstream_evaluate_fft_lag_latent.py` | `evaluation_scripts/run_fftlag_exp4_fulltest.sh` |
+
+Legacy subset orchestration (30 peptides): `evaluation_scripts/run_fftlag_mechanism_experiments.sh` (`RUN_EXPS=1,2,4` by default; Exp3 separate).
+
+Plot / aggregate helpers: `plot_fftlag_exp{1,2,3,4}_*`, `aggregate_fftlag_mechanism_seeds.py`, `aggregate_fftlag_exp3_fulltest.py`.
+
+### Exp5 (upgraded): DC–property validation
+
+**Exp5** is the full DC interpretability pipeline (property table → DCT features → DC decoding → species×property effects → property-bucket knockout). It answers:
+
+1. Which physicochemical properties can be decoded from the DC component?
+2. Do those properties relate to *E. coli* vs *S. aureus* activity in the same way?
+3. Does DC knockout follow the same property pattern?
+
+| Step | Role | Scripts |
+|------|------|---------|
+| 1 | Build `dc_property_table.csv` | `build_dc_property_table.py`, `dc_property_utils.py` |
+| 2 | Last-layer DCT \(C_0\)–\(C_3\) | `extract_dct_coefficient_features.py` |
+| 3 | **Main exp. 1** DC property decoding | `analyze_dc_property_encoding.py`, `dc_property_probe.py` |
+| 4 | **Main exp. 2A** Species×property activity | `analyze_species_property_effects.py` |
+| 5 | **Main exp. 2B** Property-bucket band/DC KO | `run_dc_property_knockout_fulltest.sh`, `analyze_property_dc_tables.py`, `plot_property_dc_knockout.py` |
+
+Official Exp5 orchestration:
+
+```bash
+bash evaluation_scripts/run_dc_validation_v2.sh
+```
+
+Exp5 reports **both** signed \(\Delta\mathrm{MSE}\) and \(\lvert\Delta\mathrm{MSE}\rvert\) (see Step-5 tables/figures). Preset result snapshots (no large `.npz` features) live under [`paper/results/exp5/`](paper/results/exp5/).
+
+Optional / legacy helix-structure bucketing from Exp1/2/4 aggregates: `run_exp5_structure_fulltest.sh` / `analyze_fft_lag_mechanism_by_structure.py` (not required for the core Exp5 evidence chain).
 
 ### Important Notes
 
-- `evaluation_scripts/run_fftlag_mechanism_experiments.sh` runs **Exp1/2/4 by default** (`RUN_EXPS=1,2,4`) and **does not include Exp3**; run the knockout pipeline separately for Exp3.
-- Shared peptide subset manifest: `evaluation_scripts/select_knockout_peptide_subset.py`
-- Config files:
-  - Exp1/4: `configs/evaluate_fftlag_mechanism.yaml`
-  - Exp2: `configs/evaluate_psd_gate.yaml`
-  - Exp3: `configs/downstream_knockout.yaml`
-- Cross-seed aggregation/plotting:
-  - `evaluation_scripts/aggregate_fftlag_mechanism_seeds.py`
-  - `evaluation_scripts/plot_fftlag_mechanism_per_sample_seeds.py`
+- Configs: Exp1/4 `configs/evaluate_fftlag_mechanism.yaml`; Exp2 `configs/evaluate_psd_gate.yaml`; Exp3 `configs/downstream_knockout.yaml` (paths use relative `./data/...`).
+- Shared peptide subset (legacy): `evaluation_scripts/select_knockout_peptide_subset.py`
+- Exp5 needs `biopython` and `statsmodels` (listed in `environment.yaml`).
 
 ### Quick Examples
 
@@ -153,14 +180,15 @@ Mechanism experiments analyze FLaG's internal behavior on the activity cliff tas
 export REPO_ROOT=/path/to/AMPCliff
 cd "${REPO_ROOT}"
 
-# Exp1 + Exp2 + Exp4 + Exp5 (default)
+# Exp1–4 full test set (one experiment)
+bash evaluation_scripts/run_fftlag_exp1_fulltest.sh
+# sbatch evaluation_scripts/run_fftlag_exp1_fulltest_slurm.sh
+
+# Exp5 official pipeline (Steps 1–5)
+bash evaluation_scripts/run_dc_validation_v2.sh
+
+# Legacy 30-peptide Exp1/2/4 subset
 bash evaluation_scripts/run_fftlag_mechanism_experiments.sh
-
-# Exp4 only
-RUN_EXPS=4 bash evaluation_scripts/run_fftlag_mechanism_experiments.sh
-
-# Exp3 (requires checkpoint; see Hydra overrides in configs/downstream_knockout.yaml)
-bash downstream_evaluate_knockout.sh
 ```
 
 ---
@@ -242,8 +270,16 @@ python downstream_evaluate.py \
 | `downstream_evaluate_psd_gate.py` | Mechanism | Exp2: gate PSD |
 | `downstream_evaluate_knockout.py` | Mechanism | Exp3: token knockout |
 | `downstream_evaluate_fft_lag_latent.py` | Mechanism | Exp4: latent visualization |
-| `analyze_fft_lag_mechanism_by_structure.py` | Mechanism | Exp5: structure-stratified analysis |
-| `evaluation_scripts/run_fftlag_mechanism_experiments.sh` | Mechanism | Exp1/2/4/5 batch orchestration |
+| `evaluation_scripts/run_fftlag_exp{1,2,3,4}_fulltest.sh` | Mechanism | Exp1–4 full-test batch runners |
+| `evaluation_scripts/plot_fftlag_exp1_fulltest_violin.py` | Mechanism | Exp1 \|ΔMSE\| violin plots |
+| `analyze_fft_lag_mechanism_by_structure.py` | Mechanism | Exp5 optional structure bucketing |
+| `evaluation_scripts/run_dc_validation_v2.sh` | Exp5 | Official Exp5 pipeline (Steps 1–5) |
+| `build_dc_property_table.py` | Exp5 | Step 1 property table |
+| `extract_dct_coefficient_features.py` | Exp5 | Step 2 DCT features |
+| `analyze_dc_property_encoding.py` | Exp5 | Step 3 / main exp. 1 DC decoding |
+| `analyze_species_property_effects.py` | Exp5 | Step 4 / main exp. 2A species effects |
+| `evaluation_scripts/run_dc_property_knockout_fulltest.sh` | Exp5 | Step 5 / main exp. 2B property buckets |
+| `evaluation_scripts/run_fftlag_mechanism_experiments.sh` | Mechanism | Legacy Exp1/2/4 subset orchestration |
 | `evaluation_scripts/run_fftlag_exp4_only.sh` | Mechanism | Exp4 only (SLURM-friendly) |
 | `evaluation_scripts/run_fftlag_exp4_attn_score_raw.sh` | Mechanism | Exp4 attn-score variant |
 | `evaluation_scripts/select_knockout_peptide_subset.py` | Mechanism | Build shared peptide manifest |

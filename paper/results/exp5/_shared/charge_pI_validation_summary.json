@@ -1,0 +1,8 @@
+{
+  "net_charge_max_abs_diff": 0.5181766088305377,
+  "net_charge_mean_abs_diff": 0.16105516789300378,
+  "pI_max_abs_diff": 1.6462724685668952,
+  "pI_mean_abs_diff": 0.5609911114911498,
+  "net_charge_spearman": 0.996427730524053,
+  "pI_spearman": 0.9888624314214506
+}

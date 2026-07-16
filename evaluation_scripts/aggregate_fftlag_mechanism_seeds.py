@@ -26,11 +26,11 @@ def _find_exp1_long_csv(exp_dir: Path) -> Optional[Path]:
     return fallback if fallback.is_file() else None
 
 
-def aggregate_exp1(seed_dirs: list[Path], out_dir: Path) -> None:
+def aggregate_exp1(seed_dirs: list[Path], out_dir: Path, exp1_subdir: str = "exp1_band_knockout") -> None:
     frames = []
     ps_frames = []
     for sd in seed_dirs:
-        exp_dir = sd / "exp1_band_knockout"
+        exp_dir = sd / exp1_subdir
         if not exp_dir.is_dir():
             continue
         seed = _train_seed_from_dir(sd)
@@ -68,11 +68,11 @@ def aggregate_exp1(seed_dirs: list[Path], out_dir: Path) -> None:
         ps_agg.to_csv(out_dir / "per_sample_band_sensitivity_aggregated.csv", index=False)
 
 
-def aggregate_exp2(seed_dirs: list[Path], out_dir: Path) -> None:
+def aggregate_exp2(seed_dirs: list[Path], out_dir: Path, exp2_subdir: str = "exp2_psd_gate") -> None:
     band_frames = []
     ps_frames = []
     for sd in seed_dirs:
-        exp_dir = sd / "exp2_psd_gate"
+        exp_dir = sd / exp2_subdir
         if not exp_dir.is_dir():
             continue
         seed = _train_seed_from_dir(sd)
@@ -132,13 +132,14 @@ def _aggregate_exp4_metric_csv(
     group_cols: list[str],
     value_cols: list[str] | str,
     *,
+    exp4_subdir: str = "exp4_latent",
     precompute_diff: bool = False,
 ) -> None:
     if isinstance(value_cols, str):
         value_cols = [value_cols]
     frames = []
     for sd in seed_dirs:
-        exp_dir = sd / "exp4_latent"
+        exp_dir = sd / exp4_subdir
         path = exp_dir / filename
         if not path.is_file():
             continue
@@ -159,11 +160,11 @@ def _aggregate_exp4_metric_csv(
     agg.to_csv(out_dir / out_name, index=False)
 
 
-def aggregate_exp4(seed_dirs: list[Path], out_dir: Path) -> None:
+def aggregate_exp4(seed_dirs: list[Path], out_dir: Path, exp4_subdir: str = "exp4_latent") -> None:
     div_frames = []
     gate_frames = []
     for sd in seed_dirs:
-        exp_dir = sd / "exp4_latent"
+        exp_dir = sd / exp4_subdir
         if not exp_dir.is_dir():
             continue
         seed = _train_seed_from_dir(sd)
@@ -185,6 +186,7 @@ def aggregate_exp4(seed_dirs: list[Path], out_dir: Path) -> None:
         "latent_query_band_mass_aggregated.csv",
         ["idx", "query", "band", "band_start", "band_end"],
         "attention_mass",
+        exp4_subdir=exp4_subdir,
     )
     _aggregate_exp4_metric_csv(
         seed_dirs,
@@ -193,6 +195,7 @@ def aggregate_exp4(seed_dirs: list[Path], out_dir: Path) -> None:
         "latent_attn_band_deviation_aggregated.csv",
         ["idx", "query", "band", "band_start", "band_end"],
         "deviation",
+        exp4_subdir=exp4_subdir,
     )
     _aggregate_exp4_metric_csv(
         seed_dirs,
@@ -201,6 +204,7 @@ def aggregate_exp4(seed_dirs: list[Path], out_dir: Path) -> None:
         "latent_weighted_band_readout_aggregated.csv",
         ["idx", "query", "band", "band_start", "band_end"],
         "weighted_mass",
+        exp4_subdir=exp4_subdir,
     )
     _aggregate_exp4_metric_csv(
         seed_dirs,
@@ -209,6 +213,7 @@ def aggregate_exp4(seed_dirs: list[Path], out_dir: Path) -> None:
         "latent_query_contribution_aggregated.csv",
         ["idx", "query"],
         ["l2_deviation", "cos_to_gate_input"],
+        exp4_subdir=exp4_subdir,
     )
     _aggregate_exp4_metric_csv(
         seed_dirs,
@@ -217,6 +222,7 @@ def aggregate_exp4(seed_dirs: list[Path], out_dir: Path) -> None:
         "latent_gate_input_band_profile_latent_aggregated.csv",
         ["idx", "band", "band_start", "band_end"],
         "latent_pooled_readout",
+        exp4_subdir=exp4_subdir,
     )
     _aggregate_exp4_metric_csv(
         seed_dirs,
@@ -225,6 +231,7 @@ def aggregate_exp4(seed_dirs: list[Path], out_dir: Path) -> None:
         "latent_gate_input_band_profile_freq_aggregated.csv",
         ["idx", "band", "band_start", "band_end"],
         "freq_uniform_pool_energy",
+        exp4_subdir=exp4_subdir,
     )
     _aggregate_exp4_metric_csv(
         seed_dirs,
@@ -233,12 +240,13 @@ def aggregate_exp4(seed_dirs: list[Path], out_dir: Path) -> None:
         "latent_gate_input_band_profile_diff_aggregated.csv",
         ["idx", "band", "band_start", "band_end"],
         "profile_diff",
+        exp4_subdir=exp4_subdir,
         precompute_diff=True,
     )
 
     compare_frames = []
     for sd in seed_dirs:
-        exp_dir = sd / "exp4_latent"
+        exp_dir = sd / exp4_subdir
         cmp_path = exp_dir / "latent_gate_input_compare.csv"
         if not cmp_path.is_file():
             continue
@@ -300,6 +308,32 @@ def main() -> int:
         default=Path("outputs/analysis/fftlag_mechanism"),
     )
     ap.add_argument("--dataset", required=True, help="e_coli or s_aureus")
+    ap.add_argument(
+        "--exp1-subdir",
+        default="exp1_band_knockout",
+        help="Per-seed Exp1 output subdirectory under seed_*/{dataset}/",
+    )
+    ap.add_argument(
+        "--exp2-subdir",
+        default="exp2_psd_gate",
+        help="Per-seed Exp2 output subdirectory under seed_*/{dataset}/",
+    )
+    ap.add_argument(
+        "--exp4-subdir",
+        default="exp4_latent",
+        help="Per-seed Exp4 output subdirectory under seed_*/{dataset}/",
+    )
+    ap.add_argument(
+        "--aggregated-subdir",
+        default="aggregated",
+        help="Top-level aggregated output folder under analysis-root/",
+    )
+    ap.add_argument(
+        "--exp-only",
+        choices=["1", "2", "4", "all"],
+        default="all",
+        help="Which experiments to aggregate (default: all)",
+    )
     args = ap.parse_args()
 
     root = args.analysis_root
@@ -313,18 +347,24 @@ def main() -> int:
         print(f"No seed dirs found under {root} for dataset {args.dataset}")
         return 1
 
-    base_out = root / "aggregated" / args.dataset
+    base_out = root / args.aggregated_subdir / args.dataset
     exp1_out = base_out / "exp1"
     exp2_out = base_out / "exp2"
     exp4_out = base_out / "exp4"
     for d in (exp1_out, exp2_out, exp4_out):
         d.mkdir(parents=True, exist_ok=True)
 
-    aggregate_exp1(dataset_seed_dirs, exp1_out)
-    aggregate_exp2(dataset_seed_dirs, exp2_out)
-    aggregate_exp4(dataset_seed_dirs, exp4_out)
+    if args.exp_only in ("1", "all"):
+        aggregate_exp1(dataset_seed_dirs, exp1_out, exp1_subdir=args.exp1_subdir)
+    if args.exp_only in ("2", "all"):
+        aggregate_exp2(dataset_seed_dirs, exp2_out, exp2_subdir=args.exp2_subdir)
+    if args.exp_only in ("4", "all"):
+        aggregate_exp4(dataset_seed_dirs, exp4_out, exp4_subdir=args.exp4_subdir)
 
-    print(f"Aggregated outputs -> {base_out}/exp{{1,2,4}}/")
+    print(
+        f"Aggregated outputs -> {base_out}/exp{{1,2,4}}/ "
+        f"(exp1_subdir={args.exp1_subdir}, exp2_subdir={args.exp2_subdir}, exp4_subdir={args.exp4_subdir})"
+    )
     return 0
 
 

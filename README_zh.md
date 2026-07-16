@@ -127,25 +127,52 @@ python evaluation_scripts/aggregate_pooling_seed_metrics.py
 
 机制实验用于分析 FLaG 在 activity cliff 任务上的内部行为，需**先完成 FLaG 模型训练**（checkpoint 默认从 `outputs/ablation_new_data/{model}_fft_latent_attn_gate_{dataset}_diff5/seed_*/data/model.pth` 解析）。
 
-| Exp | 目的 | 主 Python 脚本 | 批处理 / 辅助 |
-|-----|------|----------------|---------------|
-| **Exp1** Band knockout | 序列频带 notch 敏感性 | `downstream_evaluate_spectrual_filter.py` | `evaluation_scripts/run_fftlag_mechanism_experiments.sh`（`RUN_EXPS` 含 `1`） |
-| **Exp2** Gate PSD | gate 前后频谱能量变化 | `downstream_evaluate_psd_gate.py` | 同上（`RUN_EXPS` 含 `2`） |
-| **Exp3** Token knockout | token 扰动响应分布 | `downstream_evaluate_knockout.py` | `downstream_evaluate_knockout.sh`；聚合 `evaluation_scripts/aggregate_amp_knockout_seed_csvs.py`；绘图 `evaluation_scripts/plot_amp_knockout_figure.py` |
-| **Exp4** Latent viz | latent query 频带质量分布 | `downstream_evaluate_fft_lag_latent.py` | 同上（`RUN_EXPS=4`）或 `evaluation_scripts/run_fftlag_exp4_only.sh`；attn score 变体 `evaluation_scripts/run_fftlag_exp4_attn_score_raw.sh` |
-| **Exp5** Structure | 按结构分桶的二阶分析 | `analyze_fft_lag_mechanism_by_structure.py` | `evaluation_scripts/run_fftlag_mechanism_experiments.sh` 末尾、`RUN_EXP5=1` 时自动调用 |
+### Exp1–4：全 test 集上的机制统计
+
+Exp1–4 仍是原机制探针；相对旧版，主要升级是覆盖 **全部 test 肽**（fulltest），而非 30 肽 manifest 子集。Exp1 出图使用 **绝对值** \(\lvert\Delta\mathrm{MSE}\rvert\)。
+
+| Exp | 目的 | 主 Python 脚本 | Fulltest 批处理 |
+|-----|------|----------------|-----------------|
+| **Exp1** Band knockout | 序列频带 notch 敏感性 | `downstream_evaluate_spectrual_filter.py` | `evaluation_scripts/run_fftlag_exp1_fulltest.sh`（及 `_slurm`） |
+| **Exp2** Gate PSD | gate 前后频谱能量变化 | `downstream_evaluate_psd_gate.py` | `evaluation_scripts/run_fftlag_exp2_fulltest.sh`（及 `_slurm`） |
+| **Exp3** Token knockout | token 扰动响应分布 | `downstream_evaluate_knockout.py` | `evaluation_scripts/run_fftlag_exp3_fulltest.sh`（及 `_slurm`） |
+| **Exp4** Latent viz | latent query 频带质量分布 | `downstream_evaluate_fft_lag_latent.py` | `evaluation_scripts/run_fftlag_exp4_fulltest.sh` |
+
+旧版 30 肽子集调度：`evaluation_scripts/run_fftlag_mechanism_experiments.sh`（默认 `RUN_EXPS=1,2,4`；Exp3 单独跑）。
+
+出图/聚合：`plot_fftlag_exp{1,2,3,4}_*`、`aggregate_fftlag_mechanism_seeds.py`、`aggregate_fftlag_exp3_fulltest.py`。
+
+### Exp5（升级）：DC–理化性质验证
+
+**Exp5** 即完整 DC 可解释性流水线（属性表 → DCT 特征 → DC 解码 → 物种×属性效应 → 属性分桶 knockout），回答：
+
+1. 哪些理化性质能从 DC 分量解码出来？
+2. 这些性质与 *E. coli* / *S. aureus* 活性关系是否相同？
+3. 删除 DC 后的性能变化是否与这些性质一致？
+
+| 步骤 | 角色 | 脚本 |
+|------|------|------|
+| 1 | 生成 `dc_property_table.csv` | `build_dc_property_table.py`、`dc_property_utils.py` |
+| 2 | 最后一层 DCT \(C_0\)–\(C_3\) | `extract_dct_coefficient_features.py` |
+| 3 | **主实验一** DC property decoding | `analyze_dc_property_encoding.py`、`dc_property_probe.py` |
+| 4 | **主实验二 A** 物种×属性活性 | `analyze_species_property_effects.py` |
+| 5 | **主实验二 B** 属性分桶 band/DC KO | `run_dc_property_knockout_fulltest.sh`、`analyze_property_dc_tables.py`、`plot_property_dc_knockout.py` |
+
+Exp5 官方编排：
+
+```bash
+bash evaluation_scripts/run_dc_validation_v2.sh
+```
+
+Exp5 同时产出 **signed** \(\Delta\mathrm{MSE}\) 与 \(\lvert\Delta\mathrm{MSE}\rvert\)。预置结果（不含大体量 `.npz`）见 [`paper/results/exp5/`](paper/results/exp5/)。
+
+可选/遗留：基于 Exp1/2/4 聚合的 helix 结构分桶（`run_exp5_structure_fulltest.sh` / `analyze_fft_lag_mechanism_by_structure.py`），**不是** Exp5 最小证据链的必选项。
 
 ### 重要说明
 
-- `evaluation_scripts/run_fftlag_mechanism_experiments.sh` **默认跑 Exp1/2/4**（`RUN_EXPS=1,2,4`），**不包含 Exp3**；Exp3 需单独跑 knockout 流程。
-- 共用 peptide 子集由 `evaluation_scripts/select_knockout_peptide_subset.py` 生成 manifest。
-- 配置文件：
-  - Exp1/4：`configs/evaluate_fftlag_mechanism.yaml`
-  - Exp2：`configs/evaluate_psd_gate.yaml`
-  - Exp3：`configs/downstream_knockout.yaml`
-- 跨 seed 聚合/绘图：
-  - `evaluation_scripts/aggregate_fftlag_mechanism_seeds.py`
-  - `evaluation_scripts/plot_fftlag_mechanism_per_sample_seeds.py`
+- 配置：Exp1/4 `configs/evaluate_fftlag_mechanism.yaml`；Exp2 `configs/evaluate_psd_gate.yaml`；Exp3 `configs/downstream_knockout.yaml`（数据路径为相对路径 `./data/...`）。
+- 旧版共用 peptide 子集：`evaluation_scripts/select_knockout_peptide_subset.py`
+- Exp5 依赖 `biopython`、`statsmodels`（已写入 `environment.yaml`）。
 
 ### 一键示例
 
@@ -153,14 +180,15 @@ python evaluation_scripts/aggregate_pooling_seed_metrics.py
 export REPO_ROOT=/path/to/AMPCliff
 cd "${REPO_ROOT}"
 
-# Exp1 + Exp2 + Exp4 + Exp5（默认）
+# Exp1–4 全 test 集（单实验）
+bash evaluation_scripts/run_fftlag_exp1_fulltest.sh
+# sbatch evaluation_scripts/run_fftlag_exp1_fulltest_slurm.sh
+
+# Exp5 官方流水线（Step 1–5）
+bash evaluation_scripts/run_dc_validation_v2.sh
+
+# 旧版 30 肽 Exp1/2/4 子集
 bash evaluation_scripts/run_fftlag_mechanism_experiments.sh
-
-# 仅 Exp4
-RUN_EXPS=4 bash evaluation_scripts/run_fftlag_mechanism_experiments.sh
-
-# Exp3（需先有 checkpoint，Hydra override 见 configs/downstream_knockout.yaml）
-bash downstream_evaluate_knockout.sh
 ```
 
 ---
@@ -242,8 +270,16 @@ python downstream_evaluate.py \
 | `downstream_evaluate_psd_gate.py` | Mechanism | Exp2：gate 前后 PSD |
 | `downstream_evaluate_knockout.py` | Mechanism | Exp3：token knockout |
 | `downstream_evaluate_fft_lag_latent.py` | Mechanism | Exp4：latent 可视化 |
-| `analyze_fft_lag_mechanism_by_structure.py` | Mechanism | Exp5：结构分桶分析 |
-| `evaluation_scripts/run_fftlag_mechanism_experiments.sh` | Mechanism | Exp1/2/4/5 批处理调度 |
+| `evaluation_scripts/run_fftlag_exp{1,2,3,4}_fulltest.sh` | Mechanism | Exp1–4 全 test 批处理 |
+| `evaluation_scripts/plot_fftlag_exp1_fulltest_violin.py` | Mechanism | Exp1 \|ΔMSE\| 小提琴图 |
+| `analyze_fft_lag_mechanism_by_structure.py` | Mechanism | Exp5 可选结构分桶 |
+| `evaluation_scripts/run_dc_validation_v2.sh` | Exp5 | Exp5 官方流水线（Step 1–5） |
+| `build_dc_property_table.py` | Exp5 | Step 1 属性表 |
+| `extract_dct_coefficient_features.py` | Exp5 | Step 2 DCT 特征 |
+| `analyze_dc_property_encoding.py` | Exp5 | Step 3 / 主实验一 DC 解码 |
+| `analyze_species_property_effects.py` | Exp5 | Step 4 / 主实验二 A 物种效应 |
+| `evaluation_scripts/run_dc_property_knockout_fulltest.sh` | Exp5 | Step 5 / 主实验二 B 属性分桶 |
+| `evaluation_scripts/run_fftlag_mechanism_experiments.sh` | Mechanism | 旧版 Exp1/2/4 子集调度 |
 | `evaluation_scripts/run_fftlag_exp4_only.sh` | Mechanism | 仅 Exp4（SLURM 友好） |
 | `evaluation_scripts/run_fftlag_exp4_attn_score_raw.sh` | Mechanism | Exp4 attn score 变体 |
 | `evaluation_scripts/select_knockout_peptide_subset.py` | Mechanism | 生成共用 peptide manifest |

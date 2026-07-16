@@ -36,6 +36,28 @@ def _rows_from_df(sub: pd.DataFrame) -> tuple[list[int], list[str], list[Any]]:
     return idx_list, peptides, sample_id_list
 
 
+def select_all_test(
+    test_csv: Path,
+    model_version: str,
+    dataset: str,
+    diff: int,
+) -> dict:
+    """Include every test-split peptide (full test set manifest for traceability)."""
+    df = _load_test_df(test_csv)
+    idx_list, peptides, sample_id_list = _rows_from_df(df)
+    return {
+        "model_version": model_version,
+        "dataset": dataset,
+        "diff": diff,
+        "subset_mode": "all_test",
+        "n_peptides": len(idx_list),
+        "test_csv": str(test_csv.resolve()),
+        "idx_list": idx_list,
+        "sample_id_list": sample_id_list,
+        "peptides": peptides,
+    }
+
+
 def select_subset(
     test_csv: Path,
     n_peptides: int,
@@ -140,6 +162,11 @@ def main() -> int:
         type=Path,
         default=REPO_ROOT / "outputs/ablation_new_data/_amp_knockout_seed_runs/_peptide_manifest",
     )
+    ap.add_argument(
+        "--all-test",
+        action="store_true",
+        help="Write manifest with all test-split peptides (suffix _fulltest in filename)",
+    )
     args = ap.parse_args()
 
     if args.extend_manifest is not None:
@@ -176,15 +203,24 @@ def main() -> int:
         if not test_csv.is_file():
             print(f"Error: test csv not found: {test_csv}", file=sys.stderr)
             return 1
-        payload = select_subset(
-            test_csv=test_csv,
-            n_peptides=args.n_peptides,
-            subset_seed=args.subset_seed,
-            model_version=args.model_version,
-            dataset=args.dataset,
-            diff=args.diff,
-        )
-        out_path = args.out_dir / f"{args.model_version}_{args.dataset}_diff{args.diff}.json"
+        if args.all_test:
+            payload = select_all_test(
+                test_csv=test_csv,
+                model_version=args.model_version,
+                dataset=args.dataset,
+                diff=args.diff,
+            )
+            out_path = args.out_dir / f"{args.model_version}_{args.dataset}_diff{args.diff}_fulltest.json"
+        else:
+            payload = select_subset(
+                test_csv=test_csv,
+                n_peptides=args.n_peptides,
+                subset_seed=args.subset_seed,
+                model_version=args.model_version,
+                dataset=args.dataset,
+                diff=args.diff,
+            )
+            out_path = args.out_dir / f"{args.model_version}_{args.dataset}_diff{args.diff}.json"
 
     args.out_dir.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")

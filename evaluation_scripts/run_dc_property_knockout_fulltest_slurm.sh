@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+#SBATCH --job-name=dc_ko_fulltest
+#SBATCH --gpus=1
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=0
+#SBATCH --time=02:00:00
+#SBATCH --chdir=/data/home/scv6872/run/kwli/AMPCliff
+#SBATCH --output=logs/dc_property_knockout_fulltest_%j.out
+#SBATCH --error=logs/dc_property_knockout_fulltest_%j.err
+#
+# CPU post-processing after Exp1 fulltest GPU array completes.
+# Usage:
+#   sbatch evaluation_scripts/run_dc_property_knockout_fulltest_slurm.sh
+#   sbatch --dependency=afterok:JOBID evaluation_scripts/run_dc_property_knockout_fulltest_slurm.sh
+
+set -uo pipefail
+
+REPO_ROOT="${REPO_ROOT:-/data/home/scv6872/run/kwli/AMPCliff}"
+cd "${REPO_ROOT}"
+mkdir -p logs
+
+if [[ -f /etc/profile.d/modules.sh ]]; then
+  # shellcheck source=/dev/null
+  source /etc/profile.d/modules.sh 2>/dev/null || true
+  module load miniforge gcc/11.1.0 cuda/11.1 2>/dev/null || true
+fi
+if command -v conda >/dev/null 2>&1; then
+  eval "$(conda shell.bash hook 2>/dev/null)" || true
+  conda activate AMPCliff 2>/dev/null || source activate AMPCliff 2>/dev/null || true
+fi
+
+bash "${REPO_ROOT}/evaluation_scripts/run_dc_property_knockout_fulltest.sh"

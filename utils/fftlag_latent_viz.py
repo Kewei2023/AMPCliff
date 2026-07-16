@@ -1019,3 +1019,297 @@ def render_primary_plots_per_sample(
                     out_png=f"{out_dir}/query_band_heatmap.png",
                     title=f"Latent query band mass [legacy] ({sample_label})",
                 )
+
+
+def mean_attn_matrices(mats: Sequence[torch.Tensor]) -> torch.Tensor:
+    """Mean stack of (num_queries, num_freq) attention matrices."""
+    stacked = torch.stack([sample_attn_matrix(m).float() for m in mats], dim=0)
+    return stacked.mean(dim=0)
+
+
+def attn_matrix_to_long_df(
+    attn_weights: TensorLike,
+    idx: int,
+    *,
+    pool_queries: bool = True,
+) -> pd.DataFrame:
+    """
+    Melt head-averaged (query, freq) attention to long format.
+
+    pool_queries=True: one row per (idx, freq_bin) with all query scores pooled.
+    pool_queries=False: one row per (idx, query, freq_bin).
+    """
+    mat = sample_attn_matrix(
+        attn_weights if isinstance(attn_weights, torch.Tensor) else torch.as_tensor(attn_weights)
+    ).numpy()
+    num_queries, num_freq = mat.shape
+    rows = []
+    for fi in range(num_freq):
+        if pool_queries:
+            for qi in range(num_queries):
+                rows.append({
+                    "idx": int(idx),
+                    "freq_bin": int(fi),
+                    "attn_score": float(mat[qi, fi]),
+                })
+        else:
+            for qi in range(num_queries):
+                rows.append({
+                    "idx": int(idx),
+                    "query": int(qi),
+                    "freq_bin": int(fi),
+                    "attn_score": float(mat[qi, fi]),
+                })
+    return pd.DataFrame(rows)
+
+
+def aggregate_attn_by_idx_across_seeds(
+    seed_dirs: Sequence[Union[str, os.PathLike]],
+    dataset: str,
+    *,
+    subdir: str = "exp4_latent_fulltest",
+    pt_filename: str = "latent_attn_weights.pt",
+    min_seeds: int = 1,
+) -> Tuple[Dict[int, torch.Tensor], List[str]]:
+    """
+    Load per-seed latent_attn_weights.pt and return seed-mean attention per idx.
+
+    Returns (mean_attn_by_idx, warnings).
+    """
+    from collections import defaultdict
+    from pathlib import Path
+
+    by_idx: Dict[int, List[torch.Tensor]] = defaultdict(list)
+    warnings: List[str] = []
+
+    for seed_dir in seed_dirs:
+        seed_path = Path(seed_dir)
+        pt_path = seed_path / dataset / subdir / pt_filename
+        if not pt_path.is_file():
+            warnings.append(f"[MISSING] {pt_path}")
+            continue
+
+        payload = torch.load(pt_path, map_location="cpu")
+        samples = payload.get("samples") or []
+        if not samples:
+            warnings.append(f"[EMPTY] {pt_path}")
+            continue
+
+        for sample in samples:
+            idx = int(sample["idx"])
+            by_idx[idx].append(sample_attn_matrix(sample["attn_weights"]))
+
+    mean_by_idx: Dict[int, torch.Tensor] = {}
+    for idx, mats in sorted(by_idx.items()):
+        if len(mats) < min_seeds:
+            warnings.append(
+                f"[SKIP] idx={idx}: only {len(mats)} seeds (min_seeds={min_seeds})"
+            )
+            continue
+        shapes = {tuple(m.shape) for m in mats}
+        if len(shapes) != 1:
+            warnings.append(f"[SHAPE_MISMATCH] idx={idx}: shapes={sorted(shapes)}")
+            continue
+        mean_by_idx[idx] = mean_attn_matrices(mats)
+
+    return mean_by_idx, warnings
+
+
+def build_pooled_freq_distribution_df(
+    mean_attn_by_idx: Dict[int, torch.Tensor],
+    *,
+    pool_queries: bool = True,
+) -> pd.DataFrame:
+    """Concatenate long attention rows for all idx in mean_attn_by_idx."""
+    frames = [
+        attn_matrix_to_long_df(mat, idx, pool_queries=pool_queries)
+        for idx, mat in sorted(mean_attn_by_idx.items())
+    ]
+    if not frames:
+        return pd.DataFrame(columns=["idx", "freq_bin", "attn_score"])
+    return pd.concat(frames, ignore_index=True)
+
+
+def summarize_freq_bin_distribution(long_df: pd.DataFrame) -> pd.DataFrame:
+    """Per freq_bin summary of pooled attention scores."""
+    if long_df.empty:
+        return pd.DataFrame(
+            columns=[
+                "freq_bin",
+                "n_points",
+                "n_samples",
+                "mean",
+                "std",
+                "q25",
+                "median",
+                "q75",
+                "min",
+                "max",
+            ]
+        )
+    agg = (
+        long_df.groupby("freq_bin", as_index=False)
+        .agg(
+            n_points=("attn_score", "size"),
+            n_samples=("idx", "nunique"),
+            mean=("attn_score", "mean"),
+            std=("attn_score", "std"),
+            q25=("attn_score", lambda s: float(s.quantile(0.25))),
+            median=("attn_score", "median"),
+            q75=("attn_score", lambda s: float(s.quantile(0.75))),
+            min=("attn_score", "min"),
+            max=("attn_score", "max"),
+        )
+        .sort_values("freq_bin")
+    )
+    return agg
+
+
+def _dataset_display_label(dataset: str) -> str:
+    if dataset == "e_coli":
+        return "E. coli"
+    if dataset == "s_aureus":
+        return "S. aureus"
+    return dataset
+
+
+def _freq_bin_tick_label(freq_bin: int) -> str:
+    """X-axis tick label for frequency bin (index only, no prefix)."""
+    return str(int(freq_bin))
+
+
+def plot_latent_query_freq_distribution(
+    long_df: pd.DataFrame,
+    out_png: str,
+    *,
+    kind: Literal["box", "violin"] = "box",
+    dataset: str = "",
+    n_seeds: int = 10,
+    title: Optional[str] = None,
+) -> None:
+    """
+    Box or violin plot: x=freq_bin, y=attn_score (queries pooled across test samples).
+    """
+    if long_df.empty:
+        Logger.warning(f"Skipped {kind} plot (empty df): {out_png}")
+        return
+
+    work = long_df.copy()
+    work["freq_bin"] = work["freq_bin"].astype(int)
+    work["freq_label"] = work["freq_bin"].map(_freq_bin_tick_label)
+
+    n_samples = int(work["idx"].nunique())
+    ds_label = _dataset_display_label(dataset) if dataset else ""
+    if title is None:
+        title = (
+            f"Latent-query attention by frequency bin — {ds_label} "
+            f"(n={n_samples} test samples, {n_seeds} seeds mean, queries pooled)"
+        )
+
+    freq_order = sorted(work["freq_bin"].unique())
+    freq_labels = [_freq_bin_tick_label(b) for b in freq_order]
+    work["freq_label"] = pd.Categorical(work["freq_label"], categories=freq_labels, ordered=True)
+
+    fig_w = max(10, min(24, len(freq_order) * 0.55))
+    fig, ax = plt.subplots(figsize=(fig_w, 5))
+
+    if kind == "violin":
+        sns.violinplot(
+            data=work,
+            x="freq_label",
+            y="attn_score",
+            order=freq_labels,
+            inner="box",
+            cut=0,
+            linewidth=0.8,
+            ax=ax,
+            color="steelblue",
+        )
+    else:
+        sns.boxplot(
+            data=work,
+            x="freq_label",
+            y="attn_score",
+            order=freq_labels,
+            fliersize=1.5,
+            linewidth=0.8,
+            ax=ax,
+            color="steelblue",
+        )
+
+    ax.set_xlabel("Frequency bin")
+    ax.set_ylabel("Cross-attention score")
+    ax.set_title(title)
+    ax.grid(True, axis="y", alpha=0.25)
+    plt.tight_layout()
+    os.makedirs(os.path.dirname(out_png) or ".", exist_ok=True)
+    plt.savefig(out_png, dpi=200, bbox_inches="tight")
+    plt.close()
+    Logger.info(f"[saved] {out_png}")
+
+
+def plot_latent_query_freq_distribution_combined(
+    long_dfs: Dict[str, pd.DataFrame],
+    out_png: str,
+    *,
+    kind: Literal["box", "violin"] = "box",
+    n_seeds: int = 10,
+    title: Optional[str] = None,
+) -> None:
+    """Side-by-side box/violin plots for multiple datasets."""
+    datasets = [ds for ds, df in long_dfs.items() if not df.empty]
+    if not datasets:
+        Logger.warning(f"Skipped combined {kind} plot (no data): {out_png}")
+        return
+
+    if title is None:
+        title = (
+            f"Latent-query attention by frequency bin "
+            f"({n_seeds} seeds mean, queries pooled)"
+        )
+
+    fig, axes = plt.subplots(1, len(datasets), figsize=(6 * len(datasets), 5), squeeze=False)
+    for ax, dataset in zip(axes[0], datasets):
+        work = long_dfs[dataset].copy()
+        work["freq_bin"] = work["freq_bin"].astype(int)
+        freq_order = sorted(work["freq_bin"].unique())
+        freq_labels = [_freq_bin_tick_label(b) for b in freq_order]
+        work["freq_label"] = work["freq_bin"].map(_freq_bin_tick_label)
+        work["freq_label"] = pd.Categorical(work["freq_label"], categories=freq_labels, ordered=True)
+
+        if kind == "violin":
+            sns.violinplot(
+                data=work,
+                x="freq_label",
+                y="attn_score",
+                order=freq_labels,
+                inner="box",
+                cut=0,
+                linewidth=0.8,
+                ax=ax,
+                color="steelblue",
+            )
+        else:
+            sns.boxplot(
+                data=work,
+                x="freq_label",
+                y="attn_score",
+                order=freq_labels,
+                fliersize=1.5,
+                linewidth=0.8,
+                ax=ax,
+                color="steelblue",
+            )
+
+        n_samples = int(work["idx"].nunique())
+        ax.set_title(f"{_dataset_display_label(dataset)} (n={n_samples})")
+        ax.set_xlabel("Frequency bin")
+        ax.set_ylabel("Cross-attention score")
+        ax.grid(True, axis="y", alpha=0.25)
+
+    fig.suptitle(title, y=1.02)
+    plt.tight_layout()
+    os.makedirs(os.path.dirname(out_png) or ".", exist_ok=True)
+    plt.savefig(out_png, dpi=200, bbox_inches="tight")
+    plt.close()
+    Logger.info(f"[saved] {out_png}")

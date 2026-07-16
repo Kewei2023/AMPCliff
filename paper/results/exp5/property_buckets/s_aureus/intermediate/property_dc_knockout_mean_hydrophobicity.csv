@@ -1,0 +1,7 @@
+species,property_bucket,band,signed_mse_diff,abs_mse_diff,n,property
+s_aureus,bottom_30,0,1.1179112223012428,1.1938669437570568,190,mean_hydrophobicity
+s_aureus,bottom_30,1,0.058425951581188844,0.2980762575675169,190,mean_hydrophobicity
+s_aureus,middle_40,0,0.7877480495933004,0.887932175837686,255,mean_hydrophobicity
+s_aureus,middle_40,1,-0.03910970865791073,0.25684044146532686,255,mean_hydrophobicity
+s_aureus,top_30,0,1.0987203900964049,1.1774045356704086,190,mean_hydrophobicity
+s_aureus,top_30,1,0.04747930513450248,0.29049535429232,190,mean_hydrophobicity
