@@ -312,7 +312,19 @@ python downstream_evaluate.py \
 
 ### FLaG
 
-若使用 FLaG pooling 方法或本仓库代码，请引用我们的论文（待更新 bibtex）。
+若使用 FLaG pooling 方法或本仓库代码，请引用我们的论文：
+
+https://arxiv.org/abs/2606.08191
+
+```bibtex
+@article{li2026flag,
+  title={Frequency-Domain Latent Attention Gating for Cross-Domain Token Aggregation},
+  author={Li, Kewei and Zhang, Rongying and Wang, Xueli and Gong, Xiwen and Wang, Zhongjian and Huang, Lan and Zhang, Ruochi and Zhou, Fengfeng},
+  journal={arXiv preprint arXiv:2606.08191},
+  year={2026},
+  url={https://arxiv.org/abs/2606.08191}
+}
+```
 
 ### AMPCliff（基础平台）
 
