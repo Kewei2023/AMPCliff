@@ -273,12 +273,12 @@ python downstream_evaluate.py \
 | `evaluation_scripts/run_fftlag_exp{1,2,3,4}_fulltest.sh` | Mechanism | Exp1–4 全 test 批处理 |
 | `evaluation_scripts/plot_fftlag_exp1_fulltest_violin.py` | Mechanism | Exp1 \|ΔMSE\| 小提琴图 |
 | `analyze_fft_lag_mechanism_by_structure.py` | Mechanism | Exp5 可选结构分桶 |
-| `evaluation_scripts/run_dc_validation_v2.sh` | Exp5 | Exp5 官方流水线（Step 1–5） |
-| `build_dc_property_table.py` | Exp5 | Step 1 属性表 |
-| `extract_dct_coefficient_features.py` | Exp5 | Step 2 DCT 特征 |
-| `analyze_dc_property_encoding.py` | Exp5 | Step 3 / 主实验一 DC 解码 |
-| `analyze_species_property_effects.py` | Exp5 | Step 4 / 主实验二 A 物种效应 |
-| `evaluation_scripts/run_dc_property_knockout_fulltest.sh` | Exp5 | Step 5 / 主实验二 B 属性分桶 |
+| `evaluation_scripts/run_dc_validation_v2.sh` | Mechanism | Exp5：官方流水线（Step 1–5） |
+| `build_dc_property_table.py` | Mechanism | Exp5 Step 1：属性表 |
+| `extract_dct_coefficient_features.py` | Mechanism | Exp5 Step 2：DCT 特征 |
+| `analyze_dc_property_encoding.py` | Mechanism | Exp5 Step 3 / 主实验一：DC 解码 |
+| `analyze_species_property_effects.py` | Mechanism | Exp5 Step 4 / 主实验二 A：物种效应 |
+| `evaluation_scripts/run_dc_property_knockout_fulltest.sh` | Mechanism | Exp5 Step 5 / 主实验二 B：属性分桶 |
 | `evaluation_scripts/run_fftlag_mechanism_experiments.sh` | Mechanism | 旧版 Exp1/2/4 子集调度 |
 | `evaluation_scripts/run_fftlag_exp4_only.sh` | Mechanism | 仅 Exp4（SLURM 友好） |
 | `evaluation_scripts/run_fftlag_exp4_attn_score_raw.sh` | Mechanism | Exp4 attn score 变体 |

@@ -273,12 +273,12 @@ python downstream_evaluate.py \
 | `evaluation_scripts/run_fftlag_exp{1,2,3,4}_fulltest.sh` | Mechanism | Exp1–4 full-test batch runners |
 | `evaluation_scripts/plot_fftlag_exp1_fulltest_violin.py` | Mechanism | Exp1 \|ΔMSE\| violin plots |
 | `analyze_fft_lag_mechanism_by_structure.py` | Mechanism | Exp5 optional structure bucketing |
-| `evaluation_scripts/run_dc_validation_v2.sh` | Exp5 | Official Exp5 pipeline (Steps 1–5) |
-| `build_dc_property_table.py` | Exp5 | Step 1 property table |
-| `extract_dct_coefficient_features.py` | Exp5 | Step 2 DCT features |
-| `analyze_dc_property_encoding.py` | Exp5 | Step 3 / main exp. 1 DC decoding |
-| `analyze_species_property_effects.py` | Exp5 | Step 4 / main exp. 2A species effects |
-| `evaluation_scripts/run_dc_property_knockout_fulltest.sh` | Exp5 | Step 5 / main exp. 2B property buckets |
+| `evaluation_scripts/run_dc_validation_v2.sh` | Mechanism | Exp5: official pipeline (Steps 1–5) |
+| `build_dc_property_table.py` | Mechanism | Exp5 Step 1: property table |
+| `extract_dct_coefficient_features.py` | Mechanism | Exp5 Step 2: DCT features |
+| `analyze_dc_property_encoding.py` | Mechanism | Exp5 Step 3 / main exp. 1: DC decoding |
+| `analyze_species_property_effects.py` | Mechanism | Exp5 Step 4 / main exp. 2A: species effects |
+| `evaluation_scripts/run_dc_property_knockout_fulltest.sh` | Mechanism | Exp5 Step 5 / main exp. 2B: property buckets |
 | `evaluation_scripts/run_fftlag_mechanism_experiments.sh` | Mechanism | Legacy Exp1/2/4 subset orchestration |
 | `evaluation_scripts/run_fftlag_exp4_only.sh` | Mechanism | Exp4 only (SLURM-friendly) |
 | `evaluation_scripts/run_fftlag_exp4_attn_score_raw.sh` | Mechanism | Exp4 attn-score variant |
