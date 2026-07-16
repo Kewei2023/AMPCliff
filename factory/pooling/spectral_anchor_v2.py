@@ -1,3 +1,4 @@
+# maintained by kewei li
 """
 Improved Spectral Anchor Pooling with multiple optimization strategies.
 

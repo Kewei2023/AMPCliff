@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# maintained by kewei li
 """Summarize per-seed dc_property_probe_results.csv into mean ± std table."""
 from __future__ import annotations
 

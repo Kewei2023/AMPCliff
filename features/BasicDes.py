@@ -1,3 +1,4 @@
+# maintained by kewei li
 import numpy as np
 
 def cal_discriptors(secq):

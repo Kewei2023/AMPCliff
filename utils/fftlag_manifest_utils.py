@@ -1,3 +1,4 @@
+# maintained by kewei li
 """Shared peptide manifest and checkpoint helpers for FFT-LAG mechanism experiments."""
 from __future__ import annotations
 

@@ -1,3 +1,4 @@
+# maintained by kewei li
 # post_softmax_knockout.py
 import types
 import math

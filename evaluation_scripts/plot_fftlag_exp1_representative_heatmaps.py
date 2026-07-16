@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# maintained by kewei li
 """Plot Exp1 representative per-sample layer×band knockout heatmaps (Exp4 ID aligned)."""
 from __future__ import annotations
 

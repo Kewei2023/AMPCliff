@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# maintained by kewei li
 """Exp5 / DC validation design v2 — Step 1: build dc_property_table.csv.
 Build dc_property_table.csv for DC validation experiments."""
 from __future__ import annotations

@@ -1,3 +1,4 @@
+# maintained by kewei li
 from .attention import MultiHeadVectorAttnPooling
 from .local_spectral_anchor_new import MultiHeadLocalSpectralAnchorPoolingNew
 from .local_spectrual import MultiHeadLocalSTFTPooling

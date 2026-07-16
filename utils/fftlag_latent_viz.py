@@ -1,3 +1,4 @@
+# maintained by kewei li
 """
 Training-aligned visualizations for FFT-LAG latent analysis (Exp4).
 

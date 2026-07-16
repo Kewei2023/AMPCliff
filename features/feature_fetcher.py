@@ -1,3 +1,4 @@
+# maintained by kewei li
 from . import BasicDes, Autocorrelation, CTD, PseudoAAC, AAComposition, QuasiSequenceOrder
 from . import fingerprint_2d as fingerprint
 from modlamp.descriptors import PeptideDescriptor, GlobalDescriptor

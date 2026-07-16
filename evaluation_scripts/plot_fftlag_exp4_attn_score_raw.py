@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# maintained by kewei li
 """Offline CPU replot: Exp4 latent_attn_weights.pt -> per_sample attn_score_raw.png."""
 from __future__ import annotations
 

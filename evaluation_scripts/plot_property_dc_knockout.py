@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# maintained by kewei li
 """Exp5 / DC validation design v2 — Step 5 / 主实验二 Part B: property-bucket figures (signed + |ΔMSE|).
 Plot property-stratified DC knockout figures from intermediate CSV tables."""
 from __future__ import annotations

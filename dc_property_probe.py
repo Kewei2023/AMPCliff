@@ -1,3 +1,4 @@
+# maintained by kewei li
 """Shared Ridge probe utilities for DC validation property decoding experiments."""
 from __future__ import annotations
 

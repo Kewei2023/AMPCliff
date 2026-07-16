@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# maintained by kewei li
 """Exp5 / DC validation design v2 — Step 4 / 主实验二 Part A: species×property activity effects.
 Species-interaction regression of activity vs physicochemical properties."""
 from __future__ import annotations

@@ -1,3 +1,4 @@
+# maintained by kewei li
 """Path helpers for FFT-LAG mechanism aggregated outputs."""
 from __future__ import annotations
 

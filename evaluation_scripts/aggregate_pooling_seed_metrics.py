@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# maintained by kewei li
 """
 Aggregate test/valid Spearman, Pearson, top-K recall, and RMSE across seed_* subdirectories.
 

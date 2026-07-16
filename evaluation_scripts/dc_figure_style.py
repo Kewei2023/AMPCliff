@@ -1,3 +1,4 @@
+# maintained by kewei li
 """Shared color and layout constants for DC validation composite figures."""
 from __future__ import annotations
 

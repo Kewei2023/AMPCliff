@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# maintained by kewei li
 """
 Aggregate per-seed knockout CSVs: mean/std over train seeds only (not across peptides).
 

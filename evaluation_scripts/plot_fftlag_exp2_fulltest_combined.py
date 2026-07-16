@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# maintained by kewei li
 """Plot Exp2 full-test PSD gate band summary across all peptides (mean ± std)."""
 from __future__ import annotations
 

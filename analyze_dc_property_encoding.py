@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# maintained by kewei li
 """Exp5 / DC validation design v2 — Step 3 / 主实验一: DC property decoding probes.
 Ridge property probes on DCT coefficient features (DC validation Step 3)."""
 from __future__ import annotations

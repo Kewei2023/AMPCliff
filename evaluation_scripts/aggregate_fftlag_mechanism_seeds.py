@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# maintained by kewei li
 """Aggregate FFT-LAG mechanism experiment outputs across train seeds."""
 from __future__ import annotations
 

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# maintained by kewei li
 """Structure-bucket secondary analysis for FFT-LAG mechanism experiments."""
 from __future__ import annotations
 

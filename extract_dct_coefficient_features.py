@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# maintained by kewei li
 """Exp5 / DC validation design v2 — Step 2: extract last-layer DCT coefficients.
 Extract last-layer DCT coefficients from FLaG checkpoints for DC validation."""
 from __future__ import annotations

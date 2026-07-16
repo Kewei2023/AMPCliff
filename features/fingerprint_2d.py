@@ -1,3 +1,4 @@
+# maintained by kewei li
 import json
 import numpy as np
 from rdkit import Chem

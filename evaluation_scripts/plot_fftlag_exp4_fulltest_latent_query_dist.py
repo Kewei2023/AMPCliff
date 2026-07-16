@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# maintained by kewei li
 """Aggregate Exp4 full-test latent-query attention and plot freq-bin distributions."""
 from __future__ import annotations
 

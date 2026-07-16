@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# maintained by kewei li
 """Exp5 / DC validation design v2 — Step 5 / 主实验二 Part B: property-bucket tables.
 Compute property-stratified DC knockout tables (no plots)."""
 from __future__ import annotations

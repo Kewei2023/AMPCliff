@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# maintained by kewei li
 """Select a fixed random subset of test peptides for AMP knockout diagnostics."""
 from __future__ import annotations
 

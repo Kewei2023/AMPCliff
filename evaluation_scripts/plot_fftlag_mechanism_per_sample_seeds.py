@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# maintained by kewei li
 """Aggregate per-sample FFT-LAG mechanism metrics across train seeds and plot line + error bands."""
 from __future__ import annotations
 

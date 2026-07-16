@@ -1,3 +1,4 @@
+# maintained by kewei li
 """Shared physicochemical property utilities for DC validation experiments."""
 from __future__ import annotations
 

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# maintained by kewei li
 """Combine helix / net charge / hydrophobicity band-sensitivity into one 1x3 subplot figure."""
 from __future__ import annotations
 

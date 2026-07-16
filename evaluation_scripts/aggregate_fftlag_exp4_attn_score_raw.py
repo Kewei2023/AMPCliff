@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# maintained by kewei li
 """Aggregate Exp4 raw attention scores across train seeds (per dataset)."""
 from __future__ import annotations
 
