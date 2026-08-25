@@ -1,4 +1,3 @@
-# maintained by kewei li
 from __future__ import annotations
 
 from pathlib import Path
@@ -10,20 +9,28 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.colors import Normalize
-from matplotlib.lines import Line2D
 
 INPUT_XLSX = Path("dc_validation_combined_figure_data.xlsx")
 OUT_PNG = Path("dc_validation_combined_figure_updated_v3.png")
 OUT_PDF = Path("dc_validation_combined_figure_updated_v3.pdf")
 OUT_SVG = Path("dc_validation_combined_figure_updated_v3.svg")
 
-LEGEND_Y = 0.982
-LEGEND_FONTSIZE = 8.5
-LEGEND_MARKERSIZE = 8
-LEGEND_HANDTEXTPAD = 0.45
-LEGEND_HANDLELENGTH = 1.0
+# Global font-size scaling factor.
+# 1.0 keeps the original font sizes.
+# Example: 1.2 makes all text 20% larger; 1.5 makes all text 50% larger.
+FONT_SCALE = 1.5
+
+
+def fs(size: float) -> float:
+    """Return a font size scaled by the global FONT_SCALE factor."""
+    return size * FONT_SCALE
+
 # B1 overlaps B6/B7 near the bottom; draw it last with the highest z-order.
 BAND_PLOT_ORDER = [0, 2, 3, 4, 5, 6, 7, 1]
+
+# Excel column / probe keys keep original mathfrak names; display uses mathcal.
+COL_B = [rf"$\mathfrak{{B}}_{{{i}}}$" for i in range(4)]
+DISP_B = [rf"$\mathcal{{B}}_{{{i}}}$" for i in range(8)]
 
 
 def _band_line_style(band: int) -> tuple[float, float]:
@@ -55,22 +62,19 @@ property_labels_heat = {
     "helix_propensity": "Helix propensity", "hydrophobic_moment": "Hydrophobic moment",
 }
 
-PROBE_B0_KEY = r"$\mathfrak{B}_{0}$"
-PROBE_B0_LABEL = r"$\widetilde{\mathfrak{B}}_{0}$"
-
-probe_specs = [
-    ("AAC", "AAC"),
-    (PROBE_B0_KEY, PROBE_B0_LABEL),
-    (r"$\mathfrak{B}_{1}$", r"$\mathfrak{B}_{1}$"),
+probe_order = ["AAC", COL_B[0], COL_B[1]]
+probe_display = {"AAC": "AAC", COL_B[0]: DISP_B[0], COL_B[1]: DISP_B[1]}
+BAND_COLORS = [
+    "#0072B2", "#009E73", "#E69F00", "#CC79A7",
+    "#56B4E9", "#D55E00", "#F0E442", "#332288",
 ]
-probe_colors = {"AAC": "#7A7A7A", PROBE_B0_KEY: "#0072B2", r"$\mathfrak{B}_{1}$": "#009E73"}
+probe_colors = {"AAC": "#7A7A7A", COL_B[0]: BAND_COLORS[0], COL_B[1]: BAND_COLORS[1]}
 
 heatmap_cmap = plt.get_cmap("GnBu")
 heat_vmin, heat_vmax = 0.55, 1.00
 small_bar_color = "#D9DEE5"
 small_bar_edge = "#A6AFB8"
-band_cmap = plt.get_cmap("viridis")
-band_colors = band_cmap(np.linspace(0.08, 0.92, 8))
+band_colors = BAND_COLORS
 text_color = "#222222"
 axis_color = "#333333"
 grid_color = "#D9D9D9"
@@ -85,8 +89,8 @@ bucket_order = ["bottom_30", "middle_40", "top_30"]
 bucket_labels_compact = ["Low\n30%", "Middle\n40%", "High\n30%"]
 
 plt.rcParams.update({
-    "font.family": "DejaVu Sans", "font.size": 8, "axes.titlesize": 10, "axes.labelsize": 8.5,
-    "xtick.labelsize": 7, "ytick.labelsize": 7, "axes.edgecolor": axis_color,
+    "font.family": "DejaVu Sans", "font.size": fs(8), "axes.titlesize": fs(15), "axes.labelsize": fs(13.5),
+    "xtick.labelsize": fs(7), "ytick.labelsize": fs(7), "axes.edgecolor": axis_color,
     "axes.labelcolor": text_color, "xtick.color": text_color, "ytick.color": text_color,
     "text.color": text_color, "pdf.fonttype": 42, "ps.fonttype": 42,
 })
@@ -94,8 +98,8 @@ plt.rcParams.update({
 heat_lookup = {}
 for _, row in heat_df.iterrows():
     heat_lookup[(row["species"], row["property"])] = [
-        float(row[r"$\mathfrak{B}_{0}$"]), float(row[r"$\mathfrak{B}_{1}$"]),
-        float(row[r"$\mathfrak{B}_{2}$"]), float(row[r"$\mathfrak{B}_{3}$"]),
+        float(row[COL_B[0]]), float(row[COL_B[1]]),
+        float(row[COL_B[2]]), float(row[COL_B[3]]),
     ]
 
 probe_groups = defaultdict(list)
@@ -133,9 +137,19 @@ for sp in species_order:
             for band, value in enumerate(scaled):
                 scaled_band_lookup[(sp, panel_key, bucket, band)] = float(value)
 
-fig = plt.figure(figsize=(17.2, 8.7), facecolor="white")
-outer = fig.add_gridspec(2, 3, width_ratios=[1.05, 1.55, 2.08], height_ratios=[1, 1],
-                         left=0.065, right=0.985, top=0.90, bottom=0.13, wspace=0.25, hspace=0.31)
+fig = plt.figure(figsize=(19.0, 14.2), facecolor="white")
+
+# Two-row layout:
+#   Row 0: A | B | C
+#   Row 1: D | E | F
+# C/F are 2x2 blocks in the right column.
+outer = fig.add_gridspec(
+    2, 3,
+    width_ratios=[1.55, 1.35, 2.00],
+    height_ratios=[1, 1],
+    left=0.07, right=0.98, top=0.88, bottom=0.10,
+    wspace=0.50, hspace=0.70,
+)
 
 heat_axes, bar_axes, right_axes_by_species = [], [], {}
 
@@ -144,13 +158,17 @@ for row_idx, sp in enumerate(species_order):
     heat_axes.append(ax_h)
     matrix = np.array([heat_lookup[(sp, prop)] for prop in property_order], dtype=float)
     im = ax_h.imshow(matrix, cmap=heatmap_cmap, norm=Normalize(heat_vmin, heat_vmax), aspect="auto", interpolation="nearest")
+    ax_h.set_box_aspect(1)
+    ax_h.set_anchor("N")
     ax_h.set_xticks(range(4))
-    ax_h.set_xticklabels([r"$\widetilde{\mathfrak{B}}_{0}$", r"$\mathfrak{B}_{1}$", r"$\mathfrak{B}_{2}$", r"$\mathfrak{B}_{3}$"])
+    ax_h.set_xticklabels(DISP_B[:4], color="black", fontsize=fs(12))
     ax_h.set_yticks(range(len(property_order)))
-    ax_h.set_yticklabels([property_labels_heat[p] for p in property_order])
-    ax_h.set_xlabel("DCT coefficient", labelpad=5)
-    ax_h.set_ylabel("Physicochemical property", labelpad=6)
-    ax_h.set_title(f"{species_names[sp]}  |  DC property encoding", pad=9, fontweight="semibold")
+    ax_h.set_yticklabels([property_labels_heat[p] for p in property_order], fontsize=fs(12))
+    ax_h.set_xlabel("DCT coefficient", labelpad=5, fontsize=fs(13.5))
+    ax_h.set_title(
+        f"{species_names[sp]}\nDC property encoding",
+        pad=9, fontsize=fs(15), fontweight="semibold", linespacing=1.15,
+    )
     ax_h.set_xticks(np.arange(-0.5, 4, 1), minor=True)
     ax_h.set_yticks(np.arange(-0.5, len(property_order), 1), minor=True)
     ax_h.grid(which="minor", color="white", linewidth=0.8)
@@ -163,7 +181,7 @@ for row_idx, sp in enumerate(species_order):
             rgba = heatmap_cmap(norm(val))
             luminance = 0.2126 * rgba[0] + 0.7152 * rgba[1] + 0.0722 * rgba[2]
             color = "#1C1C1C" if luminance > 0.58 else "white"
-            ax_h.text(j, i, f"{val:.2f}", ha="center", va="center", fontsize=7.3, color=color)
+            ax_h.text(j, i, f"{val:.2f}", ha="center", va="center", fontsize=fs(9.5), color=color)
     for spine in ax_h.spines.values():
         spine.set_visible(False)
 
@@ -172,26 +190,39 @@ for row_idx, sp in enumerate(species_order):
     x = np.arange(len(property_order), dtype=float)
     width = 0.23
     offsets = [-width, 0.0, width]
-    for offset, (probe_key, _) in zip(offsets, probe_specs):
-        means = [probe_stats[(sp, p, probe_key)][0] for p in property_order]
-        cis = [probe_stats[(sp, p, probe_key)][1] for p in property_order]
-        ax_b.bar(x + offset, means, width=width, color=probe_colors[probe_key], edgecolor="white", linewidth=0.5,
-                 yerr=cis, error_kw={"ecolor": axis_color, "elinewidth": 0.8, "capsize": 1.8, "capthick": 0.8}, zorder=3)
+    for offset, probe in zip(offsets, probe_order):
+        means = [probe_stats[(sp, p, probe)][0] for p in property_order]
+        cis = [probe_stats[(sp, p, probe)][1] for p in property_order]
+        ax_b.bar(
+            x + offset, means, width=width, color=probe_colors[probe], edgecolor="white", linewidth=0.5,
+            yerr=cis, error_kw={"ecolor": axis_color, "elinewidth": 0.8, "capsize": 1.8, "capthick": 0.8},
+            zorder=3, label=probe_display[probe],
+        )
     ax_b.set_ylim(0.0, 1.04)
     ax_b.set_xlim(-0.55, len(property_order) - 0.45)
     ax_b.set_xticks(x)
-    ax_b.set_xticklabels([property_labels_heat[p] for p in property_order], rotation=31, ha="right", rotation_mode="anchor")
-    ax_b.set_ylabel("Spearman's $\\rho$")
-    ax_b.set_title("Property probe comparison", pad=9, fontweight="semibold")
+    ax_b.set_xticklabels(
+        [property_labels_heat[p] for p in property_order],
+        rotation=31, ha="right", rotation_mode="anchor", fontsize=fs(12),
+    )
+    ax_b.set_ylabel("Spearman's $\\rho$", fontsize=fs(13.5))
+    ax_b.set_title(
+        f"{species_names[sp]}\nProperty probe comparison",
+        pad=12, fontsize=fs(15), fontweight="semibold", linespacing=1.15,
+    )
     ax_b.grid(axis="y", color=grid_color, linewidth=0.7, alpha=0.75, zorder=0)
-    ax_b.tick_params(axis="x", length=0, pad=4)
+    ax_b.tick_params(axis="x", length=0, pad=6)
     ax_b.tick_params(axis="y", length=3)
     ax_b.spines["top"].set_visible(False)
     ax_b.spines["right"].set_visible(False)
     ax_b.spines["left"].set_linewidth(0.8)
     ax_b.spines["bottom"].set_linewidth(0.8)
+    ax_b.legend(
+        loc="upper left", bbox_to_anchor=(1.02, 1.0),
+        fontsize=fs(9), frameon=False, labelcolor="black", borderaxespad=0.0,
+    )
 
-    inner = outer[row_idx, 2].subgridspec(2, 2, wspace=0.22, hspace=0.42)
+    inner = outer[row_idx, 2].subgridspec(2, 2, wspace=0.22, hspace=0.38)
     right_axes = []
     for panel_idx, (panel_key, panel_title) in enumerate(panel_specs):
         rr, cc = divmod(panel_idx, 2)
@@ -207,91 +238,89 @@ for row_idx, sp in enumerate(species_order):
                 xx, yy, color=band_colors[band], linewidth=line_width, marker="o",
                 markersize=marker_size, markeredgewidth=0, alpha=0.92,
                 zorder=_band_line_zorder(draw_rank),
+                label=DISP_B[band],
             )
-        ax.set_title(panel_title, pad=3, fontsize=8.4, fontweight="semibold")
+        ax.set_title(panel_title, pad=3, fontsize=fs(11.4))
         ax.set_xticks(xx)
-        ax.set_xticklabels(bucket_labels_compact, fontsize=6.4, linespacing=0.9)
+        if rr == 0:
+            ax.set_xticklabels([])
+            ax.tick_params(axis="x", length=0, labelbottom=False)
+        else:
+            ax.set_xticklabels(bucket_labels_compact, fontsize=fs(11.4), linespacing=0.9)
+            ax.tick_params(axis="x", length=0, pad=3)
         ax.set_ylim(0.0, 0.55)
         ax.set_yticks([0.0, 0.2, 0.4])
         ax.grid(axis="y", color=grid_color, linewidth=0.6, alpha=0.70, zorder=0)
-        ax.tick_params(axis="x", length=0, pad=3)
         ax.tick_params(axis="y", length=2.5)
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
         ax.spines["left"].set_linewidth(0.7)
         ax.spines["bottom"].set_linewidth(0.7)
         if cc == 0:
-            ax.set_ylabel(r"Mean $|\Delta \mathrm{MSE}|$", fontsize=7.2)
+            ax.set_ylabel(r"Mean $|\Delta P|$", fontsize=fs(9.2))
+    right_axes[1].legend(
+        bbox_to_anchor=(1.02, 1.0), loc="upper left", ncol=1,
+        fontsize=fs(6.5), frameon=False, labelcolor="black",
+    )
     right_axes_by_species[sp] = right_axes
 
-probe_handles = [
-    Line2D(
-        [0], [0], marker="s", linestyle="none", markersize=LEGEND_MARKERSIZE,
-        markerfacecolor=probe_colors[probe_key], markeredgecolor="none", label=probe_label,
-    )
-    for probe_key, probe_label in probe_specs
-]
-fig.legend(
-    handles=probe_handles,
-    labels=[probe_label for _, probe_label in probe_specs],
-    loc="upper center",
-    bbox_to_anchor=(0.438, LEGEND_Y),
-    ncol=len(probe_specs),
-    frameon=False,
-    fontsize=LEGEND_FONTSIZE,
-    handletextpad=LEGEND_HANDTEXTPAD,
-    handlelength=LEGEND_HANDLELENGTH,
-    columnspacing=1.25,
-)
-
 fig.canvas.draw()
-top_heat_box = heat_axes[0].get_position()
-bottom_heat_box = heat_axes[1].get_position()
-cax_heat = fig.add_axes([top_heat_box.x1 + 0.008, bottom_heat_box.y0, 0.008, top_heat_box.y1 - bottom_heat_box.y0])
-cb_heat = fig.colorbar(im, cax=cax_heat, orientation="vertical", ticks=[0.55, 0.65, 0.75, 0.85, 0.95, 1.00])
-cb_heat.ax.set_title(r"$\rho$", fontsize=8.5, pad=5)
-cb_heat.ax.tick_params(labelsize=7, length=2.5)
-cb_heat.outline.set_linewidth(0.6)
 
-panel_map = [("A", heat_axes[0]), ("B", bar_axes[0]), ("C", right_axes_by_species["e_coli"][0]),
-             ("D", heat_axes[1]), ("E", bar_axes[1]), ("F", right_axes_by_species["s_aureus"][0])]
-for letter, ax in panel_map:
+def add_heat_colorbar(ax):
     box = ax.get_position()
-    fig.text(box.x0, box.y1 + (0.015 if letter in ("C", "F") else 0.010),
-             f"({letter})", fontsize=10.5, fontweight="bold", ha="left", va="bottom")
+    cax = fig.add_axes([box.x1 + 0.010, box.y0, 0.008, box.height])
+    cb = fig.colorbar(
+        im, cax=cax, orientation="vertical",
+        ticks=[0.55, 0.65, 0.75, 0.85, 0.95, 1.00],
+    )
+    cb.set_label(r"$\rho$", fontsize=fs(13.5), rotation=0, labelpad=10)
+    cb.ax.tick_params(labelsize=fs(7), length=2.5)
+    cb.outline.set_linewidth(0.6)
+
+add_heat_colorbar(heat_axes[0])
+add_heat_colorbar(heat_axes[1])
+
+panel_map = [
+    ("A", heat_axes[0]),
+    ("B", bar_axes[0]),
+    ("C", right_axes_by_species["e_coli"]),
+    ("D", heat_axes[1]),
+    ("E", bar_axes[1]),
+    ("F", right_axes_by_species["s_aureus"]),
+]
+
+for letter, obj in panel_map:
+    if isinstance(obj, list):
+        x0 = min(ax.get_position().x0 for ax in obj)
+        y1 = max(ax.get_position().y1 for ax in obj)
+        offset = 0.048
+        x_shift = 0.042
+    else:
+        box = obj.get_position()
+        x0 = box.x0
+        y1 = box.y1
+        offset = 0.042
+        x_shift = 0.048 if letter in ("A", "D") else 0.026
+
+    fig.text(
+        x0 - x_shift, y1 + offset, f"({letter})",
+        fontsize=fs(15.5), fontweight="bold",
+        ha="right", va="bottom",
+    )
 
 for sp in species_order:
     axes = right_axes_by_species[sp]
     left = min(a.get_position().x0 for a in axes)
     right = max(a.get_position().x1 for a in axes)
     top = max(a.get_position().y1 for a in axes)
-    fig.text((left + right) / 2, top + 0.014, f"{species_names[sp]}  |  Overall sensitivity and bandwise allocation",
-             ha="center", va="bottom", fontsize=9.4, fontweight="semibold")
-
-all_right_axes = right_axes_by_species["e_coli"] + right_axes_by_species["s_aureus"]
-right_left = min(a.get_position().x0 for a in all_right_axes)
-right_right = max(a.get_position().x1 for a in all_right_axes)
-band_handles = [
-    Line2D(
-        [0], [0], marker="s", linestyle="none", markersize=LEGEND_MARKERSIZE,
-        markerfacecolor=band_colors[i], markeredgecolor="none",
-        label=rf"$\mathfrak{{B}}_{{{i}}}$",
+    fig.text(
+        (left + right) / 2, top + 0.034,
+        f"{species_names[sp]}\nOverall sensitivity and bandwise allocation",
+        ha="center", va="bottom", fontsize=fs(14.4), fontweight="semibold",
+        color="black", linespacing=1.15,
     )
-    for i in range(8)
-]
-fig.legend(
-    handles=band_handles,
-    loc="upper center",
-    bbox_to_anchor=((right_left + right_right) / 2, LEGEND_Y),
-    ncol=8,
-    frameon=False,
-    fontsize=LEGEND_FONTSIZE,
-    handletextpad=LEGEND_HANDTEXTPAD,
-    handlelength=LEGEND_HANDLELENGTH,
-    columnspacing=0.88,
-)
 
-fig.savefig(OUT_PNG, dpi=350, bbox_inches="tight", facecolor="white")
+fig.savefig(OUT_PNG, dpi=600, bbox_inches="tight", facecolor="white")
 fig.savefig(OUT_PDF, bbox_inches="tight", facecolor="white")
 fig.savefig(OUT_SVG, bbox_inches="tight", facecolor="white")
 print(f"Saved: {OUT_PNG}, {OUT_PDF}, {OUT_SVG}")

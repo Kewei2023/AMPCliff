@@ -165,6 +165,7 @@ bash evaluation_scripts/run_fftlag_exp1_fulltest.sh
 python evaluation_scripts/aggregate_fftlag_mechanism_seeds.py
 python evaluation_scripts/plot_fftlag_exp1_fulltest_violin.py
 python evaluation_scripts/plot_fftlag_exp1_representative_heatmaps.py
+python evaluation_scripts/plot_fftlag_exp1_violin_heatmap_composite.py
 ```
 
 **Exp2 — Gate PSD**
@@ -185,13 +186,13 @@ python evaluation_scripts/plot_fftlag_exp3_mse_diff_violin_revised.py --force
 python evaluation_scripts/export_fftlag_exp3_token_knockout_data.py
 ```
 
-**Exp4 — Latent viz**
-
-```bash
-bash evaluation_scripts/run_fftlag_exp4_fulltest.sh
-python evaluation_scripts/plot_fftlag_exp4_fulltest_latent_query_dist.py
-# 可选 attn-score 变体：
+**Exp4 — Latpython evaluation_scripts/plot_fftlag_exp4_fulltest_latent_query_dist.py
+# optional attn-score variant / combined figure:
 # bash evaluation_scripts/run_fftlag_exp4_attn_score_raw.sh
+# python evaluation_scripts/plot_fftlag_exp4_attn_score_raw.py
+# python evaluation_scripts/aggregate_fftlag_exp4_attn_score_raw.py
+python evaluation_scripts/plot_fftlag_exp4_frequency_attention_combined.py
+_raw.sh
 # python evaluation_scripts/plot_fftlag_exp4_attn_score_raw.py
 ```
 

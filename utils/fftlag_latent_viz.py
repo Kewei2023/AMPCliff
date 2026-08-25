@@ -1,4 +1,3 @@
-# maintained by kewei li
 """
 Training-aligned visualizations for FFT-LAG latent analysis (Exp4).
 
@@ -174,12 +173,15 @@ def _vector_cosine(a: torch.Tensor, b: torch.Tensor) -> float:
 
 
 def gate_input_mode_from_pooling(pooling: str) -> GateInputMode:
-    """Map pooling name to gate_input aggregation used in training.
-
-    Release only ships FFTLatentAttentionGatePooling (public id FLaG), which
-    uses mean aggregation over latents. Historical v3/concat variants removed.
-    """
-    _ = str(pooling).strip()
+    """Map pooling name to gate_input aggregation used in training."""
+    name = str(pooling).strip()
+    if name in (
+        "fft_latent_attn_gate_v3",
+        "fft_latent_attn_gate_v3_1",
+        "fft_latent_attn_gate_v3_2",
+        "fft_latent_attn_gate_v3_3",
+    ):
+        return "concat"
     return "mean"
 
 
@@ -190,8 +192,8 @@ def gate_input_from_latent_out(
     """
     (L, 2D) or (B, L, 2D) -> gate_input aligned with training.
 
-    mean: FFTLatentAttentionGatePooling (public pooling id FLaG)
-    concat: legacy (removed); kept only for API compatibility
+    mean: FFTLatentAttentionGatePooling (V1)
+    concat: FFTLatentAttentionGateV3Pooling
     """
     if mode not in ("mean", "concat"):
         raise ValueError(f"gate_input mode must be 'mean' or 'concat', got {mode!r}")
@@ -1165,15 +1167,22 @@ def summarize_freq_bin_distribution(long_df: pd.DataFrame) -> pd.DataFrame:
 
 def _dataset_display_label(dataset: str) -> str:
     if dataset == "e_coli":
-        return "E. coli"
+        return r"$\it{E.\ coli}$"
     if dataset == "s_aureus":
-        return "S. aureus"
+        return r"$\it{S.\ aureus}$"
     return dataset
 
 
 def _freq_bin_tick_label(freq_bin: int) -> str:
     """X-axis tick label for frequency bin (index only, no prefix)."""
     return str(int(freq_bin))
+
+
+TITLE_FONTSIZE = 15
+AXIS_LABEL_FONTSIZE = 15
+TICK_LABEL_FONTSIZE = 12
+VIOLIN_FILL = "#86CFC5"
+BOX_FILL = "#86CFC5"
 
 
 def plot_latent_query_freq_distribution(
@@ -1210,6 +1219,7 @@ def plot_latent_query_freq_distribution(
 
     fig_w = max(10, min(24, len(freq_order) * 0.55))
     fig, ax = plt.subplots(figsize=(fig_w, 5))
+    fill = VIOLIN_FILL if kind == "violin" else BOX_FILL
 
     if kind == "violin":
         sns.violinplot(
@@ -1221,7 +1231,7 @@ def plot_latent_query_freq_distribution(
             cut=0,
             linewidth=0.8,
             ax=ax,
-            color="steelblue",
+            color=fill,
         )
     else:
         sns.boxplot(
@@ -1232,12 +1242,13 @@ def plot_latent_query_freq_distribution(
             fliersize=1.5,
             linewidth=0.8,
             ax=ax,
-            color="steelblue",
+            color=fill,
         )
 
-    ax.set_xlabel("Frequency bin")
-    ax.set_ylabel("Cross-attention score")
-    ax.set_title(title)
+    ax.set_xlabel("Frequency bin", fontsize=AXIS_LABEL_FONTSIZE)
+    ax.set_ylabel("Cross-attention score", fontsize=AXIS_LABEL_FONTSIZE)
+    ax.set_title(title, fontsize=TITLE_FONTSIZE, color="black")
+    ax.tick_params(axis="both", labelsize=TICK_LABEL_FONTSIZE)
     ax.grid(True, axis="y", alpha=0.25)
     plt.tight_layout()
     os.makedirs(os.path.dirname(out_png) or ".", exist_ok=True)
@@ -1275,6 +1286,7 @@ def plot_latent_query_freq_distribution_combined(
         work["freq_label"] = work["freq_bin"].map(_freq_bin_tick_label)
         work["freq_label"] = pd.Categorical(work["freq_label"], categories=freq_labels, ordered=True)
 
+        fill = VIOLIN_FILL if kind == "violin" else BOX_FILL
         if kind == "violin":
             sns.violinplot(
                 data=work,
@@ -1285,7 +1297,7 @@ def plot_latent_query_freq_distribution_combined(
                 cut=0,
                 linewidth=0.8,
                 ax=ax,
-                color="steelblue",
+                color=fill,
             )
         else:
             sns.boxplot(
@@ -1296,16 +1308,21 @@ def plot_latent_query_freq_distribution_combined(
                 fliersize=1.5,
                 linewidth=0.8,
                 ax=ax,
-                color="steelblue",
+                color=fill,
             )
 
         n_samples = int(work["idx"].nunique())
-        ax.set_title(f"{_dataset_display_label(dataset)} (n={n_samples})")
-        ax.set_xlabel("Frequency bin")
-        ax.set_ylabel("Cross-attention score")
+        ax.set_title(
+            f"{_dataset_display_label(dataset)} (n={n_samples})",
+            fontsize=TITLE_FONTSIZE,
+            color="black",
+        )
+        ax.set_xlabel("Frequency bin", fontsize=AXIS_LABEL_FONTSIZE)
+        ax.set_ylabel("Cross-attention score", fontsize=AXIS_LABEL_FONTSIZE)
+        ax.tick_params(axis="both", labelsize=TICK_LABEL_FONTSIZE)
         ax.grid(True, axis="y", alpha=0.25)
 
-    fig.suptitle(title, y=1.02)
+    fig.suptitle(title, y=1.02, fontsize=TITLE_FONTSIZE)
     plt.tight_layout()
     os.makedirs(os.path.dirname(out_png) or ".", exist_ok=True)
     plt.savefig(out_png, dpi=200, bbox_inches="tight")

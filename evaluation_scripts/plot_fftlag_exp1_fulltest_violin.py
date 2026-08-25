@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# maintained by kewei li
 """Plot Exp1 full-test band knockout |ΔMSE| distributions as per-layer violin plots."""
 from __future__ import annotations
 
@@ -32,15 +31,19 @@ DEFAULT_SEEDS = tuple(range(10))
 LONG_CSV = "exp1_band_knockout_violin_long.csv"
 SUMMARY_CSV = "exp1_band_knockout_violin_summary.csv"
 VALUE_COL = "mse_diff"
-Y_LABEL = r"$|\Delta\mathrm{MSE}|$ (absolute knockout − baseline)"
+Y_LABEL = r"$|\Delta\mathrm{P}|$ (absolute knockout − baseline)"
+TITLE_FONTSIZE = 15
+AXIS_LABEL_FONTSIZE = 15
+TICK_LABEL_FONTSIZE = 12
+VIOLIN_COLOR = "#1f77b4"
 
 
 def _dataset_display(dataset: str) -> str:
-    return "E. coli" if dataset == "e_coli" else "S. aureus"
+    return r"$\it{E.\ coli}$" if dataset == "e_coli" else r"$\it{S.\ aureus}$"
 
 
 def _band_tick_label(band: int) -> str:
-    return f"B{int(band)}"
+    return rf"$\mathcal{{B}}_{{{int(band)}}}$"
 
 
 def _train_seed_from_dir(seed_dir: Path) -> int:
@@ -209,11 +212,14 @@ def plot_exp1_band_knockout_violin_layer(
         cut=0,
         linewidth=0.8,
         ax=ax,
-        color="steelblue",
+        color=VIOLIN_COLOR,
     )
-    ax.set_xlabel("Frequency band")
-    ax.set_ylabel(Y_LABEL)
-    ax.set_title(title)
+    ax.set_xlabel("Frequency band", fontsize=AXIS_LABEL_FONTSIZE)
+    ax.set_ylabel(Y_LABEL, fontsize=AXIS_LABEL_FONTSIZE)
+    ax.set_title(title, fontsize=TITLE_FONTSIZE, color="black")
+    ax.tick_params(axis="x", labelsize=TICK_LABEL_FONTSIZE)
+    for label in ax.get_xticklabels():
+        label.set_fontweight("bold")
     ax.grid(True, axis="y", alpha=0.25)
 
     fig.tight_layout()

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# maintained by kewei li
 """Plot Exp2 full-test PSD gate band summary across all peptides (mean ± std)."""
 from __future__ import annotations
 
@@ -28,9 +27,25 @@ DEFAULT_SEEDS = tuple(range(10))
 
 VALUE_COLS = ("effective_weight", "energy_before", "energy_after")
 
+TITLE_FONTSIZE = 15
+AXIS_LABEL_FONTSIZE = 15
+TICK_LABEL_FONTSIZE = 12
+
+
+def _savefig_png_svg(fig: plt.Figure, out_png: Path) -> Path:
+    """Save figure as PNG (dpi=200) and sibling SVG; return SVG path."""
+    out_png = Path(out_png)
+    out_svg = out_png.with_suffix(".svg")
+    out_png.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out_png, dpi=200, bbox_inches="tight")
+    fig.savefig(out_svg, bbox_inches="tight")
+    print(f"[saved] {out_png}")
+    print(f"[saved] {out_svg}")
+    return out_svg
+
 
 def _dataset_display(dataset: str) -> str:
-    return "E. coli" if dataset == "e_coli" else "S. aureus"
+    return r"$\it{E.\ coli}$" if dataset == "e_coli" else r"$\it{S.\ aureus}$"
 
 
 def _train_seed_from_dir(seed_dir: Path) -> int:
@@ -185,17 +200,17 @@ def _plot_exp2_gate_band_panel(
         alpha=0.8,
     )
     band_labels = [
-        f"B{int(b)}\n[{int(s)},{int(e)})"
+        rf"$\mathcal{{B}}_{{{int(b)}}}$" + f"\n[{int(s)},{int(e)})"
         for b, s, e in zip(sub["band"], sub["band_start"], sub["band_end"])
     ]
     ax.set_xticks(x)
-    ax.set_xticklabels(band_labels, fontsize=7)
-    ax.set_xlabel("Frequency band")
+    ax.set_xticklabels(band_labels, fontsize=TICK_LABEL_FONTSIZE, fontweight="bold", color="black")
+    ax.set_xlabel("Frequency band", fontsize=AXIS_LABEL_FONTSIZE)
     if show_ylabel:
-        ax.set_ylabel("Mean energy")
-    ax.set_title(ds_label)
+        ax.set_ylabel("Mean energy", fontsize=AXIS_LABEL_FONTSIZE)
+    ax.set_title(ds_label, fontsize=TITLE_FONTSIZE, color="black")
     if show_legend:
-        ax.legend()
+        ax.legend(fontsize=TICK_LABEL_FONTSIZE)
 
 
 def plot_exp2_gate_band_summary_all_samples(
@@ -225,10 +240,8 @@ def plot_exp2_gate_band_summary_all_samples(
     )
     ax.set_title(f"Exp2 PSD gate — Energy before vs after gate\n{sample_label}")
     fig.tight_layout()
-    out_png.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out_png, dpi=200, bbox_inches="tight")
+    _savefig_png_svg(fig, out_png)
     plt.close(fig)
-    print(f"[saved] {out_png}")
 
 
 def plot_exp2_gate_band_summary_combined(
@@ -255,10 +268,8 @@ def plot_exp2_gate_band_summary_combined(
         )
 
     fig.tight_layout()
-    out_png.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out_png, dpi=200, bbox_inches="tight")
+    _savefig_png_svg(fig, out_png)
     plt.close(fig)
-    print(f"[saved] {out_png}")
 
 
 def process_dataset(
@@ -273,11 +284,22 @@ def process_dataset(
     out_dir = exp_agg_dir(analysis_root, dataset, "exp2")
     summary_csv = out_dir / "gate_by_band_all_samples_summary.csv"
     out_png = out_dir / "gate_band_summary_all_samples.png"
+    out_svg = out_png.with_suffix(".svg")
 
-    if summary_csv.is_file() and out_png.is_file() and not force:
-        print(f"[SKIP] {dataset}: outputs exist (use --force to overwrite)")
+    if summary_csv.is_file() and not force:
         band_df = pd.read_csv(summary_csv)
         n_seeds, n_samples, _ = _band_stats(band_df, seeds)
+        if out_png.is_file() and out_svg.is_file():
+            print(f"[SKIP] {dataset}: outputs exist (use --force to overwrite)")
+            return True, band_df, n_seeds, n_samples
+        print(f"[RUN] {dataset}: replot from existing summary CSV (PNG/SVG)")
+        plot_exp2_gate_band_summary_all_samples(
+            band_df,
+            dataset,
+            out_png,
+            n_seeds=n_seeds,
+            n_samples=n_samples,
+        )
         return True, band_df, n_seeds, n_samples
 
     idx_level, source = load_idx_level_exp2(
@@ -344,9 +366,15 @@ def run_all(
 
     if len(band_dfs) >= 1:
         combined_png = analysis_root / "aggregated" / "exp2_gate_band_summary_all_samples_combined.png"
-        if combined_png.is_file() and not force and len(band_dfs) < 2:
+        combined_svg = combined_png.with_suffix(".svg")
+        if combined_png.is_file() and combined_svg.is_file() and not force and len(band_dfs) < 2:
             pass
-        elif not combined_png.is_file() or force or len(band_dfs) >= 2:
+        elif (
+            not combined_png.is_file()
+            or not combined_svg.is_file()
+            or force
+            or len(band_dfs) >= 2
+        ):
             plot_exp2_gate_band_summary_combined(band_dfs, meta, combined_png)
 
     return 0 if ok else 1

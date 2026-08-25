@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# maintained by kewei li
 """Plot Exp1 representative per-sample layer×band knockout heatmaps (Exp4 ID aligned)."""
 from __future__ import annotations
 
@@ -16,6 +15,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
+from matplotlib.colors import Normalize
 from matplotlib.figure import Figure
 
 _EVAL_SCRIPTS = Path(__file__).resolve().parent
@@ -45,11 +45,11 @@ COMBINED_PNG = "exp1_representative_band_knockout_heatmaps_combined.png"
 
 
 def _dataset_display(dataset: str) -> str:
-    return "E. coli" if dataset == "e_coli" else "S. aureus"
+    return r"$\it{E.\ coli}$" if dataset == "e_coli" else r"$\it{S.\ aureus}$"
 
 
 def _band_column_label(band: int) -> str:
-    return f"B{int(band)}"
+    return rf"$\mathcal{{B}}_{{{int(band)}}}$"
 
 
 def extract_idx_exp1_long(df: pd.DataFrame, idx: int, *, split: str = "test") -> pd.DataFrame:
@@ -139,13 +139,12 @@ def plot_exp1_band_knockout_heatmap(
 
     sns.heatmap(
         pivot,
-        cmap="YlOrRd",
-        vmin=vmin,
-        vmax=vmax,
+        cmap="GnBu",
+        norm=Normalize(vmin=vmin, vmax=vmax),
         annot=False,
         linewidths=0.5,
         cbar=show_cbar,
-        cbar_kws={"label": r"$|\Delta\mathrm{MSE}|$"} if show_cbar else None,
+        cbar_kws={"label": r"$|\Delta\mathrm{P}|$"} if show_cbar else None,
         ax=ax,
     )
     ax.set_xlabel("Frequency band")
@@ -197,9 +196,8 @@ def plot_exp1_representative_combined(
             idx, pivot = row_panels[col]
             mesh = sns.heatmap(
                 pivot,
-                cmap="YlOrRd",
-                vmin=vmin,
-                vmax=vmax,
+                cmap="GnBu",
+                norm=Normalize(vmin=vmin, vmax=vmax),
                 annot=False,
                 linewidths=0.5,
                 cbar=False,
@@ -225,7 +223,7 @@ def plot_exp1_representative_combined(
     if last_mesh is not None:
         fig.subplots_adjust(right=0.92)
         cbar_ax = fig.add_axes([0.94, 0.15, 0.02, 0.7])
-        fig.colorbar(last_mesh, cax=cbar_ax, label=r"$|\Delta\mathrm{MSE}|$ (absolute)")
+        fig.colorbar(last_mesh, cax=cbar_ax, label=r"$|\Delta\mathrm{P}|$ (absolute)")
 
     fig.suptitle(
         f"Representative Exp1 band knockout |ΔMSE| heatmaps ({n_seeds} seeds mean)",
