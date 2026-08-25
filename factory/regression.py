@@ -12,7 +12,10 @@ from .pooling import (
     validate_pooling_name,
 )
 
-from AMPCliff.factory.pooling.llm_pooling_dropin import MultiLayerTrainablePooling
+from AMPCliff.factory.pooling.llm_pooling_dropin import (
+    OfficialMLTPPooling,
+    log_revised_pooling_info,
+)
 
 def masked_mean_pooling(features, attention_mask):
     if attention_mask is None:
@@ -32,7 +35,7 @@ def _pool_all_layers(
     head: nn.Module,
 ) -> torch.Tensor:
     """Pool each layer [B,T,D] with head's pooling -> [B,D,L].
-    Caller must pass DC-transformed features when using ConcatDC/DistillVC so dimension matches head.
+    Pool each layer feature map with the head pooling operator.
     """
     B, T, D, L = all_layer_features.shape
     pooling = getattr(head, "pooling", "mean")
@@ -138,6 +141,8 @@ class ClassificationHead2(nn.Module):
                 dropout=0.1,
             ),
         )
+        if self.pooling == "attn_structured" and self.attn_pool is not None:
+            log_revised_pooling_info("attn_structured", self.attn_pool)
 
     def forward(self, features,attention_mask, **kwargs):
         x = apply_pooling(
@@ -279,14 +284,8 @@ class RegModel_v2(nn.Module):
         return regression_output1, features1, all_layer_features, None, None, all_layer_pooled
 
 
-class RegModel_MLTP(nn.Module):
-    """
-    Multi-Layer Trainable Pooling (MLTP) regression head for LLM backbones.
-
-    It pools token representations by first fusing multiple hidden layers with
-    learnable layer weights, then applying a trainable token-level attention
-    pooling to produce a single sequence embedding.
-    """
+class RegModel_MLTP_Paper(nn.Module):
+    """Official MLTP regression head for LLM backbones."""
 
     def __init__(self, pretrain_model, config):
         super().__init__()
@@ -295,28 +294,27 @@ class RegModel_MLTP(nn.Module):
         num_layers = getattr(config, "num_hidden_layers", None)
         if num_layers is None:
             raise ValueError(
-                "RegModel_MLTP requires config.num_hidden_layers to be present "
+                "RegModel_MLTP_Paper requires config.num_hidden_layers to be present "
                 "(so it knows how many transformer layers to pool)."
             )
 
-        mltp_num_heads = getattr(config, "mltp_num_heads", getattr(config, "num_heads", 8))
-        dropout_prob = float(getattr(config, "hidden_dropout_prob", 0.1))
+        version = getattr(config, "version", None)
+        pooling_kwargs = getattr(config, "mltp_method_kwargs", None)
+        if pooling_kwargs is None:
+            pooling_kwargs = {}
 
-        self.mltp_pooler = MultiLayerTrainablePooling(
-            hidden_size=config.hidden_size,
-            num_layers=int(num_layers),
-            num_heads=int(mltp_num_heads),
-            dropout=dropout_prob,
+        self.mltp_pooler = OfficialMLTPPooling(
+            version=version,
+            config=config,
+            pooling_kwargs=pooling_kwargs,
         )
+        log_revised_pooling_info("mltp_paper", self.mltp_pooler)
 
-        # For orthogonal constraint/debugging we still pool each layer into a
-        # sequence embedding; we must use a token-level pooling that works
-        # with apply_pooling(), so we use 'mean' here regardless of mltp.
         config_mean_pool = copy.deepcopy(config)
         config_mean_pool.pooling = "mean"
+        config_mean_pool.pooling_kwargs = {}
         self.layer_pool_head = ClassificationHead2(config_mean_pool)
 
-        # Reuse the same regression projection stack as ClassificationHead2(mean).
         self.dropout = self.layer_pool_head.dropout
         self.dense = self.layer_pool_head.dense
         self.out_proj = self.layer_pool_head.out_proj
@@ -326,10 +324,7 @@ class RegModel_MLTP(nn.Module):
         attention_mask = batch1["attention_mask"]
         features1 = outputs.last_hidden_state
 
-        # [B, T, D, L] where L=num_hidden_layers
         all_layer_features = torch.stack(list(outputs.hidden_states)[1:], dim=-1)
-
-        # [B, D]
         pooled = self.mltp_pooler(all_layer_features, attention_mask)
 
         x = self.dropout(pooled)
@@ -338,7 +333,6 @@ class RegModel_MLTP(nn.Module):
         x = self.dropout(x)
         regression_output1 = self.out_proj(x)
 
-        # [B, D, L] used by Trainer's orthogonal constraint.
         all_layer_pooled = _pool_all_layers(all_layer_features, attention_mask, self.layer_pool_head)
 
         return regression_output1, features1, all_layer_features, None, None, all_layer_pooled

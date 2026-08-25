@@ -11,6 +11,7 @@ from .pooling import (
     resolve_pooling_kwargs,
     validate_pooling_name,
 )
+from .pooling.llm_pooling_dropin import resolve_mltp_method_kwargs
 from .AMPSpace import LstmNet
 from .ML import ModelRegressor
 from .peptimizer import Regressor
@@ -22,6 +23,8 @@ from .CellTree import CNNRegressor,RNNRegressor
 def _attach_llm_pooling_kwargs(config, _reg):
     """Attach merged pooling kwargs for ClassificationHead* / build_pooling_modules."""
     config.pooling_kwargs = resolve_pooling_kwargs(_reg)
+    if getattr(config, "pooling", None) == "mltp_paper":
+        config.mltp_method_kwargs = resolve_mltp_method_kwargs(_reg)
 
 
 class ModelInitializer():
@@ -112,8 +115,6 @@ class ModelInitializer():
             
             if self.cfg.features.type == 'LLM':
                 raw_pooling = getattr(self.cfg.model[self.cfg.task.type], "pooling", "mean")
-                if raw_pooling == "mlsap":
-                    raw_pooling = "local_spectral_anchor"
 
                 pooling = validate_pooling_name(
                     raw_pooling,
@@ -122,10 +123,11 @@ class ModelInitializer():
                 )
                 config.pooling = pooling
                 _reg = self.cfg.model[self.cfg.task.type]
+                config.version = self.cfg.model[self.cfg.task.type].version
                 _attach_llm_pooling_kwargs(config, _reg)
 
-                if pooling == "mltp":
-                    train_model = RegModel_MLTP(model, config).to(self.device)
+                if pooling == "mltp_paper":
+                    train_model = RegModel_MLTP_Paper(model, config).to(self.device)
                 else:
                     train_model = RegModel_v2(model, config).to(self.device)
 

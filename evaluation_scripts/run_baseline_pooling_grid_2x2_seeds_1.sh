@@ -135,7 +135,7 @@ _run_grid_for_pooling() {
 }
 
 echo "=========================================="
-echo "Baseline pooling (mean / max / attn / last / swe_ot / mltp / latent_attn / fft_latent_attn_gate / fft_latent_attn_gate_v2) — 2×2 grid × seeds"
+echo "Baseline pooling (mean / max / attn / last / latent_attn / fft_latent_attn_gate) — 2×2 grid × seeds"
 echo "=========================================="
 echo "REPO_ROOT:     ${REPO_ROOT}"
 echo "POOLINGS:      ${POOLINGS}"

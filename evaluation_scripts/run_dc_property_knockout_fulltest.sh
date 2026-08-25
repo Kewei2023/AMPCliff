@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Exp5 / DC validation design v2 — Step 5 / 主实验二 Part B: fulltest property-bucket KO.
 # Aggregate fulltest Exp1 results and run property-stratified DC knockout analysis.
 #
 # Prerequisites: all 10 seeds × 2 datasets finished Exp1 fulltest knockout.
@@ -11,7 +10,7 @@
 
 set -uo pipefail
 
-REPO_ROOT="${REPO_ROOT:-/data/home/scv6872/run/kwli/AMPCliff}"
+REPO_ROOT="${REPO_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 cd "${REPO_ROOT}"
 
 if [[ -f /etc/profile.d/modules.sh ]]; then

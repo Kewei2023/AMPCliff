@@ -3,7 +3,6 @@
 #SBATCH --cpus-per-task=2
 #SBATCH --mem=0
 #SBATCH --time=01:00:00
-#SBATCH --chdir=/data/home/scv6872/run/kwli/AMPCliff
 #SBATCH --output=logs/fftlag_attn_agg_%j.out
 #SBATCH --error=logs/fftlag_attn_agg_%j.err
 #
@@ -18,7 +17,7 @@
 
 set -uo pipefail
 
-REPO_ROOT="${REPO_ROOT:-/data/home/scv6872/run/kwli/AMPCliff}"
+REPO_ROOT="${REPO_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 cd "${REPO_ROOT}"
 mkdir -p logs
 

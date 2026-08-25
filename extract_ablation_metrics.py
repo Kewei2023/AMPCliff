@@ -197,9 +197,9 @@ def calculate_metrics_from_csv(
 
 
 # Hydra dir template from run_spectral_anchor_dc_ablation.sh:
-# apply_${apply}_k${num_anchor}_fft${use_fft}_s${scale_dc.scale}_d${distill_vc.scale}
+# apply_${apply}_k${num_anchor}_... (legacy DC apply patterns removed in release)
 _SPECTRAL_ANCHOR_DC_RUN_RE = re.compile(
-    r'^apply_(?P<dc_apply>scale_dc|distill_vc)_k(?P<num_anchor>\d+)'
+    r'^apply_(?P<dc_apply>none)_k(?P<num_anchor>\d+)'  # legacy DC apply removed in release
     r'_fft(?P<use_fft>True|False)_s(?P<path_s>[\d.]+)_d(?P<path_d>[\d.]+)$'
 )
 

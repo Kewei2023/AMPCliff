@@ -81,7 +81,7 @@ export REPO_ROOT=/path/to/AMPCliff
 
 ### 核心方法
 
-FLaG pooling 实现在 `factory/pooling/spectral_anchor_v2.py` 的 `FFTLatentAttentionGatePooling`：
+FLaG pooling 实现在 `factory/pooling/flag_pooling.py` 的 `FFTLatentAttentionGatePooling`：
 
 **rFFT → latent attention → gate → iFFT → time pooling**
 
@@ -135,12 +135,24 @@ Exp1–4 仍是原机制探针；相对旧版，主要升级是覆盖 **全部 t
 |-----|------|----------------|-----------------|
 | **Exp1** Band knockout | 序列频带 notch 敏感性 | `downstream_evaluate_spectrual_filter.py` | `evaluation_scripts/run_fftlag_exp1_fulltest.sh`（及 `_slurm`） |
 | **Exp2** Gate PSD | gate 前后频谱能量变化 | `downstream_evaluate_psd_gate.py` | `evaluation_scripts/run_fftlag_exp2_fulltest.sh`（及 `_slurm`） |
-| **Exp3** Token knockout | token 扰动响应分布 | `downstream_evaluate_knockout.py` | `evaluation_scripts/run_fftlag_exp3_fulltest.sh`（及 `_slurm`） |
+| **Exp3** Token knockout | token 扰动响应分布（\(\lvert\Delta\mathrm{MSE}\rvert\)） | `downstream_evaluate_knockout.py` | `evaluation_scripts/run_fftlag_exp3_fulltest.sh`（及 `_slurm`）；并行 revised pooling：`run_fftlag_exp3_revised_poolings_parallel.sh` |
 | **Exp4** Latent viz | latent query 频带质量分布 | `downstream_evaluate_fft_lag_latent.py` | `evaluation_scripts/run_fftlag_exp4_fulltest.sh` |
 
 旧版 30 肽子集调度：`evaluation_scripts/run_fftlag_mechanism_experiments.sh`（默认 `RUN_EXPS=1,2,4`；Exp3 单独跑）。
 
-出图/聚合：`plot_fftlag_exp{1,2,3,4}_*`、`aggregate_fftlag_mechanism_seeds.py`、`aggregate_fftlag_exp3_fulltest.py`。
+出图/聚合：`plot_fftlag_exp{1,2,4}_*`、`aggregate_fftlag_mechanism_seeds.py`；**Exp3** 使用 `|ΔMSE|` 流水线：
+
+```bash
+bash evaluation_scripts/run_fftlag_exp3_fulltest.sh
+# 或（mltp_paper + attn_structured 双 GPU）
+bash evaluation_scripts/run_fftlag_exp3_revised_poolings_parallel.sh
+
+python evaluation_scripts/aggregate_exp3_token_knockout_mse_diff.py --force
+python evaluation_scripts/plot_fftlag_exp3_mse_diff_violin_revised.py --force
+python evaluation_scripts/export_fftlag_exp3_token_knockout_data.py
+```
+
+Revised combined violin 默认绘制 7 个 pooling（mean / max / attn_structured→attn / last / mltp_paper→MLTP / latent_attn / FLaG），输出 `outputs/analysis/fftlag_mechanism/aggregated/exp3_token_knockout_mse_diff_violinplot_combined_no_swe_ot.png`（及 `.svg` / `.xlsx` 数据导出）。
 
 ### Exp5（升级）：DC–理化性质验证
 
@@ -218,7 +230,14 @@ bash evaluation_scripts/run_fftlag_mechanism_experiments.sh
 | `evaluation_scripts/merge_seed_metrics_pooling_csv_to_xlsx.py` | 合并 seed metrics |
 | `run_ablation_protein.sh` | 多 pooling 组件 ablation 批量训练（见下方注意） |
 
-> **注意**：`run_ablation_protein.sh` 内含 `fft_latent_only` 等组件 pooling 名，但当前 FLaG 分支 `factory/pooling/registry.py` 仅注册标准 pooling（含 `fft_latent_attn_gate`）。直接运行该脚本中未注册的 pooling 名会报错；如需组件 ablation，须在 registry 中恢复对应实现。
+支持的 pooling：`mean`, `max`, `attn`, `last`, `latent_attn`, `attn_structured`, `mltp_paper`, `fft_latent_attn_gate`。
+
+```bash
+POOLING=attn_structured MODEL_TYPE=esm2_t6 DATASET=s_aureus bash evaluation_scripts/run_baseline_pooling_train.sh
+POOLING=mltp_paper MODEL_TYPE=esm2_t6 DATASET=s_aureus bash evaluation_scripts/run_baseline_pooling_train.sh
+```
+
+> **注意**：`run_pooling_baseline_ablation.sh` 与 `run_ablation_protein.sh` 为历史 spectral ablation 脚本，当前 release 已不再注册 `spectral_anchor` 等旧 pooling。
 
 ---
 

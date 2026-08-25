@@ -10,12 +10,13 @@
 #   sbatch evaluation_scripts/run_fftlag_exp3_fulltest_slurm.sh
 #
 # After runs finish (or incrementally as poolings are added):
-#   python evaluation_scripts/aggregate_fftlag_exp3_fulltest.py
-#   python evaluation_scripts/plot_fftlag_exp3_fulltest_violin.py
+#   python evaluation_scripts/aggregate_exp3_token_knockout_mse_diff.py --force
+#   python evaluation_scripts/plot_fftlag_exp3_mse_diff_violin_revised.py --force
+#   python evaluation_scripts/export_fftlag_exp3_token_knockout_data.py
 
 set -uo pipefail
 
-REPO_ROOT="${REPO_ROOT:-/data/home/scv6872/run/kwli/AMPCliff}"
+REPO_ROOT="${REPO_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 cd "${REPO_ROOT}"
 mkdir -p logs
 
@@ -32,7 +33,6 @@ fi
 
 PYTHON_BIN="${PYTHON_BIN:-python}"
 MODEL_VERSION="${MODEL_VERSION:-esm2_t6}"
-APPLY="${APPLY:-none}"
 DIFF="${DIFF:-5}"
 THRESHOLD="${THRESHOLD:-0.9}"
 DRY_RUN="${DRY_RUN:-0}"
@@ -59,10 +59,43 @@ fi
 _BASE_CSV="${REPO_ROOT}/data/blosum62 average/diff_${DIFF}-trd_${THRESHOLD}"
 
 config_dir_for_model() {
+  local cluster_dir local_dir
   case "${MODEL_VERSION}" in
-    esm2_t6) echo "/data/public/models/facebook/esm2_t6_8M_UR50D/" ;;
-    esm2_t12) echo "/data/public/models/facebook/esm2_t12_35M_UR50D/" ;;
-    *) echo "/data/public/models/facebook/esm2_t6_8M_UR50D/" ;;
+    esm2_t6)
+      cluster_dir="/data/public/models/facebook/esm2_t6_8M_UR50D/"
+      local_dir="${REPO_ROOT}/models/facebook/esm2_t6_8M_UR50D"
+      ;;
+    esm2_t12)
+      cluster_dir="/data/public/models/facebook/esm2_t12_35M_UR50D/"
+      local_dir="${REPO_ROOT}/models/facebook/esm2_t12_35M_UR50D"
+      ;;
+    *)
+      cluster_dir="/data/public/models/facebook/esm2_t6_8M_UR50D/"
+      local_dir="${REPO_ROOT}/models/facebook/esm2_t6_8M_UR50D"
+      ;;
+  esac
+  # Prefer explicit override, then cluster shared weights, then local/WSL checkout.
+  if [[ -n "${CONFIG_DIR:-}" ]]; then
+    echo "${CONFIG_DIR}"
+  elif [[ -d "${cluster_dir}" ]]; then
+    echo "${cluster_dir}"
+  else
+    echo "${local_dir}"
+  fi
+}
+
+revised_pooling_output_root() {
+  local pool="$1"
+  case "${pool}" in
+    mltp_paper)
+      echo "${REVISED_POOLING_ROOT:-${REPO_ROOT}/outputs/mltp_paper_${MODEL_VERSION}}"
+      ;;
+    attn_structured)
+      echo "${REVISED_POOLING_ROOT:-${REPO_ROOT}/outputs/attn_structured_${MODEL_VERSION}}"
+      ;;
+    *)
+      echo ""
+      ;;
   esac
 }
 
@@ -74,6 +107,13 @@ resolve_exp_root() {
     "${ABLATION_ROOT}/${MODEL_VERSION}_${pool}_${ds}_diff${DIFF}/seed_${seed}"
     "${ABLATION_ROOT}/${MODEL_VERSION}_${pool}_${ds}_diff${DIFF}_layernorm/seed_${seed}"
   )
+  local revised_root
+  revised_root="$(revised_pooling_output_root "${pool}")"
+  if [[ -n "${revised_root}" ]]; then
+    candidates+=(
+      "${revised_root}/${MODEL_VERSION}_${pool}_${ds}_diff${DIFF}/seed_${seed}"
+    )
+  fi
   local c
   for c in "${candidates[@]}"; do
     if [[ -d "${c}" ]] && find "${c}" -type f -name model.pth 2>/dev/null | head -1 | grep -q .; then
@@ -94,6 +134,24 @@ resolve_ckpt_dir() {
     return 1
   fi
   dirname "$(dirname "${mp}")"
+}
+
+extra_knockout_args_for_pool() {
+  local pool="$1"
+  case "${pool}" in
+    attn_structured)
+      # downstream_knockout.yaml lacks pooling_config (struct mode); append with + prefix.
+      echo \
+        +model.regression.pooling_config.attn_structured.attention_size=350 \
+        +model.regression.pooling_config.attn_structured.attention_hops=30 \
+        +model.regression.pooling_config.attn_structured.attention_dropout=0.5 \
+        +model.regression.pooling_config.attn_structured.penalization_coeff=1.0 \
+        +model.regression.pooling_config.attn_structured.use_bias=false \
+        +model.regression.pooling_config.attn_structured.hop_output=flatten
+      ;;
+    *)
+      ;;
+  esac
 }
 
 expected_test_size() {
@@ -179,6 +237,7 @@ for pool in "${POOLINGS[@]}"; do
 
       mkdir -p "${exp3_dir}"
       echo "==== Exp3 pool=${pool} seed=${seed} ds=${ds} -> ${exp3_dir} ===="
+      read -r -a POOL_EXTRA_ARGS <<< "$(extra_knockout_args_for_pool "${pool}")"
       if "${PYTHON_BIN}" -u "${REPO_ROOT}/downstream_evaluate_knockout.py" \
         knockout.enabled=true \
         knockout.mode=HS \
@@ -195,7 +254,6 @@ for pool in "${POOLINGS[@]}"; do
         "model.config_dir=${CONFIG_DIR}" \
         "model.regression.version=${MODEL_VERSION}" \
         "model.regression.pooling=${pool}" \
-        "model.regression.apply=${APPLY}" \
         model.regression.check_point.load=true \
         "model.regression.check_point.path=${ckpt}" \
         "data.regression.dataset=${ds}" \
@@ -206,7 +264,8 @@ for pool in "${POOLINGS[@]}"; do
         "data.regression.fix.valid_file=${valid_csv}" \
         "data.regression.fix.test_file=${test_csv}" \
         "hydra.run.dir=${exp3_dir}" \
-        hydra.output_subdir=null; then
+        hydra.output_subdir=null \
+        "${POOL_EXTRA_ARGS[@]}"; then
         n_saved="$(count_unique_idx "${done_csv}")"
         echo "[OK] Exp3 pool=${pool} seed=${seed} ds=${ds} (${n_saved}/${expected_n} idx)"
         RUN=$((RUN + 1))
@@ -221,6 +280,7 @@ done
 echo ""
 echo "Done. RUN=${RUN} SKIP=${SKIP} FAIL=${FAIL}"
 echo "Next:"
-echo "  python evaluation_scripts/aggregate_fftlag_exp3_fulltest.py"
-echo "  python evaluation_scripts/plot_fftlag_exp3_fulltest_violin.py"
+echo "  python evaluation_scripts/aggregate_exp3_token_knockout_mse_diff.py --force"
+echo "  python evaluation_scripts/plot_fftlag_exp3_mse_diff_violin_revised.py --force"
+echo "  python evaluation_scripts/export_fftlag_exp3_token_knockout_data.py"
 exit $(( FAIL > 0 ? 1 : 0 ))

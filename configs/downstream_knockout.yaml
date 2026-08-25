@@ -11,7 +11,6 @@ task:
   regression: 
     default_metric: spearman # spearman
 
-
 features:
   type: LLM # LLM  # CellFree-cnn # CellFree-rnn # AMPSpace # peptimizer
 
@@ -59,41 +58,8 @@ model:
     pooling: max # mean attn spectral_anchor
     num_anchor: 8
     use_fft: true
-    apply: none # distill_vc # scale_dc none
-    filter_dc: 
-      # apply: true
-      opposite: true
-      dim: seq_len # hidden_dim
-      mode: dct # dct fft
-    scale_dc: 
-      # apply: True
-      scale: 0.01
-      dim: seq_len # hidden_dim
-      mode: dct # dct fft
-    concat_dc: 
-      # apply: True
-      # scale: 0.01
-      dim: seq_len # hidden_dim
-      mode: dct # dct fft
-    distill_vc: 
-      # apply: True
-      scale: 2.5 # amplify vc
-      dim: seq_len # hidden_dim
-      mode: dct # dct fft
-    seperate_dc:
-      dim: seq_len # hidden_dim
-      mode: dct # dct fft
     spectrual_filter:
       rotary_knock: [5]
-    inter_layer:
-      save_type: real
-      n_rotations: 8
-      pool: max
-    intra_layer:
-      return_time : false
-      save_type: real
-      out_dim_per_layer: 53 # 53
-      fft: true
     
     check_point: 
       load: true # false
@@ -135,8 +101,6 @@ model:
       # v1 proj to img: "/mnt/g/likw/AMPCliff/AMPCliff/outputs/2025-08-25/16-20-07/esm2_t6/blosum62 average/diff5-trd0.9/model_step_13_spearman_0.699" 
       # v2 imag only: "/mnt/g/likw/AMPCliff/AMPCliff/outputs/2025-08-26/08-41-49/esm2_t6/blosum62 average/diff5-trd0.9/model_step_21_spearman_0.685" 
       # v2 real only: /mnt/g/likw/AMPCliff/AMPCliff/outputs/2025-08-26/08-44-44/esm2_t6/blosum62 average/diff5-trd0.9/model_step_24_spearman_0.649
-      # v1 bagua return time true: /mnt/g/likw/AMPCliff/AMPCliff/outputs/2025-08-24/20-25-55/esm2_t6/blosum62 average/diff5-trd0.9/model_step_23_spearman_0.694
-      # v1 *best-top2* bagua return time false: /mnt/g/likw/AMPCliff/AMPCliff/outputs/2025-08-25/07-03-50/esm2_t6/blosum62 average/diff5-trd0.9/model_step_24_spearman_0.72" 
       # baseline:
       # s.aureus
       # 5-fold /mnt/g/likw/AMPCliff/AMPCliff/outputs/2025-08-18/22-11-25/esm2_t6/blosum62 average/diff5-trd0.9/model_step_2_spearman_0.957/" 

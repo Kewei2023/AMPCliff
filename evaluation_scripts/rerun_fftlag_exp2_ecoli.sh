@@ -4,7 +4,6 @@
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=0
 #SBATCH --time=02:00:00
-#SBATCH --chdir=/data/home/scv6872/run/kwli/AMPCliff
 #SBATCH --output=logs/rerun_fftlag_exp2_ecoli_%j.out
 #SBATCH --error=logs/rerun_fftlag_exp2_ecoli_%j.err
 #
@@ -17,7 +16,7 @@
 
 set -uo pipefail
 
-REPO_ROOT="${REPO_ROOT:-/data/home/scv6872/run/kwli/AMPCliff}"
+REPO_ROOT="${REPO_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 cd "${REPO_ROOT}"
 mkdir -p logs
 
@@ -35,7 +34,6 @@ fi
 PYTHON_BIN="${PYTHON_BIN:-python}"
 MODEL_VERSION="${MODEL_VERSION:-esm2_t6}"
 POOLING="${POOLING:-fft_latent_attn_gate}"
-APPLY="${APPLY:-none}"
 DIFF="${DIFF:-5}"
 THRESHOLD="${THRESHOLD:-0.9}"
 DATASET="${DATASET:-e_coli}"
@@ -110,7 +108,6 @@ for seed in "${SEED_LIST[@]}"; do
     "model.config_dir=${CONFIG_DIR}" \
     "model.regression.version=${MODEL_VERSION}" \
     "model.regression.pooling=${POOLING}" \
-    "model.regression.apply=${APPLY}" \
     model.regression.check_point.load=true \
     "model.regression.check_point.path=${ckpt}" \
     "data.regression.dataset=${DATASET}" \

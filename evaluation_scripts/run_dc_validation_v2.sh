@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-# Exp5 / DC validation design v2 — official Exp5 pipeline:
-#   Step1 property table -> Step2 DCT -> Step3 main1 encoding ->
-#   Step4 main2A species effects -> Step5 main2B property-bucket KO.
+# DC validation experiment pipeline (v2): property table -> DCT extract -> probes -> species OLS -> property knockout.
 #
 # Usage:
 #   bash evaluation_scripts/run_dc_validation_v2.sh
@@ -16,7 +14,7 @@
 
 set -uo pipefail
 
-REPO_ROOT="${REPO_ROOT:-/data/home/scv6872/run/kwli/AMPCliff}"
+REPO_ROOT="${REPO_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 cd "${REPO_ROOT}"
 
 if [[ -f /etc/profile.d/modules.sh ]]; then

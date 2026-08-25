@@ -59,7 +59,7 @@ run_one() {
 }
 
 failed=0
-for POOLING in mean max attn last swe_ot mltp latent_attn fft_latent_attn_gate fft_latent_attn_gate_v2; do
+for POOLING in mean max attn last mltp_paper latent_attn attn_structured fft_latent_attn_gate; do
   run_one "esm2_t6_${POOLING}_e_coli_diff${DIFF}" "esm2_t6" "e_coli" "${POOLING}" || failed=1
   run_one "esm2_t6_${POOLING}_s_aureus_diff${DIFF}" "esm2_t6" "s_aureus" "${POOLING}" || failed=1
   run_one "esm2_t12_${POOLING}_e_coli_diff${DIFF}" "esm2_t12" "e_coli" "${POOLING}" || failed=1

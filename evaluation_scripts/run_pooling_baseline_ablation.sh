@@ -34,7 +34,6 @@ ENABLE_MLFLOW="${ENABLE_MLFLOW:-auto}"
 COMMON_ARGS=(
   # "model.config_dir=${MODEL_DIR}"
   "model.regression.version=${MODEL_TYPE}"
-  "model.regression.apply=none"
   "data.regression.mode=fix"
   "data.regression.fix.train_file=${TRAIN_FILE}"
   "data.regression.fix.valid_file=${VALID_FILE}"

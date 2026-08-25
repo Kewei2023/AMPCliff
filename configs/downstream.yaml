@@ -11,10 +11,8 @@ task:
   regression: 
     default_metric: spearman # spearman
 
-
 features:
   type: LLM # LLM  # CellFree-cnn # CellFree-rnn # AMPSpace # peptimizer
-
 
 train:
   random_seed: 0
@@ -42,313 +40,75 @@ model:
   regression:
     version: esm2_t6 # gpt2-base # progen2-medium # progen2-base # esm2_t12 # progen2-small # gpt2-large # gpt2-base # esm2_t33 # gpt2-large # bert-base # protgpt2 # CellFree-cnn # CellFree-rnn # AMPSpace # v1 # AMPSpace, CellFree-cnn, SeqUNet
     # attn_pooling: true
-    # Supported pooling / sequence readout operators.
-    # - fixed token readout: mean / max / last
-    # - learnable token readout: attn / latent_attn
-    # - distributional readout: swe_ot
-    # - multi-layer readout: mltp (requires model.regression.apply=none)
-    # - spectral local motif readout: mlsap (alias of local_spectral_anchor)
-    # - multi-scale anchor-free STFT: local_stft_v2 (see local_stft_v2_* below)
-    pooling: mean # max attn spectral_anchor last latent_attn swe_ot mltp local_spectral_anchor local_stft local_stft_v2 stft_latent_attn_max se_pooling
-    # Pooling hyper-params: shared block + per-method overrides (Hydra: model.regression.pooling_common.* / model.regression.pooling_config.<pooling>.*)
+    # Supported pooling / sequence readout operators:
+    # mean / max / last / attn / latent_attn / attn_structured / mltp_paper / fft_latent_attn_gate
+    pooling: mean
     pooling_common:
-      num_anchor: 8
-      use_fft: true          # spectral readouts; override per pooling in pooling_config or CLI
       num_heads: 4
       gated: true
       dropout: 0.0
       num_latents: 8
-      analysis_dim: 8
-      stft_n_fft: 8
-      stft_win_length: null   # null => use stft_n_fft
-      stft_hop_length: null   # null => max(1, win_length//2)
-      stft_center: false      # false: simpler frame-to-token alignment for short AMP sequences
-      use_phase: false        # true: concat real/imag in frame descriptors (larger anchors)
-      scorer_hidden_dim: null # null => auto max(16, frame_desc_dim//2), used by local_stft / local_stft_v2
     pooling_config:
       mean: {}
       max: {}
       last: {}
       attn: {}
-      mltp: {}
-      spectral_anchor:
-        use_fft: true
-      spectral_anchor_v2:
-        use_fft: true
-        aggregation: soft  # soft, max, mean
-        use_projection: true
-      multi_head_spectral:
-        use_fft: true
-      local_spectral_anchor:
-        frame_weight_version: old # old: attn.mean(dim=-1); use local_spectral_anchor_new for new behavior
-      local_spectral_anchor_new: {}
-      mlsap:
-        frame_weight_version: old
-      local_stft:
-        scorer_type: mlp      # linear | mlp
-      local_stft_v2:
-        n_ffts: [4, 8]
-        win_lengths: [4, 8]   # null => align to n_ffts per scale inside the module
-        hop_lengths: [2, 4]   # null => win_length//2 per scale
-        frame_temperature: 0.5
-        output_proj: true
-        residual_mix_init: 0.1
-      stft_latent_attn_max:
-        attn_num_heads: 4     # descriptor-space MHA heads (not num_heads in pooling_common for local_stft)
-        use_complex_residual: true
-        return_time_gate: false  # true: ISTFT branch; false: frame-score -> token weights
-        token_gate_mode: scalar  # scalar | vector
-        eps: 1.0e-6
+      latent_attn: {}
+      attn_structured:
+        attention_size: 350
+        attention_hops: 30
+        attention_dropout: 0.5
+        penalization_coeff: 1.0
+        use_bias: false
+        hop_output: flatten
+      mltp_paper:
+        num_cross_heads: null
+        cross_dim_head: null
+        num_latents: null
+        latent_dim: null
+        ffn_mult: null
+        normalize_output: true
       fft_latent_attn_gate:
         num_heads: 4
         num_latents: 8
-        time_pool: max        # max | mean
-        gate_residual: true
-        eps: 1.0e-6
-        dropout: 0.0
-        use_gate: true
-        use_latent: true
-      fft_latent_attn_gate_v1_2:
-        num_heads: 4
-        num_latents: 8
         time_pool: max
         gate_residual: true
         eps: 1.0e-6
         dropout: 0.0
         use_gate: true
         use_latent: true
-      # Ablation variants of FFT-LAG
-      fft_latent_only:         # FFT-LATENT: keep FFT + latent, no gate
-        num_heads: 4
-        num_latents: 8
-        time_pool: max
-        gate_residual: true
-        eps: 1.0e-6
-        dropout: 0.0
-        use_gate: false
-        use_latent: true
-      fft_gate_only:           # FFT-GATE: keep FFT + gate, no latent queries
-        num_heads: 4
-        num_latents: 8
-        time_pool: max
-        gate_residual: true
-        eps: 1.0e-6
-        dropout: 0.0
-        use_gate: true
-        use_latent: false
-      fft_gate_only_no_residual:   # FFT-GATE without gate residual
-        num_heads: 4
-        num_latents: 8
-        time_pool: max
-        gate_residual: false
-        eps: 1.0e-6
-        dropout: 0.0
-        use_gate: true
-        use_latent: false
-      fft_gate_only_tp_mean:       # FFT-GATE with time_pool=mean
-        num_heads: 4
-        num_latents: 8
-        time_pool: mean
-        gate_residual: true
-        eps: 1.0e-6
-        dropout: 0.0
-        use_gate: true
-        use_latent: false
-      fft_gate_only_tp_attn:       # FFT-GATE with time_pool=attn
-        num_heads: 4
-        num_latents: 8
-        time_pool: attn
-        gate_residual: true
-        eps: 1.0e-6
-        dropout: 0.0
-        use_gate: true
-        use_latent: false
-      fft_lag_no_residual:     # FFT-LAG without (1+g) residual
-        num_heads: 4
-        num_latents: 8
-        time_pool: max
-        gate_residual: false
-        eps: 1.0e-6
-        dropout: 0.0
-        use_gate: true
-        use_latent: true
-      fft_lag_tp_mean:         # FFT-LAG with time_pool=mean
-        num_heads: 4
-        num_latents: 8
-        time_pool: mean
-        gate_residual: true
-        eps: 1.0e-6
-        dropout: 0.0
-        use_gate: true
-        use_latent: true
-      fft_lag_tp_max:          # FFT-LAG with time_pool=max (same as default, explicit)
-        num_heads: 4
-        num_latents: 8
-        time_pool: max
-        gate_residual: true
-        eps: 1.0e-6
-        dropout: 0.0
-        use_gate: true
-        use_latent: true
-      fft_lag_tp_attn:         # FFT-LAG with time_pool=attn
-        num_heads: 4
-        num_latents: 8
-        time_pool: attn
-        gate_residual: true
-        eps: 1.0e-6
-        dropout: 0.0
-        use_gate: true
-        use_latent: true
-      fft_lag_L1:              # FFT-LAG with num_latents=1
-        num_heads: 4
-        num_latents: 1
-        time_pool: max
-        gate_residual: true
-        eps: 1.0e-6
-        dropout: 0.0
-        use_gate: true
-        use_latent: true
-      fft_lag_L4:              # FFT-LAG with num_latents=4
-        num_heads: 4
-        num_latents: 4
-        time_pool: max
-        gate_residual: true
-        eps: 1.0e-6
-        dropout: 0.0
-        use_gate: true
-        use_latent: true
-      fft_lag_L8:              # FFT-LAG with num_latents=8 (same as default, explicit)
-        num_heads: 4
-        num_latents: 8
-        time_pool: max
-        gate_residual: true
-        eps: 1.0e-6
-        dropout: 0.0
-        use_gate: true
-        use_latent: true
-      fft_lag_L16:             # FFT-LAG with num_latents=16
-        num_heads: 4
-        num_latents: 16
-        time_pool: max
-        gate_residual: true
-        eps: 1.0e-6
-        dropout: 0.0
-        use_gate: true
-        use_latent: true
-      fft_latent_attn_gate_v2:
-        num_heads: 4
-        num_latents: 8
-        time_pool: max
-        gate_residual: true
-        eps: 1.0e-6
-        dropout: 0.0
-      fft_latent_attn_gate_v3:
-        num_heads: 4
-        num_latents: 8
-        time_pool: max
-        gate_residual: true
-        eps: 1.0e-6
-        dropout: 0.0
-      fft_latent_attn_gate_v3_1:
-        num_heads: 4
-        num_latents: 8
-        time_pool: max
-        gate_residual: true
-        eps: 1.0e-6
-        dropout: 0.0
-      fft_latent_attn_gate_v3_2:
-        num_heads: 4
-        num_latents: 8
-        time_pool: max
-        gate_residual: true
-        eps: 1.0e-6
-        dropout: 0.0
-      fft_latent_attn_gate_v3_3:
-        num_heads: 4
-        num_latents: 8
-        time_pool: max
-        gate_residual: true
-        eps: 1.0e-6
-        dropout: 0.0
-      fft_latent_attn_max:
-        num_heads: 4
-        num_latents: 8
-        time_pool: max
-        gate_residual: true
-        eps: 1.0e-6
-        dropout: 0.0
-      frequency_aware:
-        num_freq_components: 16
-      se_pooling: {}
-      latent_attn: {}
-      swe_ot:
-        num_projections: 32
-        num_quantiles: 8
-    apply: filter_dc # distill_vc # scale_dc none filter_dc
 
-
-
-
-    seperate_dc:
-      dim: seq_len # hidden_dim
-      mode: dct # dct fft
     spectrual_filter:
       rotary_knock: [5]
-    inter_layer:
-      save_type: real
-      n_rotations: 8
-      pool: max
-    intra_layer:
-      return_time : false
-      save_type: real
-      out_dim_per_layer: 53 # 53
-      fft: true
-    harmonic:
-      num_freq: 4
-      include_dc: true
-      freq_scale: log
-      # Numeric cap for log/linear frequency grid end, or string auto -> max(L/2,1) from layer count L
-      max_freq: 8.0
-      normalize_basis: true
-      coord_norm: unit
     check_point: 
       load: false # false
       pretrain_only: false
       path: "/mnt/g/likw/AMPCliff/AMPCliff/outputs/2025-11-01/10-01-22/esm2_t6/blosum62 average/diff5-trd0.9/model_step_25_spearman_0.756"
-      # distill vc 2.5 max
       # s_aureus
       # /mnt/g/likw/AMPCliff/AMPCliff/outputs/2025-11-11/20-29-08/esm2_t6/blosum62 average/diff5-trd0.9/model_step_21_spearman_0.735
       # e_coli
       # /mnt/g/likw/AMPCliff/AMPCliff/outputs/2025-11-11/21-01-56/esm2_t6/blosum62 average/diff5-trd0.9/model_step_25_spearman_0.769
-      # concat_dc max
       # s_aureus
       # /mnt/g/likw/AMPCliff/AMPCliff/outputs/2025-11-11/15-46-51/esm2_t6/blosum62 average/diff5-trd0.9/model_step_21_spearman_0.724
       # e_coli
       # /mnt/g/likw/AMPCliff/AMPCliff/outputs/2025-11-11/14-03-27/esm2_t6/blosum62 average/diff5-trd0.9/model_step_25_spearman_0.763
-      # concat_dc attn
       # s_aureus
       # /mnt/g/likw/AMPCliff/AMPCliff/outputs/2025-11-11/11-28-00/esm2_t6/blosum62 average/diff5-trd0.9/model_step_21_spearman_0.705
       # e_coli
       # /mnt/g/likw/AMPCliff/AMPCliff/outputs/2025-11-11/12-54-38/esm2_t6/blosum62 average/diff5-trd0.9/model_step_19_spearman_0.778
-      # attn pooling + filterDC dct
       # s_aureus
       # /mnt/g/likw/AMPCliff/AMPCliff/outputs/2025-11-02/12-03-58/esm2_t6/blosum62 average/diff5-trd0.9/model_step_16_spearman_0.715
-      # attn pooling + scaleDC dct
       # s_aureus
       # 
-      # attn pooling + onlyDC dct
       # s_aureus 
       # /mnt/g/likw/AMPCliff/AMPCliff/outputs/2025-11-02/12-18-14/esm2_t6/blosum62 average/diff5-trd0.9/model_step_25_spearman_0.718
-      # max pooling + ScaleDC dct
       # s_aureus
       # /mnt/g/likw/AMPCliff/AMPCliff/outputs/2025-11-01/23-04-19/esm2_t6/blosum62 average/diff5-trd0.9/model_step_21_spearman_0.713
 
-      # max pooling + knockDC dct
       # s_aureus
       # /mnt/g/likw/AMPCliff/AMPCliff/outputs/2025-11-01/22-04-21/esm2_t6/blosum62 average/diff5-trd0.9/model_step_17_spearman_0.735
       # e_coli
       # 
-      # max pooling + onlyDC dct
       # s_aureus
       # /mnt/g/likw/AMPCliff/AMPCliff/outputs/2025-11-01/21-55-36/esm2_t6/blosum62 average/diff5-trd0.9/model_step_22_spearman_0.73
       # e_coli
@@ -365,7 +125,6 @@ model:
       # s_aureus
       # /mnt/g/likw/AMPCliff/AMPCliff/outputs/2025-11-01/07-56-10/esm2_t6/blosum62 average/diff5-trd0.9/model_step_20_spearman_0.724
       
-      # filter dc mean pooling
       # e_coli
       # /mnt/g/likw/AMPCliff/AMPCliff/outputs/2025-11-14/15-25-44/esm2_t6/blosum62 average/diff5-trd0.9/model_step_24_spearman_0.76/
       # s_aureus
@@ -398,8 +157,6 @@ model:
       # v1 proj to img: "/mnt/g/likw/AMPCliff/AMPCliff/outputs/2025-08-25/16-20-07/esm2_t6/blosum62 average/diff5-trd0.9/model_step_13_spearman_0.699" 
       # v2 imag only: "/mnt/g/likw/AMPCliff/AMPCliff/outputs/2025-08-26/08-41-49/esm2_t6/blosum62 average/diff5-trd0.9/model_step_21_spearman_0.685" 
       # v2 real only: /mnt/g/likw/AMPCliff/AMPCliff/outputs/2025-08-26/08-44-44/esm2_t6/blosum62 average/diff5-trd0.9/model_step_24_spearman_0.649
-      # v1 bagua return time true: /mnt/g/likw/AMPCliff/AMPCliff/outputs/2025-08-24/20-25-55/esm2_t6/blosum62 average/diff5-trd0.9/model_step_23_spearman_0.694
-      # v1 *best-top2* bagua return time false: /mnt/g/likw/AMPCliff/AMPCliff/outputs/2025-08-25/07-03-50/esm2_t6/blosum62 average/diff5-trd0.9/model_step_24_spearman_0.72" 
       # baseline:
       # s.aureus
       # 5-fold /mnt/g/likw/AMPCliff/AMPCliff/outputs/2025-08-18/22-11-25/esm2_t6/blosum62 average/diff5-trd0.9/model_step_2_spearman_0.957/" 

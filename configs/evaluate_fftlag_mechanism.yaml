@@ -6,7 +6,6 @@ model:
   regression:
     version: esm2_t6
     pooling: fft_latent_attn_gate
-    apply: none
     spectrual_filter:
       k_bands: 8
       base: 4

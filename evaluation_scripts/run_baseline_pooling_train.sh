@@ -38,9 +38,9 @@ if [[ -z "${POOLING:-}" ]]; then
   exit 1
 fi
 case "${POOLING}" in
-  mean|max|attn|last|swe_ot|mltp|latent_attn|fft_latent_attn_gate|fft_latent_attn_gate_v2) ;;
+  mean|max|attn|last|mltp_paper|latent_attn|attn_structured|fft_latent_attn_gate) ;;
   *)
-    echo "ERROR: Invalid POOLING='${POOLING}' (expected mean, max, or attn)" >&2
+    echo "ERROR: Invalid POOLING='${POOLING}'" >&2
     exit 1
     ;;
 esac
@@ -122,7 +122,6 @@ ARGS=(
   "data.regression.fix.test_file=${TEST_FILE}"
   "model.config_dir=${CONFIG_DIR}"
   "model.regression.version=${MODEL_TYPE}"
-  "model.regression.apply=none"
   "model.regression.pooling=${POOLING}"
   "model.regression.pooling_common.dropout=${DROPOUT}"
   "model.regression.check_point.load=false"

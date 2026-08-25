@@ -51,6 +51,8 @@ class Trainer(object):
         if cfg.train.loss =='mse':
             self.reg_loss_func = MSELoss()
 
+        self._init_attention_penalization(cfg)
+
         # save checkpoint
         self.best_metric = -1
         self.best_model_path = Path('.')
@@ -76,6 +78,44 @@ class Trainer(object):
                 f.write(json.dumps(payload, ensure_ascii=False) + "\n")
         except Exception:
             pass
+
+    def _init_attention_penalization(self, cfg):
+        """Enable Frobenius hop-orthogonality penalty for attn_structured pooling."""
+        self.attention_penalization_enabled = False
+        self.attention_penalization_coeff = 0.0
+
+        task_type = cfg.task.type
+        reg_cfg = cfg.model[task_type]
+        pooling = str(getattr(reg_cfg, "pooling", "mean")).strip()
+        if pooling != "attn_structured":
+            return
+
+        from AMPCliff.factory.pooling import resolve_pooling_kwargs
+
+        kw = resolve_pooling_kwargs(reg_cfg)
+        self.attention_penalization_enabled = True
+        self.attention_penalization_coeff = float(kw.get("penalization_coeff", 1.0))
+        Logger.info(
+            "Attention penalization enabled for attn_structured: "
+            f"coeff={self.attention_penalization_coeff}"
+        )
+
+    def _unwrap_train_net(self):
+        net = self.net
+        if hasattr(net, "module"):
+            net = net.module
+        return net
+
+    def _get_attn_structured_pooler(self):
+        net = self._unwrap_train_net()
+        for head_attr in ("residualcnn_reg", "head", "layer_pool_head"):
+            head = getattr(net, head_attr, None)
+            if head is None:
+                continue
+            pooler = getattr(head, "attn_pool", None)
+            if pooler is not None and hasattr(pooler, "compute_penalty_loss"):
+                return pooler
+        return None
 
     def evaluate(self,split):
         self.net.eval()
@@ -249,6 +289,12 @@ class Trainer(object):
             else:
                 output = self.net(batch)
                 loss = self.reg_loss_func(output[0].squeeze(),labels.squeeze())
+
+            if self.attention_penalization_enabled and self.net.training:
+                pooler = self._get_attn_structured_pooler()
+                if pooler is not None and getattr(pooler, "_last_attention_weights", None) is not None:
+                    attn_penalty_loss = pooler.compute_penalty_loss(self.attention_penalization_coeff)
+                    loss = loss + attn_penalty_loss.to(loss.dtype)
 
             # backward
             if self.cfg.mode.amp:

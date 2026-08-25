@@ -88,80 +88,80 @@ if __name__=='__main__':
     e_coli 7-25 AC pairs, BLOSUM62 average, 5-fold CV
     '''
     print("****E COLI****")
-    # print("====diff 5 BAGUA V1====")
+    # print("====diff 5 V1====")
     reorder_by_mic(csv_path="/data/run01/scv6872/kwli/AMPCliff/data/blast/blosum62 average/grampa_e_coli_7_25_acpairs_blosum62 average_5-fold.csv",
                      out_path="/data/home/scv6872/run/kwli/AMPCliff/data/blast/reordered_e_coli_pairs_5-fold.csv")
     pairs_pred_df, acc_dict = pairwise_accuracy_from_seq_preds(
         pairs_csv="/data/run01/scv6872/kwli/AMPCliff/data/blast/reordered_e_coli_pairs_5-fold.csv",
         per_seq_csv="/data/run01/scv6872/kwli/AMPCliff/outputs/2025-11-13/20-13-55/test_pred_results_org_and_taichci-diff5.csv",
-        out_pairs_with_preds="/data/home/scv6872/run/kwli/AMPCliff/learned_bagua/v1/diff5-pairs_with_all_model_preds_e_coli.csv",
-        out_acc="./taichinet/distill-vc/acc_dict_diff5_e_coli.csv",
+        out_pairs_with_preds="/data/home/scv6872/run/kwli/AMPCliff/outputs/ac_accuracy/v1/diff5-pairs_with_all_model_preds_e_coli.csv",
+        out_acc="./outputs/ac_accuracy/acc_dict_diff5_e_coli.csv",
         diff=5
     )
     print(pd.Series(acc_dict).sort_values(ascending=False))
     print("****S AUREUS****")
-    # print("====diff 5 BAGUA BASELINE====")
+    # print("====diff 5 BASELINE====")
     pairs_pred_df, acc_dict = pairwise_accuracy_from_seq_preds(
         pairs_csv="/data/home/scv6872/run/kwli/AMPCliff/data/reordered_s_aureus_pairs_5-fold.csv",
         per_seq_csv="/data/run01/scv6872/kwli/AMPCliff/outputs/2025-11-13/20-07-20/test_pred_results_org_and_taichci-diff5.csv",
-        out_pairs_with_preds="./learned_bagua/v1/diff5-pairs_with_all_model_preds_s_aureus.csv",
-        out_acc="./taichinet/distill-vc/acc_dict_diff5_s_aureus.csv",
+        out_pairs_with_preds="./outputs/ac_accuracy/v1/diff5-pairs_with_all_model_preds_s_aureus.csv",
+        out_acc="./outputs/ac_accuracy/acc_dict_diff5_s_aureus.csv",
         diff=5
     )
     print(pd.Series(acc_dict).sort_values(ascending=False))
     
     '''
     print("****E COLI****")
-    print("====diff 5 BAGUA V1====")
+    print("====diff 5 V1====")
     reorder_by_mic(csv_path="/data/home/scv6872/run/kwli/AMPCliff/data/blast/blosum62 average/grampa_e_coli_7_25_acpairs_blosum62 average_5-fold.csv",
                      out_path="/data/home/scv6872/run/kwli/AMPCliff/data/blast/reordered_e_coli_pairs_5-fold.csv")
     pairs_pred_df, acc_dict = pairwise_accuracy_from_seq_preds(
         pairs_csv="/data/home/scv6872/run/kwli/AMPCliff/data/blast/reordered_e_coli_pairs_5-fold.csv",
         per_seq_csv="/data/home/scv6872/run/kwli/AMPCliff/outputs/2025-10-19/17-27-49/test_pred_results_org_and_taichci-diff5.csv",
-        out_pairs_with_preds="/data/home/scv6872/run/kwli/AMPCliff/learned_bagua/v1/diff5-pairs_with_all_model_preds_e_coli.csv",
-        out_acc="/data/home/scv6872/run/kwli/AMPCliff/learned_bagua/v1/acc_dict_diff5_e_coli.csv",
+        out_pairs_with_preds="/data/home/scv6872/run/kwli/AMPCliff/outputs/ac_accuracy/v1/diff5-pairs_with_all_model_preds_e_coli.csv",
+        out_acc="/data/home/scv6872/run/kwli/AMPCliff/outputs/ac_accuracy/v1/acc_dict_diff5_e_coli.csv",
         diff=5
     )
     print(pd.Series(acc_dict).sort_values(ascending=False))
-    print("====diff 5 BAGUA BASELINE====")
+    print("====diff 5 BASELINE====")
     pairs_pred_df, acc_dict = pairwise_accuracy_from_seq_preds(
         pairs_csv="/data/home/scv6872/run/kwli/AMPCliff/data/blast/reordered_e_coli_pairs_5-fold.csv",
         per_seq_csv="/data/home/scv6872/run/kwli/AMPCliff/outputs/2025-10-20/08-07-32/test_pred_results_org_and_taichci-diff5.csv",
-        out_pairs_with_preds="/data/home/scv6872/run/kwli/AMPCliff/learned_bagua/v1/diff5-pairs_with_all_model_preds_e_coli_baseline.csv",
-        out_acc="/data/home/scv6872/run/kwli/AMPCliff/learned_bagua/v1/acc_dict_diff5_e_coli_baseline.csv",
+        out_pairs_with_preds="/data/home/scv6872/run/kwli/AMPCliff/outputs/ac_accuracy/v1/diff5-pairs_with_all_model_preds_e_coli_baseline.csv",
+        out_acc="/data/home/scv6872/run/kwli/AMPCliff/outputs/ac_accuracy/v1/acc_dict_diff5_e_coli_baseline.csv",
         diff=5
     )
     print(pd.Series(acc_dict).sort_values(ascending=False))
     '''
-    # print("====diff 5 BAGUA V1-1====")
+    # print("====diff 5 V1-1====")
     # # reorder_by_mic(csv_path="grampa_e_coli_7_25_acpairs_blosum62 average_5-fold.csv", out_path="e_coli_reordered_pairs_5-fold.csv")
     # pairs_pred_df, acc_dict = pairwise_accuracy_from_seq_preds(
     #     pairs_csv="e_coli_reordered_pairs_5-fold.csv",
-    #     per_seq_csv="./e_coli/bagua_v1-1/test_pred_results_org_and_taichci-diff5.csv",
-    #     out_pairs_with_preds="./e_coli/bagua_v1-1/diff5-pairs_with_all_model_preds.csv",
-    #     out_acc="./e_coli/bagua_v1-1/acc_dict_diff5.csv",
+    #     per_seq_csv="./e_coli/legacy_v1-1/test_pred_results_org_and_taichci-diff5.csv",
+    #     out_pairs_with_preds="./e_coli/legacy_v1-1/diff5-pairs_with_all_model_preds.csv",
+    #     out_acc="./e_coli/legacy_v1-1/acc_dict_diff5.csv",
     #     diff=5
     # )
     # print(pd.Series(acc_dict).sort_values(ascending=False))
 
-    # print("====diff 5 BAGUA V1-2====")
+    # print("====diff 5 V1-2====")
     # # reorder_by_mic(csv_path="grampa_e_coli_7_25_acpairs_blosum62 average_5-fold.csv", out_path="e_coli_reordered_pairs_5-fold.csv")
     # pairs_pred_df, acc_dict = pairwise_accuracy_from_seq_preds(
     #     pairs_csv="e_coli_reordered_pairs_5-fold.csv",
-    #     per_seq_csv="./e_coli/bagua_v1-2/test_pred_results_org_and_taichci-diff5.csv",
-    #     out_pairs_with_preds="./e_coli/bagua_v1-2/diff5-pairs_with_all_model_preds.csv",
-    #     out_acc="./e_coli/bagua_v1-2/acc_dict_diff5.csv",
+    #     per_seq_csv="./e_coli/legacy_v1-2/test_pred_results_org_and_taichci-diff5.csv",
+    #     out_pairs_with_preds="./e_coli/legacy_v1-2/diff5-pairs_with_all_model_preds.csv",
+    #     out_acc="./e_coli/legacy_v1-2/acc_dict_diff5.csv",
     #     diff=5
     # )
     # print(pd.Series(acc_dict).sort_values(ascending=False))
 
-    # print("====diff 5 BAGUA V1====")
+    # print("====diff 5 V1====")
     # # reorder_by_mic(csv_path="grampa_e_coli_7_25_acpairs_blosum62 average_5-fold.csv", out_path="e_coli_reordered_pairs_5-fold.csv")
     # pairs_pred_df, acc_dict = pairwise_accuracy_from_seq_preds(
     #     pairs_csv="e_coli_reordered_pairs_5-fold.csv",
-    #     per_seq_csv="./e_coli/bagua_v1/test_pred_results_org_and_taichci-diff5.csv",
-    #     out_pairs_with_preds="./e_coli/bagua_v1/diff5-pairs_with_all_model_preds.csv",
-    #     out_acc="./e_coli/bagua_v1/acc_dict_diff5.csv",
+    #     per_seq_csv="./e_coli/legacy_v1/test_pred_results_org_and_taichci-diff5.csv",
+    #     out_pairs_with_preds="./e_coli/legacy_v1/diff5-pairs_with_all_model_preds.csv",
+    #     out_acc="./e_coli/legacy_v1/acc_dict_diff5.csv",
     #     diff=5
     # )
     # print(pd.Series(acc_dict).sort_values(ascending=False))
@@ -178,8 +178,8 @@ if __name__=='__main__':
     pairs_pred_df, acc_dict = pairwise_accuracy_from_seq_preds(
         pairs_csv="/data/home/scv6872/run/kwli/AMPCliff/data/reordered_s_aureus_pairs_5-fold.csv",
         per_seq_csv="/data/home/scv6872/run/kwli/AMPCliff/outputs/2025-10-19/10-51-55/test_pred_results_org_and_taichci-diff5.csv",
-        out_pairs_with_preds="./learned_bagua/v1/diff5-pairs_with_all_model_preds_s_aureus.csv",
-        out_acc="./learned_bagua/v1/acc_dict_diff5_s_aureus.csv",
+        out_pairs_with_preds="./outputs/ac_accuracy/v1/diff5-pairs_with_all_model_preds_s_aureus.csv",
+        out_acc="./outputs/ac_accuracy/v1/acc_dict_diff5_s_aureus.csv",
         diff=5
     )
     print(pd.Series(acc_dict).sort_values(ascending=False))
@@ -188,8 +188,8 @@ if __name__=='__main__':
     pairs_pred_df, acc_dict = pairwise_accuracy_from_seq_preds(
         pairs_csv="/data/home/scv6872/run/kwli/AMPCliff/data/reordered_s_aureus_pairs_5-fold.csv",
         per_seq_csv="/data/home/scv6872/run/kwli/AMPCliff/outputs/2025-10-20/07-59-12/test_pred_results_org_and_taichci-diff5.csv",
-        out_pairs_with_preds="./learned_bagua/v1/diff5-pairs_with_all_model_preds_s_aureus_baseline.csv",
-        out_acc="./learned_bagua/v1/acc_dict_diff5_s_aureus_baseline.csv",
+        out_pairs_with_preds="./outputs/ac_accuracy/v1/diff5-pairs_with_all_model_preds_s_aureus_baseline.csv",
+        out_acc="./outputs/ac_accuracy/v1/acc_dict_diff5_s_aureus_baseline.csv",
         diff=5
     )
     print(pd.Series(acc_dict).sort_values(ascending=False))
@@ -204,112 +204,112 @@ if __name__=='__main__':
     # )
     # print(pd.Series(acc_dict).sort_values(ascending=False))
 
-    # print("====diff 5 BAGUA====")
+    # print("====diff 5 ====")
     # pairs_pred_df, acc_dict = pairwise_accuracy_from_seq_preds(
     #     pairs_csv="reordered_pairs_5-fold.csv",
-    #     per_seq_csv="./bagua/test_pred_results_org_and_bagua-diff5.csv",
-    #     out_pairs_with_preds="./bagua/diff5-pairs_with_all_model_preds.csv",
-    #     out_acc="./bagua/acc_dict_diff5.csv",
+    #     per_seq_csv="./outputs/ac_accuracy/test_pred_results_org_and_model-diff5.csv",
+    #     out_pairs_with_preds="./outputs/ac_accuracy/diff5-pairs_with_all_model_preds.csv",
+    #     out_acc="./outputs/ac_accuracy/acc_dict_diff5.csv",
     #     diff=5
     # )
     # print(pd.Series(acc_dict).sort_values(ascending=False))
 
-    # print("====diff 5 Learned BAGUA time====")
+    # print("====diff 5 Learned time====")
     # pairs_pred_df, acc_dict = pairwise_accuracy_from_seq_preds(
     #     pairs_csv="reordered_pairs_5-fold.csv",
-    #     per_seq_csv="./learned_bagua_time/v1/test_pred_results_org_and_taichci-diff5.csv",
-    #     out_pairs_with_preds="./learned_bagua_time/v1/diff5-pairs_with_all_model_preds.csv",
-    #     out_acc="./learned_bagua_time/v1/acc_dict_diff5.csv",
+    #     per_seq_csv="./outputs/ac_accuracy_time/v1/test_pred_results_org_and_taichci-diff5.csv",
+    #     out_pairs_with_preds="./outputs/ac_accuracy_time/v1/diff5-pairs_with_all_model_preds.csv",
+    #     out_acc="./outputs/ac_accuracy_time/v1/acc_dict_diff5.csv",
     #     diff=5
     # )
     # print(pd.Series(acc_dict).sort_values(ascending=False))
 
-    # print("====diff 5 Learned BAGUA PROJ TO REAL v1====")
+    # print("====diff 5 Learned PROJ TO REAL v1====")
     # pairs_pred_df, acc_dict = pairwise_accuracy_from_seq_preds(
     #     pairs_csv="reordered_pairs_5-fold.csv",
     #     per_seq_csv="/data/home/scv6872/run/kwli/AMPCliff/outputs/2025-10-18/20-08-07/esm2_t6-blosum62 average-diff5-trd0.9-test_result.csv",
-    #     out_pairs_with_preds="./learned_bagua/v1/diff5-pairs_with_all_model_preds_s_aureus.csv",
-    #     out_acc="./learned_bagua/v1/acc_dict_diff5_s_aureus.csv",
+    #     out_pairs_with_preds="./outputs/ac_accuracy/v1/diff5-pairs_with_all_model_preds_s_aureus.csv",
+    #     out_acc="./outputs/ac_accuracy/v1/acc_dict_diff5_s_aureus.csv",
     #     diff=5
     # )
     # print(pd.Series(acc_dict).sort_values(ascending=False))
 
-    # print("====diff 5 Learned BAGUA REAL V1-1====")
+    # print("====diff 5 Learned REAL V1-1====")
     # pairs_pred_df, acc_dict = pairwise_accuracy_from_seq_preds(
     #     pairs_csv="reordered_pairs_5-fold.csv",
-    #     per_seq_csv="./learned_bagua/v1-1-inter-t-intra-f/test_pred_results_org_and_taichci-diff5.csv",
-    #     out_pairs_with_preds="./learned_bagua/v1-1-inter-t-intra-f/diff5-pairs_with_all_model_preds.csv",
-    #     out_acc="./learned_bagua/v1-1-inter-t-intra-f/acc_dict_diff5.csv",
+    #     per_seq_csv="./outputs/ac_accuracy/v1-1-inter-t-intra-f/test_pred_results_org_and_taichci-diff5.csv",
+    #     out_pairs_with_preds="./outputs/ac_accuracy/v1-1-inter-t-intra-f/diff5-pairs_with_all_model_preds.csv",
+    #     out_acc="./outputs/ac_accuracy/v1-1-inter-t-intra-f/acc_dict_diff5.csv",
     #     diff=5
     # )
     # print(pd.Series(acc_dict).sort_values(ascending=False))
 
-    # print("====diff 5 Learned BAGUA REAL V1-2====")
+    # print("====diff 5 Learned REAL V1-2====")
     # pairs_pred_df, acc_dict = pairwise_accuracy_from_seq_preds(
     #     pairs_csv="reordered_pairs_5-fold.csv",
-    #     per_seq_csv="./learned_bagua/v1-2/test_pred_results_org_and_taichci-diff5.csv",
-    #     out_pairs_with_preds="./learned_bagua/v1-2/diff5-pairs_with_all_model_preds.csv",
-    #     out_acc="./learned_bagua/v1-2/acc_dict_diff5.csv",
+    #     per_seq_csv="./outputs/ac_accuracy/v1-2/test_pred_results_org_and_taichci-diff5.csv",
+    #     out_pairs_with_preds="./outputs/ac_accuracy/v1-2/diff5-pairs_with_all_model_preds.csv",
+    #     out_acc="./outputs/ac_accuracy/v1-2/acc_dict_diff5.csv",
     #     diff=5
     # )
     # print(pd.Series(acc_dict).sort_values(ascending=False))
 
-    # print("====diff 5 Learned BAGUA REAL V1-1 INTER TIME INTRA TIME====")
+    # print("====diff 5 Learned REAL V1-1 INTER TIME INTRA TIME====")
     # pairs_pred_df, acc_dict = pairwise_accuracy_from_seq_preds(
     #     pairs_csv="reordered_pairs_5-fold.csv",
-    #     per_seq_csv="./learned_bagua/v1-1-inter-t-intra-t/test_pred_results_org_and_taichci-diff5.csv",
-    #     out_pairs_with_preds="./learned_bagua/v1-1-inter-t-intra-t/diff5-pairs_with_all_model_preds.csv",
-    #     out_acc="./learned_bagua/v1-1-inter-t-intra-t/acc_dict_diff5.csv",
+    #     per_seq_csv="./outputs/ac_accuracy/v1-1-inter-t-intra-t/test_pred_results_org_and_taichci-diff5.csv",
+    #     out_pairs_with_preds="./outputs/ac_accuracy/v1-1-inter-t-intra-t/diff5-pairs_with_all_model_preds.csv",
+    #     out_acc="./outputs/ac_accuracy/v1-1-inter-t-intra-t/acc_dict_diff5.csv",
     #     diff=5
     # )
     # print(pd.Series(acc_dict).sort_values(ascending=False))
 
-    # print("====diff 5 Learned BAGUA PROJ TO IMAGE V1====")
+    # print("====diff 5 Learned PROJ TO IMAGE V1====")
     # pairs_pred_df, acc_dict = pairwise_accuracy_from_seq_preds(
     #     pairs_csv="reordered_pairs_5-fold.csv",
-    #     per_seq_csv="./learned_bagua_image/v1_proj/test_pred_results_org_and_taichci-diff5.csv",
-    #     out_pairs_with_preds="./learned_bagua_image/v1_proj/diff5-pairs_with_all_model_preds.csv",
-    #     out_acc="./learned_bagua_image/v1_proj/acc_dict_diff5.csv",
+    #     per_seq_csv="./outputs/ac_accuracy_image/v1_proj/test_pred_results_org_and_taichci-diff5.csv",
+    #     out_pairs_with_preds="./outputs/ac_accuracy_image/v1_proj/diff5-pairs_with_all_model_preds.csv",
+    #     out_acc="./outputs/ac_accuracy_image/v1_proj/acc_dict_diff5.csv",
     #     diff=5
     # )
     # print(pd.Series(acc_dict).sort_values(ascending=False))
 
-    # print("====diff 5 Learned BAGUA REAL V1====")
+    # print("====diff 5 Learned REAL V1====")
     # pairs_pred_df, acc_dict = pairwise_accuracy_from_seq_preds(
     #     pairs_csv="reordered_pairs_5-fold.csv",
-    #     per_seq_csv="./learned_bagua/v1/test_pred_results_org_and_taichci-diff5.csv",
-    #     out_pairs_with_preds="./learned_bagua/v1/diff5-pairs_with_all_model_preds.csv",
-    #     out_acc="./learned_bagua/v1/acc_dict_diff5.csv",
+    #     per_seq_csv="./outputs/ac_accuracy/v1/test_pred_results_org_and_taichci-diff5.csv",
+    #     out_pairs_with_preds="./outputs/ac_accuracy/v1/diff5-pairs_with_all_model_preds.csv",
+    #     out_acc="./outputs/ac_accuracy/v1/acc_dict_diff5.csv",
     #     diff=5
     # )
     # print(pd.Series(acc_dict).sort_values(ascending=False))
 
-    # print("====diff 5 Learned BAGUA REAL V3====")
+    # print("====diff 5 Learned REAL V3====")
     # pairs_pred_df, acc_dict = pairwise_accuracy_from_seq_preds(
     #     pairs_csv="reordered_pairs_5-fold.csv",
-    #     per_seq_csv="./learned_bagua/v3/test_pred_results_org_and_taichci-diff5.csv",
-    #     out_pairs_with_preds="./learned_bagua/v3/diff5-pairs_with_all_model_preds.csv",
-    #     out_acc="./learned_bagua/v3/acc_dict_diff5.csv",
+    #     per_seq_csv="./outputs/ac_accuracy/v3/test_pred_results_org_and_taichci-diff5.csv",
+    #     out_pairs_with_preds="./outputs/ac_accuracy/v3/diff5-pairs_with_all_model_preds.csv",
+    #     out_acc="./outputs/ac_accuracy/v3/acc_dict_diff5.csv",
     #     diff=5
     # )
     # print(pd.Series(acc_dict).sort_values(ascending=False))
 
-    # print("====diff 5 Learned BAGUA REAL V4====")
+    # print("====diff 5 Learned REAL V4====")
     # pairs_pred_df, acc_dict = pairwise_accuracy_from_seq_preds(
     #     pairs_csv="reordered_pairs_5-fold.csv",
-    #     per_seq_csv="./learned_bagua/v4/test_pred_results_org_and_taichci-diff5.csv",
-    #     out_pairs_with_preds="./learned_bagua/v4/diff5-pairs_with_all_model_preds.csv",
-    #     out_acc="./learned_bagua/v4/acc_dict_diff5.csv",
+    #     per_seq_csv="./outputs/ac_accuracy/v4/test_pred_results_org_and_taichci-diff5.csv",
+    #     out_pairs_with_preds="./outputs/ac_accuracy/v4/diff5-pairs_with_all_model_preds.csv",
+    #     out_acc="./outputs/ac_accuracy/v4/acc_dict_diff5.csv",
     #     diff=5
     # )
     # print(pd.Series(acc_dict).sort_values(ascending=False))
     
-    # print("====diff 5 Learned BAGUA IMAGE V1====")
+    # print("====diff 5 Learned IMAGE V1====")
     # pairs_pred_df, acc_dict = pairwise_accuracy_from_seq_preds(
     #     pairs_csv="reordered_pairs_5-fold.csv",
-    #     per_seq_csv="./learned_bagua_image/v1/test_pred_results_org_and_taichci-diff5.csv",
-    #     out_pairs_with_preds="./learned_bagua_image/v1/diff5-pairs_with_all_model_preds.csv",
-    #     out_acc="./learned_bagua_image/v1/acc_dict_diff5.csv",
+    #     per_seq_csv="./outputs/ac_accuracy_image/v1/test_pred_results_org_and_taichci-diff5.csv",
+    #     out_pairs_with_preds="./outputs/ac_accuracy_image/v1/diff5-pairs_with_all_model_preds.csv",
+    #     out_acc="./outputs/ac_accuracy_image/v1/acc_dict_diff5.csv",
     #     diff=5
     # )
     # print(pd.Series(acc_dict).sort_values(ascending=False))

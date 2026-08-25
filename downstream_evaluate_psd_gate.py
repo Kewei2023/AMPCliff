@@ -100,7 +100,7 @@ class GateWeightCollector:
 
 def find_fft_gate_pooling(model: nn.Module) -> Optional[nn.Module]:
     """递归搜索模型中的 FFTLatentAttentionGatePooling 模块。"""
-    from AMPCliff.factory.pooling.spectral_anchor_v2 import FFTLatentAttentionGatePooling
+    from AMPCliff.factory.pooling.flag_pooling import FFTLatentAttentionGatePooling
     for name, module in model.named_modules():
         if isinstance(module, FFTLatentAttentionGatePooling):
             Logger.info(f"Found FFTLatentAttentionGatePooling at: {name}")

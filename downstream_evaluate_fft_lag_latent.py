@@ -42,13 +42,10 @@ from AMPCliff.utils.fftlag_latent_viz import (
 
 
 def find_fft_gate_pooling(model: nn.Module) -> Optional[nn.Module]:
-    from AMPCliff.factory.pooling.spectral_anchor_v2 import (
-        FFTLatentAttentionGatePooling,
-        FFTLatentAttentionGateV3Pooling,
-    )
+    from AMPCliff.factory.pooling.flag_pooling import FFTLatentAttentionGatePooling
 
     for name, module in model.named_modules():
-        if isinstance(module, (FFTLatentAttentionGatePooling, FFTLatentAttentionGateV3Pooling)):
+        if isinstance(module, FFTLatentAttentionGatePooling):
             Logger.info(f"Found FFT latent gate pooling at: {name} ({type(module).__name__})")
             return module
     return None

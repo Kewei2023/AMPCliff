@@ -81,7 +81,7 @@ Common environment variables:
 
 ### Core Method
 
-FLaG pooling is implemented as `FFTLatentAttentionGatePooling` in `factory/pooling/spectral_anchor_v2.py`:
+FLaG pooling is implemented as `FFTLatentAttentionGatePooling` in `factory/pooling/flag_pooling.py`:
 
 **rFFT → latent attention → gate → iFFT → time pooling**
 
@@ -135,12 +135,24 @@ Exp1–4 reuse the original mechanism probes; the main update is **full-test cov
 |-----|---------|-------------------|-----------------|
 | **Exp1** Band knockout | Sequence band notch sensitivity | `downstream_evaluate_spectrual_filter.py` | `evaluation_scripts/run_fftlag_exp1_fulltest.sh` (+ `_slurm`) |
 | **Exp2** Gate PSD | Spectral energy change before/after gate | `downstream_evaluate_psd_gate.py` | `evaluation_scripts/run_fftlag_exp2_fulltest.sh` (+ `_slurm`) |
-| **Exp3** Token knockout | Token perturbation response distribution | `downstream_evaluate_knockout.py` | `evaluation_scripts/run_fftlag_exp3_fulltest.sh` (+ `_slurm`) |
+| **Exp3** Token knockout | Token perturbation response (\(\lvert\Delta\mathrm{MSE}\rvert\)) | `downstream_evaluate_knockout.py` | `evaluation_scripts/run_fftlag_exp3_fulltest.sh` (+ `_slurm`); parallel revised poolings: `run_fftlag_exp3_revised_poolings_parallel.sh` |
 | **Exp4** Latent viz | Latent query band mass distribution | `downstream_evaluate_fft_lag_latent.py` | `evaluation_scripts/run_fftlag_exp4_fulltest.sh` |
 
 Legacy subset orchestration (30 peptides): `evaluation_scripts/run_fftlag_mechanism_experiments.sh` (`RUN_EXPS=1,2,4` by default; Exp3 separate).
 
-Plot / aggregate helpers: `plot_fftlag_exp{1,2,3,4}_*`, `aggregate_fftlag_mechanism_seeds.py`, `aggregate_fftlag_exp3_fulltest.py`.
+Plot / aggregate helpers: `plot_fftlag_exp{1,2,4}_*`, `aggregate_fftlag_mechanism_seeds.py`. **Exp3** uses the `|ΔMSE|` pipeline:
+
+```bash
+bash evaluation_scripts/run_fftlag_exp3_fulltest.sh
+# or (mltp_paper + attn_structured on two GPUs)
+bash evaluation_scripts/run_fftlag_exp3_revised_poolings_parallel.sh
+
+python evaluation_scripts/aggregate_exp3_token_knockout_mse_diff.py --force
+python evaluation_scripts/plot_fftlag_exp3_mse_diff_violin_revised.py --force
+python evaluation_scripts/export_fftlag_exp3_token_knockout_data.py
+```
+
+The revised combined violin plots 7 poolings (mean / max / attn_structured→attn / last / mltp_paper→MLTP / latent_attn / FLaG) and writes `outputs/analysis/fftlag_mechanism/aggregated/exp3_token_knockout_mse_diff_violinplot_combined_no_swe_ot.png` (plus `.svg` / `.xlsx` export).
 
 ### Exp5 (upgraded): DC–property validation
 
@@ -218,7 +230,14 @@ bash evaluation_scripts/run_fftlag_mechanism_experiments.sh
 | `evaluation_scripts/merge_seed_metrics_pooling_csv_to_xlsx.py` | Merge seed metrics |
 | `run_ablation_protein.sh` | Multi-component pooling ablation batch training (see note below) |
 
-> **Note:** `run_ablation_protein.sh` references component pooling names such as `fft_latent_only`, but the FLaG branch `factory/pooling/registry.py` only registers standard poolings (including `fft_latent_attn_gate`). Unregistered names will fail at runtime; restore the corresponding pooling in the registry if you need component ablations.
+Supported poolings: `mean`, `max`, `attn`, `last`, `latent_attn`, `attn_structured`, `mltp_paper`, `fft_latent_attn_gate`.
+
+```bash
+POOLING=attn_structured MODEL_TYPE=esm2_t6 DATASET=s_aureus bash evaluation_scripts/run_baseline_pooling_train.sh
+POOLING=mltp_paper MODEL_TYPE=esm2_t6 DATASET=s_aureus bash evaluation_scripts/run_baseline_pooling_train.sh
+```
+
+> **Note:** `run_pooling_baseline_ablation.sh` and `run_ablation_protein.sh` are legacy spectral ablation scripts; this release no longer registers `spectral_anchor` and related old poolings.
 
 ---
 

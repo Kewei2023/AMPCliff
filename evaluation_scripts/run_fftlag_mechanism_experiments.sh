@@ -10,7 +10,7 @@
 
 set -uo pipefail
 
-REPO_ROOT="${REPO_ROOT:-/data/home/scv6872/run/kwli/AMPCliff}"
+REPO_ROOT="${REPO_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 cd "${REPO_ROOT}"
 
 if [[ -f /etc/profile.d/modules.sh ]]; then
@@ -27,7 +27,6 @@ fi
 PYTHON_BIN="${PYTHON_BIN:-python}"
 MODEL_VERSION="${MODEL_VERSION:-esm2_t6}"
 POOLING="${POOLING:-fft_latent_attn_gate}"
-APPLY="${APPLY:-none}"
 DIFF="${DIFF:-5}"
 THRESHOLD="${THRESHOLD:-0.9}"
 CONDITION="${CONDITION:-blosum62 average}"
@@ -156,7 +155,6 @@ for ds in "${DATASETS[@]}"; do
         "model.config_dir=${CONFIG_DIR}" \
         "model.regression.version=${MODEL_VERSION}" \
         "model.regression.pooling=${POOLING}" \
-        "model.regression.apply=${APPLY}" \
         model.regression.check_point.load=true \
         "model.regression.check_point.path=${ckpt}" \
         "model.regression.spectrual_filter.dim=seq_len" \
@@ -201,7 +199,6 @@ for ds in "${DATASETS[@]}"; do
         "model.config_dir=${CONFIG_DIR}" \
         "model.regression.version=${MODEL_VERSION}" \
         "model.regression.pooling=${POOLING}" \
-        "model.regression.apply=${APPLY}" \
         model.regression.check_point.load=true \
         "model.regression.check_point.path=${ckpt}" \
         "data.regression.dataset=${ds}" \
@@ -245,7 +242,6 @@ for ds in "${DATASETS[@]}"; do
         "model.config_dir=${CONFIG_DIR}" \
         "model.regression.version=${MODEL_VERSION}" \
         "model.regression.pooling=${POOLING}" \
-        "model.regression.apply=${APPLY}" \
         model.regression.check_point.load=true \
         "model.regression.check_point.path=${ckpt}" \
         "data.regression.dataset=${ds}" \

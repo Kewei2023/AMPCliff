@@ -44,7 +44,6 @@ def build_eval_cfg(
                     "version": model_version,
                     "pooling": pooling,
                     "apply": "none",
-                    "bagua": False,
                     "pooling_common": {
                         "num_anchor": 8,
                         "use_fft": True,

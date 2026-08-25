@@ -45,7 +45,6 @@ DRY_RUN="${DRY_RUN:-}"
 DIFF="5"
 THRESHOLD="0.9"
 CONDITION="blosum62 average"
-APPLY="none"
 
 # Resolve model config dir
 case "${MODEL}" in
@@ -166,7 +165,6 @@ for DATASET in ${DATASETS}; do
                 model.config_dir="${CONFIG_DIR}" \
                 model.regression.version="${MODEL}" \
                 model.regression.pooling="${POOLING}" \
-                model.regression.apply="${APPLY}" \
                 model.regression.check_point.load=false \
                 data.regression.dataset="${DATASET}" \
                 data.regression.mode=fix \
