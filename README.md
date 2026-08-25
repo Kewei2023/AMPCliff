@@ -248,7 +248,7 @@ The revised combined violin plots 7 poolings (mean / max / attn_structured→att
 | Step | Role | Scripts |
 |------|------|---------|
 | 1 | Build `dc_property_table.csv` | `build_dc_property_table.py`, `dc_property_utils.py` |
-| 2 | Last-layer DCT $C_0$–$C_3$ | `extract_dct_coefficient_features.py` |
+| 2 | Last-layer DCT $\mathcal{B}_0-\mathcal{B}_3$ | `extract_dct_coefficient_features.py` |
 | 3 | **Main exp. 1** DC property decoding | `analyze_dc_property_encoding.py`, `dc_property_probe.py` |
 | 4 | **Main exp. 2A** Species×property activity | `analyze_species_property_effects.py` |
 | 5 | **Main exp. 2B** Property-bucket band/DC KO | `run_dc_property_knockout_fulltest.sh`, `analyze_property_dc_tables.py`, `plot_property_dc_knockout.py` |

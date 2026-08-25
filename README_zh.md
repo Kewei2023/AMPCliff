@@ -248,7 +248,7 @@ Revised combined violin 默认绘制 7 个 pooling（mean / max / attn_structure
 | 步骤 | 角色 | 脚本 |
 |------|------|------|
 | 1 | 生成 `dc_property_table.csv` | `build_dc_property_table.py`、`dc_property_utils.py` |
-| 2 | 最后一层 DCT $C_0$–$C_3$ | `extract_dct_coefficient_features.py` |
+| 2 | 最后一层 DCT $\mathcal{B}_0-\mathcal{B}_3$ | `extract_dct_coefficient_features.py` |
 | 3 | **主实验一** DC property decoding | `analyze_dc_property_encoding.py`、`dc_property_probe.py` |
 | 4 | **主实验二 A** 物种×属性活性 | `analyze_species_property_effects.py` |
 | 5 | **主实验二 B** 属性分桶 band/DC KO | `run_dc_property_knockout_fulltest.sh`、`analyze_property_dc_tables.py`、`plot_property_dc_knockout.py` |
