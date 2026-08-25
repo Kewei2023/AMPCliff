@@ -238,7 +238,7 @@ python evaluation_scripts/plot_fftlag_exp3_mse_diff_violin_revised.py --force
 python evaluation_scripts/export_fftlag_exp3_token_knockout_data.py
 ```
 
-The revised combined violin plots 7 poolings (mean / max / attn_structured→attn / last / mltp_paper→MLTP / latent_attn / FLaG) and writes `outputs/analysis/fftlag_mechanism/aggregated/exp3_token_knockout_mse_diff_violinplot_combined_no_swe_ot.png` (plus `.svg` / `.xlsx` export).
+The revised combined violin plots 7 poolings (mean / max / attn / last / MLTP / latent_attn / FLaG) and writes `outputs/analysis/fftlag_mechanism/aggregated/exp3_token_knockout_mse_diff_violinplot_combined_no_swe_ot.png` (plus `.svg` / `.xlsx` export).
 
 ### Exp5 (upgraded): DC–property validation
 
