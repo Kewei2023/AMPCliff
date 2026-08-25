@@ -41,7 +41,7 @@ POOLING_ORDER = [
     "last",
     "mltp_paper",
     "latent_attn",
-    "fft_latent_attn_gate",
+    "FLaG",
 ]
 
 # X-axis labels match the legacy combined figure.
@@ -52,13 +52,13 @@ POOLING_LABELS = {
     "last": "last",
     "mltp_paper": "MLTP",
     "latent_attn": "latent-Attn",
-    "fft_latent_attn_gate": "FLaG",
+    "FLaG": "FLaG",
 }
 
 # Spearman ranks among the 7 plotted poolings (esm2_t6 test, revised poolings).
 SPEARMAN_RANK_ESM2_T6: Dict[str, Dict[str, int]] = {
     "e_coli": {
-        "fft_latent_attn_gate": 1,
+        "FLaG": 1,
         "last": 2,
         "mean": 3,
         "latent_attn": 4,
@@ -67,7 +67,7 @@ SPEARMAN_RANK_ESM2_T6: Dict[str, Dict[str, int]] = {
         "mltp_paper": 7,
     },
     "s_aureus": {
-        "fft_latent_attn_gate": 1,
+        "FLaG": 1,
         "max": 2,
         "last": 3,
         "mean": 4,

@@ -309,7 +309,7 @@ def parse_experiment_config(rel_posix: str, parent_dir_name: str) -> Dict[str, s
     if 'spectral_anchor_v2_ablation' in parent_dir_name:
         config['experiment_type'] = 'spectral_anchor_v2_ablation'
         segs = rel_posix.split('/')
-        if len(segs) == 1 and segs[0] in ('attn', 'max', 'mean'):
+        if len(segs) == 1 and segs[0] in ('attn_structured', 'max', 'mean'):
             config['pooling'] = segs[0]
         elif len(segs) == 2:
             arm, run_leaf = segs[0], segs[1]

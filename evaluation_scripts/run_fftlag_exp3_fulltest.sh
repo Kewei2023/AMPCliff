@@ -4,7 +4,7 @@
 #
 # Usage:
 #   bash evaluation_scripts/run_fftlag_exp3_fulltest.sh
-#   POOLINGS=fft_latent_attn_gate SEEDS="0" DATASETS=s_aureus bash evaluation_scripts/run_fftlag_exp3_fulltest.sh
+#   POOLINGS=FLaG SEEDS="0" DATASETS=s_aureus bash evaluation_scripts/run_fftlag_exp3_fulltest.sh
 #   DRY_RUN=1 bash evaluation_scripts/run_fftlag_exp3_fulltest.sh
 #   SKIP_IF_DONE=0 bash evaluation_scripts/run_fftlag_exp3_fulltest.sh
 #   sbatch evaluation_scripts/run_fftlag_exp3_fulltest_slurm.sh
@@ -48,7 +48,7 @@ else
   ABLATION_ROOT="${ABLATION_ROOT:-${REPO_ROOT}/outputs/ablation_new_data}"
 fi
 
-read -r -a POOLINGS <<< "${POOLINGS:-fft_latent_attn_gate}"
+read -r -a POOLINGS <<< "${POOLINGS:-FLaG}"
 read -r -a DATASETS <<< "${DATASETS:-e_coli s_aureus}"
 if [[ -n "${SEEDS:-}" ]]; then
   read -r -a SEED_LIST <<< "${SEEDS}"

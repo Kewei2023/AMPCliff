@@ -30,7 +30,7 @@ def _write_seed_csv(path: Path, entries: list[tuple[int, int, float, float]]) ->
                 "pred_base": pred_base,
                 "pred_ko": pred_ko,
                 "layer": 5,
-                "pooling": "fft_latent_attn_gate",
+                "pooling": "FLaG",
                 "model_version": "esm2_t6",
                 "dataset": "s_aureus",
                 "split": "test",
@@ -43,7 +43,7 @@ def _write_seed_csv(path: Path, entries: list[tuple[int, int, float, float]]) ->
 @pytest.fixture
 def exp3_root(tmp_path: Path) -> Path:
     root = tmp_path / "exp3_fulltest"
-    pool = "fft_latent_attn_gate"
+    pool = "FLaG"
     ds = "s_aureus"
     positions = [2, 3, 4]
     # y=0 so abs_mse_diff = |pred_ko^2 - pred_base^2|
@@ -69,7 +69,7 @@ def test_gather_raw_csvs(exp3_root: Path, labels: dict[str, pd.DataFrame]) -> No
     raw = gather_raw_csvs(exp3_root, ["s_aureus"], labels)
     assert not raw.empty
     assert set(raw["train_seed"].unique()) == {0, 1}
-    assert raw["pooling"].iloc[0] == "fft_latent_attn_gate"
+    assert raw["pooling"].iloc[0] == "FLaG"
     assert "abs_mse_diff" in raw.columns
     assert (raw["abs_mse_diff"] >= 0).all()
 
@@ -104,6 +104,6 @@ def test_summarize_distribution(exp3_root: Path, labels: dict[str, pd.DataFrame]
     long_df = aggregate_per_peptide_response_std(position_long)
     summary = summarize_distribution(long_df)
     assert len(summary) == 1
-    assert summary.iloc[0]["pooling"] == "fft_latent_attn_gate"
+    assert summary.iloc[0]["pooling"] == "FLaG"
     assert summary.iloc[0]["n_peptides"] == 2
     assert summary.iloc[0]["n_obs"] == 2

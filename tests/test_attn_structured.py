@@ -8,7 +8,6 @@ REPO_PARENT = Path(__file__).resolve().parents[2]
 if str(REPO_PARENT) not in sys.path:
     sys.path.insert(0, str(REPO_PARENT))
 
-from AMPCliff.factory.pooling.attention import MultiHeadVectorAttnPooling
 from AMPCliff.factory.pooling.llm_pooling_dropin import StructuredSelfAttentivePooling
 from AMPCliff.utils import attention_penalty as penalty_mod
 
@@ -129,11 +128,3 @@ def test_attn_structured_no_bias_and_out_proj_shape():
 def test_attn_structured_invalid_hop_output_raises():
     with pytest.raises(ValueError, match="hop_output"):
         StructuredSelfAttentivePooling(hidden_size=32, hop_output="mean")
-
-
-def test_legacy_attn_still_loads():
-    D = 64
-    pooler = MultiHeadVectorAttnPooling(d_model=D, num_heads=4, gated=True, dropout=0.0)
-    x = torch.randn(2, 10, D)
-    out = pooler(x)
-    assert out.shape == (2, D)

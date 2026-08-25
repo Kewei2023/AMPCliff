@@ -23,7 +23,7 @@ from scipy.stats import pearsonr, spearmanr
 
 CONFIG_DISPLAY_ORDER = [
     "mean",
-    "attn",
+    "attn_structured",
     "latent_attn",
     "fft_latent_only",
     "fft_gate_only",

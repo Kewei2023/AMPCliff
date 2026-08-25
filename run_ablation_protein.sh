@@ -69,21 +69,12 @@ fi
 # Set POOLINGS env var to override (space-separated list of tag names)
 _ALL_CONFIGS=(
     "mean:mean"
-    "attn:attn"
+    "max:max"
+    "attn_structured:attn_structured"
+    "last:last"
     "latent_attn:latent_attn"
-    "fft_latent_only:fft_latent_only"
-    "fft_gate_only:fft_gate_only"
-    "fft_gate_only_no_residual:fft_gate_only_no_residual"
-    "fft_gate_only_tp_mean:fft_gate_only_tp_mean"
-    "fft_gate_only_tp_attn:fft_gate_only_tp_attn"
-    "fft_lag_no_residual:fft_lag_no_residual"
-    "fft_lag_tp_mean:fft_lag_tp_mean"
-    "fft_lag_tp_max:fft_lag_tp_max"
-    "fft_lag_tp_attn:fft_lag_tp_attn"
-    "fft_lag_L1:fft_lag_L1"
-    "fft_lag_L4:fft_lag_L4"
-    "fft_lag_L8:fft_lag_L8"
-    "fft_lag_L16:fft_lag_L16"
+    "mltp_paper:mltp_paper"
+    "FLaG:FLaG"
 )
 
 if [[ -n "${POOLINGS:-}" ]]; then

@@ -29,7 +29,7 @@ DEFAULT_CONFIG_DIR = "/data/public/models/facebook/esm2_t6_8M_UR50D/"
 def build_eval_cfg(
     *,
     model_version: str = "esm2_t6",
-    pooling: str = "fft_latent_attn_gate",
+    pooling: str = "FLaG",
     config_dir: str = DEFAULT_CONFIG_DIR,
     max_length: int = 30,
 ) -> object:
@@ -204,7 +204,7 @@ def main() -> int:
     ap.add_argument("--checkpoint", type=Path, required=True)
     ap.add_argument("--output", type=Path, required=True)
     ap.add_argument("--model-version", default="esm2_t6")
-    ap.add_argument("--pooling", default="fft_latent_attn_gate")
+    ap.add_argument("--pooling", default="FLaG")
     ap.add_argument("--config-dir", default=DEFAULT_CONFIG_DIR)
     ap.add_argument("--batch-size", type=int, default=8)
     ap.add_argument("--max-length", type=int, default=30)

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # One-click runner for:
-# 1) Baseline pooling: mean / max / attn
+# 1) Baseline pooling: mean / max / attn_structured
 # 2) SpectralAnchor ablation: num_anchor sweep
 # 3) SpectralAnchor ablation: use_fft true/false
 
@@ -86,8 +86,8 @@ echo "[INFO] logger.log: ${LOGGER_LOG_VALUE}"
 echo "[INFO] Dry run: ${DRY_RUN}"
 
 echo
-# echo "[STAGE 1/3] Baseline pooling: mean / max / attn"
-# for pooling in mean max attn; do
+# echo "[STAGE 1/3] Baseline pooling: mean / max / attn_structured"
+# for pooling in mean max attn_structured; do
 #   run_cmd "${COMMON_ARGS[@]}" \
 #     "model.regression.pooling=${pooling}"
 # done

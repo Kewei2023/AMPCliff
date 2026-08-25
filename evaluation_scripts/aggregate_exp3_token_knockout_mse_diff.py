@@ -27,13 +27,11 @@ DEFAULT_EXP3_SUBDIR = "exp3_fulltest"
 POOLING_ORDER = [
     "mean",
     "max",
-    "attn",
-    "last",
-    "swe_ot",
-    "mltp_paper",
     "attn_structured",
+    "last",
+    "mltp_paper",
     "latent_attn",
-    "fft_latent_attn_gate",
+    "FLaG",
 ]
 
 

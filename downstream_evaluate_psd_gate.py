@@ -389,7 +389,7 @@ def main(cfg: DictConfig):
     gate_pooling = find_fft_gate_pooling(actual_model)
     if gate_pooling is None:
         Logger.error("FFTLatentAttentionGatePooling not found in model. "
-                      "Make sure pooling is set to 'fft_latent_attn_gate'.")
+                      "Make sure pooling is set to 'FLaG'.")
         return
 
     threshold = str(cfg.data.threshold)

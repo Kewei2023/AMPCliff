@@ -1,4 +1,3 @@
-from .attention import MultiHeadVectorAttnPooling
 from .registry import (
     apply_pooling,
     build_pooling_modules,
@@ -8,7 +7,6 @@ from .registry import (
 )
 
 __all__ = [
-    "MultiHeadVectorAttnPooling",
     "apply_pooling",
     "build_pooling_modules",
     "get_supported_poolings",

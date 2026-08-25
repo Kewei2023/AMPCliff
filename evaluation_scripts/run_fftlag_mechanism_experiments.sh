@@ -26,7 +26,7 @@ fi
 
 PYTHON_BIN="${PYTHON_BIN:-python}"
 MODEL_VERSION="${MODEL_VERSION:-esm2_t6}"
-POOLING="${POOLING:-fft_latent_attn_gate}"
+POOLING="${POOLING:-FLaG}"
 DIFF="${DIFF:-5}"
 THRESHOLD="${THRESHOLD:-0.9}"
 CONDITION="${CONDITION:-blosum62 average}"

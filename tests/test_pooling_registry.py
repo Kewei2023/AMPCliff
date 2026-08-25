@@ -11,12 +11,11 @@ from AMPCliff.factory.regression import ClassificationHead2
 RELEASE_POOLINGS = (
     "mean",
     "max",
-    "attn",
     "last",
     "latent_attn",
     "attn_structured",
     "mltp_paper",
-    "fft_latent_attn_gate",
+    "FLaG",
 )
 
 
@@ -31,7 +30,7 @@ def test_validate_pooling_name_accepts_release_poolings(pooling):
 
 @pytest.mark.parametrize(
     "pooling",
-    ["mean", "max", "attn", "last", "latent_attn", "attn_structured", "fft_latent_attn_gate"],
+    ["mean", "max", "last", "latent_attn", "attn_structured", "FLaG"],
 )
 def test_regression_head2_token_poolings(pooling):
     cfg = SimpleNamespace(

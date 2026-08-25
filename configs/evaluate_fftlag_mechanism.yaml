@@ -5,7 +5,7 @@ defaults:
 model:
   regression:
     version: esm2_t6
-    pooling: fft_latent_attn_gate
+    pooling: FLaG
     spectrual_filter:
       k_bands: 8
       base: 4

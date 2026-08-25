@@ -6,7 +6,7 @@
 
 *Built on [AMPCliff](https://github.com/Kewei2023/AMPCliff)*
 
-**FLaG**（Frequency-Domain Latent Attention Gating for Cross-Domain Token Aggregation）是基于 [AMPCliff](https://github.com/Kewei2023/AMPCliff) 开发的独立研究项目，面向 antimicrobial peptide **activity cliff** 预测。AMPCliff 提供 activity cliff 数据集、benchmark 框架与 ESM2 下游训练基础设施；FLaG 在此基础上提出核心 pooling 方法 `fft_latent_attn_gate`，以及配套的机制分析与 ablation 实验。
+**FLaG**（Frequency-Domain Latent Attention Gating for Cross-Domain Token Aggregation）是基于 [AMPCliff](https://github.com/Kewei2023/AMPCliff) 开发的独立研究项目，面向 antimicrobial peptide **activity cliff** 预测。AMPCliff 提供 activity cliff 数据集、benchmark 框架与 ESM2 下游训练基础设施；FLaG 在此基础上提出核心 pooling 方法 `FLaG`，以及配套的机制分析与 ablation 实验。
 
 代码托管于 AMPCliff 仓库的 **`FLaG` 分支**（历史原因保留 `AMPCliff` Python 包名与目录结构）。
 
@@ -17,6 +17,7 @@
 - [获取代码与环境](#获取代码与环境)
 - [数据与模型权重](#数据与模型权重)
 - [训练 FLaG 模型](#训练-flag-模型)
+- [运行指南](#运行指南)
 - [五个机制实验](#五个机制实验)
 - [Ablation 实验脚本](#ablation-实验脚本)
 - [关键配置](#关键配置)
@@ -85,7 +86,7 @@ FLaG pooling 实现在 `factory/pooling/flag_pooling.py` 的 `FFTLatentAttention
 
 **rFFT → latent attention → gate → iFFT → time pooling**
 
-配置键：`model.regression.pooling=fft_latent_attn_gate`
+配置键：`model.regression.pooling=FLaG`
 
 ### 单次训练
 
@@ -93,7 +94,7 @@ FLaG pooling 实现在 `factory/pooling/flag_pooling.py` 的 `FFTLatentAttention
 export REPO_ROOT=/path/to/AMPCliff
 cd "${REPO_ROOT}"
 
-POOLING=fft_latent_attn_gate MODEL_TYPE=esm2_t6 DATASET=s_aureus \
+POOLING=FLaG MODEL_TYPE=esm2_t6 DATASET=s_aureus \
   bash evaluation_scripts/run_baseline_pooling_train.sh
 ```
 
@@ -106,10 +107,10 @@ POOLING=fft_latent_attn_gate MODEL_TYPE=esm2_t6 DATASET=s_aureus \
 
 ```bash
 # 仅 FLaG
-POOLINGS="fft_latent_attn_gate" bash evaluation_scripts/run_baseline_pooling_grid_2x2_seeds_1.sh
+POOLINGS="FLaG" bash evaluation_scripts/run_baseline_pooling_grid_2x2_seeds_1.sh
 
-# 与 mean/max/attn 对比
-POOLINGS="mean max attn fft_latent_attn_gate" bash evaluation_scripts/run_baseline_pooling_grid_2x2_seeds_1.sh
+# 与 mean/max/attn_structured 对比
+POOLINGS="mean max attn_structured FLaG" bash evaluation_scripts/run_baseline_pooling_grid_2x2_seeds_1.sh
 # seeds_2.sh ~ seeds_4.sh 为其余分片
 ```
 
@@ -123,9 +124,91 @@ python evaluation_scripts/aggregate_pooling_seed_metrics.py
 
 ---
 
+## 运行指南
+
+对比算法与五个机制实验的快捷入口（每个实验均含运行 + 画图）。更多背景见后文「[五个机制实验](#五个机制实验)」。
+
+### 1. 对比算法（训练 + 结果整理）
+
+在 2×2 网格（esm2_t6/t12 × e_coli/s_aureus）× 多种子上对比 FLaG 与常见 pooling（分片 1–4）：
+
+```bash
+POOLINGS="mean max attn_structured last latent_attn mltp_paper FLaG" \
+  bash evaluation_scripts/run_baseline_pooling_grid_2x2_seeds_1.sh
+# 同步或另开任务跑 seeds_2 / _3 / _4（相同 POOLINGS）
+
+# 单次试跑
+POOLING=FLaG MODEL_TYPE=esm2_t6 DATASET=s_aureus \
+  bash evaluation_scripts/run_baseline_pooling_train.sh
+```
+
+结果整理：
+
+```bash
+bash evaluation_scripts/run_aggregate_baseline_pooling_seed_metrics.sh
+# 或
+python evaluation_scripts/aggregate_pooling_seed_metrics.py
+python evaluation_scripts/merge_seed_metrics_pooling_csv_to_xlsx.py
+```
+
+输出默认在 `outputs/ablation_new_data/`（及聚合脚本约定的 statics 路径）。
+
+### 2. 五个机制实验（运行 + 画图）
+
+需已有 FLaG checkpoint（`POOLING=FLaG`）。Exp1–4 产物在 `outputs/analysis/fftlag_mechanism/`；Exp5 在 `outputs/analysis/dc_validation/`（预置图/表见 [`paper/results/exp5/`](paper/results/exp5/)）。背景与配置见后文「[五个机制实验](#五个机制实验)」。
+
+**Exp1 — Band knockout**
+
+```bash
+bash evaluation_scripts/run_fftlag_exp1_fulltest.sh
+# 可选：sbatch evaluation_scripts/run_fftlag_exp1_fulltest_slurm.sh
+python evaluation_scripts/aggregate_fftlag_mechanism_seeds.py
+python evaluation_scripts/plot_fftlag_exp1_fulltest_violin.py
+python evaluation_scripts/plot_fftlag_exp1_representative_heatmaps.py
+```
+
+**Exp2 — Gate PSD**
+
+```bash
+bash evaluation_scripts/run_fftlag_exp2_fulltest.sh
+python evaluation_scripts/plot_fftlag_exp2_fulltest_combined.py
+```
+
+**Exp3 — Token knockout（|ΔMSE|）**
+
+```bash
+bash evaluation_scripts/run_fftlag_exp3_fulltest.sh
+# 或双 GPU revised pooling：
+# bash evaluation_scripts/run_fftlag_exp3_revised_poolings_parallel.sh
+python evaluation_scripts/aggregate_exp3_token_knockout_mse_diff.py --force
+python evaluation_scripts/plot_fftlag_exp3_mse_diff_violin_revised.py --force
+python evaluation_scripts/export_fftlag_exp3_token_knockout_data.py
+```
+
+**Exp4 — Latent viz**
+
+```bash
+bash evaluation_scripts/run_fftlag_exp4_fulltest.sh
+python evaluation_scripts/plot_fftlag_exp4_fulltest_latent_query_dist.py
+# 可选 attn-score 变体：
+# bash evaluation_scripts/run_fftlag_exp4_attn_score_raw.sh
+# python evaluation_scripts/plot_fftlag_exp4_attn_score_raw.py
+```
+
+**Exp5 — DC–理化性质验证**
+
+```bash
+bash evaluation_scripts/run_dc_validation_v2.sh
+python evaluation_scripts/plot_dc_validation_combined_figure_v3.py
+python evaluation_scripts/plot_property_dc_knockout.py
+python evaluation_scripts/plot_multi_property_band_sensitivity_combined.py
+```
+
+---
+
 ## 五个机制实验
 
-机制实验用于分析 FLaG 在 activity cliff 任务上的内部行为，需**先完成 FLaG 模型训练**（checkpoint 默认从 `outputs/ablation_new_data/{model}_fft_latent_attn_gate_{dataset}_diff5/seed_*/data/model.pth` 解析）。
+机制实验用于分析 FLaG 在 activity cliff 任务上的内部行为，需**先完成 FLaG 模型训练**（checkpoint 默认从 `outputs/ablation_new_data/{model}_FLaG_{dataset}_diff5/seed_*/data/model.pth` 解析）。
 
 ### Exp1–4：全 test 集上的机制统计
 
@@ -207,7 +290,7 @@ bash evaluation_scripts/run_fftlag_mechanism_experiments.sh
 
 ## Ablation 实验脚本
 
-### A. Pooling baseline 对比（mean / max / attn / FLaG）
+### A. Pooling baseline 对比（mean / max / attn_structured / FLaG）
 
 | 脚本 | 作用 |
 |------|------|
@@ -230,7 +313,7 @@ bash evaluation_scripts/run_fftlag_mechanism_experiments.sh
 | `evaluation_scripts/merge_seed_metrics_pooling_csv_to_xlsx.py` | 合并 seed metrics |
 | `run_ablation_protein.sh` | 多 pooling 组件 ablation 批量训练（见下方注意） |
 
-支持的 pooling：`mean`, `max`, `attn`, `last`, `latent_attn`, `attn_structured`, `mltp_paper`, `fft_latent_attn_gate`。
+支持的 pooling：`mean`, `max`, `last`, `latent_attn`, `attn_structured`, `mltp_paper`, `FLaG`。
 
 ```bash
 POOLING=attn_structured MODEL_TYPE=esm2_t6 DATASET=s_aureus bash evaluation_scripts/run_baseline_pooling_train.sh
@@ -248,12 +331,12 @@ POOLING=mltp_paper MODEL_TYPE=esm2_t6 DATASET=s_aureus bash evaluation_scripts/r
 ```yaml
 features.type: LLM
 model.regression.version: esm2_t6   # 或 esm2_t12
-model.regression.pooling: fft_latent_attn_gate
+model.regression.pooling: FLaG
 model.regression.apply: none
-model.regression.pooling_config.fft_latent_attn_gate:
+model.regression.pooling_config.FLaG:
   num_heads: 4
   num_latents: 8
-  time_pool: max        # max | mean | attn
+  time_pool: max        # max | mean
   gate_residual: true
   use_gate: true
   use_latent: true

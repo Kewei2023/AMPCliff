@@ -12,7 +12,7 @@
 #
 # Usage:
 #   sbatch evaluation_scripts/run_fftlag_exp3_fulltest_slurm.sh
-#   POOLINGS=fft_latent_attn_gate SEEDS="0 1" sbatch evaluation_scripts/run_fftlag_exp3_fulltest_slurm.sh
+#   POOLINGS=FLaG SEEDS="0 1" sbatch evaluation_scripts/run_fftlag_exp3_fulltest_slurm.sh
 
 set -uo pipefail
 

@@ -6,10 +6,10 @@ source activate AMPCliff
 set -uo pipefail
 
 # Aggregate test/valid Spearman, Pearson, top-K recall per seed_* for baseline pooling
-# (attn, local_stft, …) × 2×2 (esm2_t6/t12 × e_coli/s_aureus); extend the for-loop as needed.
+# (attn_structured, …) × 2×2 (esm2_t6/t12 × e_coli/s_aureus); extend the for-loop as needed.
 #
 # Writes CSV + JSON under ${STATICS_ROOT}/<pooling>/ (one subdir per pooling name):
-#   statics/attn/seed_metrics_attn_pooling_esm2_t6_e_coli.csv / .json
+#   statics/attn_structured/seed_metrics_attn_structured_pooling_esm2_t6_e_coli.csv / .json
 #   statics/local_stft/seed_metrics_local_stft_pooling_esm2_t6_e_coli.csv / .json
 #   ... (per model×dataset combo in the loop below)
 #
@@ -59,7 +59,7 @@ run_one() {
 }
 
 failed=0
-for POOLING in mean max attn last mltp_paper latent_attn attn_structured fft_latent_attn_gate; do
+for POOLING in mean max attn_structured last mltp_paper latent_attn FLaG; do
   run_one "esm2_t6_${POOLING}_e_coli_diff${DIFF}" "esm2_t6" "e_coli" "${POOLING}" || failed=1
   run_one "esm2_t6_${POOLING}_s_aureus_diff${DIFF}" "esm2_t6" "s_aureus" "${POOLING}" || failed=1
   run_one "esm2_t12_${POOLING}_e_coli_diff${DIFF}" "esm2_t12" "e_coli" "${POOLING}" || failed=1

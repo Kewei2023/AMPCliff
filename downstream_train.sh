@@ -8,7 +8,7 @@ export PYTHONUNBUFFERED=1
 
 for bacterium in s_aureus e_coli
 do
-    for pooling in max mean attn
+    for pooling in max mean attn_structured
     do
             python -u downstream_train.py \
                     model.config_dir="/data/public/models/facebook/esm2_t12_35M_UR50D/"\

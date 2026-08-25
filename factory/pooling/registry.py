@@ -13,12 +13,11 @@ from .llm_pooling_dropin import (
 SUPPORTED_POOLINGS: Tuple[str, ...] = (
     "mean",
     "max",
-    "attn",
     "last",
     "latent_attn",
     "attn_structured",
     "mltp_paper",
-    "fft_latent_attn_gate",
+    "FLaG",
 )
 
 
@@ -26,7 +25,7 @@ def _coerce_bool(val: Any, default: bool = True) -> bool:
     if val is None:
         return default
     if isinstance(val, bool):
-        return val
+        return bool(val)
     if isinstance(val, (int, float)) and not isinstance(val, bool):
         return bool(val)
     if isinstance(val, str):
@@ -96,7 +95,7 @@ _FFT_LATENT_SHORT_RENAME: Dict[str, str] = {
 }
 
 _PER_METHOD_SHORT_RENAME: Dict[str, Dict[str, str]] = {
-    "fft_latent_attn_gate": dict(_FFT_LATENT_SHORT_RENAME),
+    "FLaG": dict(_FFT_LATENT_SHORT_RENAME),
 }
 
 
@@ -202,7 +201,6 @@ def build_pooling_modules(
     fft_latent_gate_dropout: Optional[float] = None,
     fft_latent_gate_use_gate: bool = True,
     fft_latent_gate_use_latent: bool = True,
-    attn_factory: Optional[Callable[[int], nn.Module]] = None,
 ) -> Tuple[Optional[nn.Module], Optional[nn.Module]]:
     pooling = validate_pooling_name(pooling)
     attn_pool = None
@@ -210,11 +208,7 @@ def build_pooling_modules(
 
     gated = _coerce_bool(gated, True)
 
-    if pooling == "attn":
-        if attn_factory is None:
-            raise ValueError("attn_factory is required when pooling='attn'")
-        attn_pool = attn_factory(d_model)
-    elif pooling == "attn_structured":
+    if pooling == "attn_structured":
         attn_pool = StructuredSelfAttentivePooling(
             hidden_size=d_model,
             attention_size=int(attention_size),
@@ -230,15 +224,15 @@ def build_pooling_modules(
             num_heads=num_heads,
             dropout=dropout,
         )
-    elif pooling == "fft_latent_attn_gate":
+    elif pooling == "FLaG":
         gate_time_pool = (
             str(fft_latent_gate_time_pool).strip().lower()
             if fft_latent_gate_time_pool is not None
             else "max"
         )
-        if gate_time_pool not in ("mean", "max", "attn"):
+        if gate_time_pool not in ("mean", "max"):
             raise ValueError(
-                "fft_latent_gate_time_pool must be 'mean', 'max', or 'attn', "
+                "fft_latent_gate_time_pool must be 'mean' or 'max', "
                 f"got '{fft_latent_gate_time_pool}'"
             )
         gate_dropout = (
@@ -288,10 +282,6 @@ def apply_pooling(
         return max_pooling(features, attention_mask)
     if pooling == "last":
         return last_token_pooling(features, attention_mask)
-    if pooling == "attn":
-        if attn_pool is None:
-            raise RuntimeError("attn_pool is not initialized for pooling='attn'")
-        return attn_pool(features, attention_mask)
     if pooling == "attn_structured":
         if attn_pool is None:
             raise RuntimeError("attn_pool is not initialized for pooling='attn_structured'")
@@ -305,7 +295,7 @@ def apply_pooling(
             "pooling='mltp_paper' requires RegModel_MLTP_Paper (multi-layer pooling) and cannot be used "
             "as a token-level pooling inside ClassificationHead*."
         )
-    if pooling == "fft_latent_attn_gate":
+    if pooling == "FLaG":
         if sap_pool is None:
             raise RuntimeError(f"sap_pool is not initialized for pooling='{pooling}'")
         return sap_pool(features, attention_mask)

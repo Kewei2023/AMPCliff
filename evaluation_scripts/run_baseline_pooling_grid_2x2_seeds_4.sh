@@ -2,7 +2,7 @@
 # =============================================================================
 # run_baseline_pooling_grid_2x2_seeds.sh
 #
-# 对 POOLINGS（默认 mean max attn）各跑一遍 2×2 网格（esm2_t6/t12 × s_aureus/e_coli），
+# 对 POOLINGS（默认 mean max attn_structured）各跑一遍 2×2 网格（esm2_t6/t12 × s_aureus/e_coli），
 # 每格多个随机种子；子脚本为 evaluation_scripts/run_baseline_pooling_train.sh。
 #
 # 汇总各 seed 的 test/valid Spearman、Pearson（均值、样本方差、样本标准差），对每个
@@ -11,7 +11,7 @@
 #     --exp-dir "${OUTPUT_ROOT}/${MODEL_TYPE}_${POOLING}_${DATASET}_diff${DIFF}"
 #
 # 环境变量：
-#   POOLINGS             默认 "mean max attn"（空格分隔）
+#   POOLINGS             默认 "mean max attn_structured"（空格分隔）
 #   SEEDS                默认 "0 1 2 3 4 5 6 7 8 9"
 #   REPO_ROOT            默认 /data/home/scv6872/run/kwli/AMPCliff（可 export 覆盖）
 #   OUTPUT_ROOT          默认 ${REPO_ROOT}/outputs/ablation（与 run_local_stft_grid_2x2_seeds.sh 一致）
@@ -51,7 +51,7 @@ declare -a GRID_RESULT_LINES=()
 SEEDS="${SEEDS:-5 6 7 8 9}"
 # shellcheck disable=SC2086
 # POOLINGS="${POOLINGS:-mean max attn}"
-POOLINGS="${POOLINGS:-fft_latent_attn_gate}"
+POOLINGS="${POOLINGS:-FLaG}"
 
 _default_csv_for_dataset() {
   local ds="$1"
@@ -135,7 +135,7 @@ _run_grid_for_pooling() {
 }
 
 echo "=========================================="
-echo "Baseline pooling (mean / max / attn / last / latent_attn / fft_latent_attn_gate) — 2×2 grid × seeds"
+echo "Baseline pooling (mean / max / attn_structured / last / latent_attn / FLaG) — 2×2 grid × seeds"
 echo "=========================================="
 echo "REPO_ROOT:     ${REPO_ROOT}"
 echo "POOLINGS:      ${POOLINGS}"

@@ -6,7 +6,6 @@ import torch
 import torch.nn as nn
 from ..utils.std_logger import Logger
 from .pooling import (
-    MultiHeadVectorAttnPooling,
     apply_pooling,
     build_pooling_modules,
     validate_pooling_name,
@@ -35,7 +34,7 @@ def _pool_all_layers(
     head: nn.Module,
 ) -> torch.Tensor:
     """Pool each layer [B,T,D] with head's pooling -> [B,D,L].
-    Pool each layer feature map with the head pooling operator.
+    Caller must pass DC-transformed features when using ConcatDC/DistillVC so dimension matches head.
     """
     B, T, D, L = all_layer_features.shape
     pooling = getattr(head, "pooling", "mean")
@@ -73,13 +72,6 @@ class ClassificationHead3(nn.Module):
             self.pooling,
             d_model=config.hidden_size * 2,
             **_pool_kw,
-            attn_factory=lambda d_model: MultiHeadVectorAttnPooling(
-                d_model=d_model,
-                num_heads=8,
-                temperature=1.0,
-                gated=True,
-                dropout=0.1,
-            ),
         )
         self.dense = nn.Linear(config.hidden_size*2, config.hidden_size)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
@@ -133,13 +125,6 @@ class ClassificationHead2(nn.Module):
             self.pooling,
             d_model=config.hidden_size,
             **_pool_kw,
-            attn_factory=lambda d_model: MultiHeadVectorAttnPooling(
-                d_model=d_model,
-                num_heads=8,
-                temperature=1.0,
-                gated=True,
-                dropout=0.1,
-            ),
         )
         if self.pooling == "attn_structured" and self.attn_pool is not None:
             log_revised_pooling_info("attn_structured", self.attn_pool)
@@ -191,13 +176,6 @@ class ClassificationHead(nn.Module):
             self.pooling,
             d_model=config.hidden_size,
             **_pool_kw,
-            attn_factory=lambda d_model: MultiHeadVectorAttnPooling(
-                d_model=d_model,
-                num_heads=6,
-                temperature=1.0,
-                gated=True,
-                dropout=0.1,
-            ),
         )
     def forward(self, features, attention_mask=None, **kwargs):
         x = apply_pooling(

@@ -16,12 +16,12 @@ import pandas as pd
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
-POOLING_ORDER = ["mean", "max", "attn", "fft_latent_attn_gate"]
+POOLING_ORDER = ["mean", "max", "attn_structured", "FLaG"]
 POOLING_LABELS = {
     "mean": "Mean",
     "max": "Max",
-    "attn": "Attn",
-    "fft_latent_attn_gate": "FFT-LAG",
+    "attn_structured": "attn",
+    "FLaG": "FFT-LAG",
 }
 PEPTIDE_COLORS = plt.cm.tab10.colors[:5]
 

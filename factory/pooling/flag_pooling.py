@@ -34,8 +34,8 @@ class FFTLatentAttentionGatePooling(nn.Module):
             raise ValueError(
                 f"2*d_model={freq_dim} must be divisible by num_heads={num_heads}"
             )
-        if time_pool not in {"mean", "max", "attn"}:
-            raise ValueError(f"time_pool must be 'mean', 'max', or 'attn', got {time_pool}")
+        if time_pool not in {"mean", "max"}:
+            raise ValueError(f"time_pool must be 'mean' or 'max', got {time_pool}")
 
         self.d_model = d_model
         self.freq_dim = freq_dim
@@ -46,16 +46,6 @@ class FFTLatentAttentionGatePooling(nn.Module):
         self.use_gate = bool(use_gate)
         self.use_latent = bool(use_latent)
         self.eps = float(eps)
-
-        if time_pool == "attn":
-            self.time_query = nn.Parameter(torch.randn(1, 1, d_model) * 0.02)
-            self.time_attn = nn.MultiheadAttention(
-                embed_dim=d_model,
-                num_heads=max(1, min(num_heads, d_model)),
-                dropout=dropout,
-                batch_first=True,
-            )
-            self.time_norm = nn.LayerNorm(d_model)
 
         if self.use_latent:
             self.latents = nn.Parameter(torch.randn(num_latents, freq_dim) * 0.02)
@@ -152,7 +142,7 @@ class FFTLatentAttentionGatePooling(nn.Module):
         attention_mask: Optional[torch.Tensor] = None,
         return_pre_projection: bool = False,
     ):
-        B, T, D = features.shape
+        _, T, D = features.shape
         if D != self.d_model:
             raise ValueError(f"Expected last dim {self.d_model}, got {D}")
 
@@ -169,15 +159,6 @@ class FFTLatentAttentionGatePooling(nn.Module):
 
         if self.time_pool == "mean":
             pooled = masked_mean_pooling(time_tokens, attention_mask, eps=self.eps)
-        elif self.time_pool == "attn":
-            query = self.time_query.expand(B, -1, -1)
-            key_padding_mask = None
-            if attention_mask is not None:
-                key_padding_mask = (attention_mask == 0)
-            attn_out, _ = self.time_attn(
-                query, time_tokens, time_tokens, key_padding_mask=key_padding_mask
-            )
-            pooled = self.time_norm(attn_out).squeeze(1)
         else:
             pooled = masked_max_pooling(time_tokens, attention_mask)
 

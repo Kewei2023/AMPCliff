@@ -9,7 +9,7 @@ Merge four seed_metrics_* CSV files (same pooling family) into one workbook:
 
 Pooling kinds:
 
-  - ``mean``, ``max``, ``attn``: files named
+  - ``mean``, ``max``, ``attn_structured``: files named
     ``seed_metrics_<kind>_pooling_<model>_<dataset>.csv``
   - ``se``: SE pooling files ``seed_metrics_se_pooling_<model>_<dataset>.csv``
 
@@ -86,9 +86,9 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument(
         "--pooling",
-        choices=("attn","local_stft", "local_stft_v2","last","latent_attn"),
+        choices=("attn_structured","last","latent_attn","mltp_paper","FLaG","mean","max"),
         required=True,
-        help="Pooling family: mean/max/attn (baseline) or se (SE pooling filenames)",
+        help="Pooling family: mean/max/attn_structured (baseline) or se (SE pooling filenames)",
     )
     ap.add_argument(
         "--statics-root",

@@ -86,12 +86,9 @@ def test_sample_attn_matrix_batch_dim():
     assert out.shape == (4, 10)
 
 
-def test_gate_input_mode_from_pooling_v3():
-    assert gate_input_mode_from_pooling("fft_latent_attn_gate_v3") == "concat"
-    assert gate_input_mode_from_pooling("fft_latent_attn_gate_v3_1") == "concat"
-    assert gate_input_mode_from_pooling("fft_latent_attn_gate_v3_2") == "concat"
-    assert gate_input_mode_from_pooling("fft_latent_attn_gate_v3_3") == "concat"
-    assert gate_input_mode_from_pooling("fft_latent_attn_gate") == "mean"
+def test_gate_input_mode_from_pooling_flag():
+    assert gate_input_mode_from_pooling("FLaG") == "mean"
+    assert gate_input_mode_from_pooling("anything") == "mean"
 
 
 def test_gate_input_concat_shape():

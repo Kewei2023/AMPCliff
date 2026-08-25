@@ -7,10 +7,10 @@ set -euo pipefail
 # =============================================================================
 # run_baseline_pooling_train.sh
 #
-# 单次回归训练：model.regression.pooling 为 mean / max / attn（经典 pooling，非 se_pooling）。
+# 单次回归训练：model.regression.pooling 为 mean / max / attn_structured / FLaG 等（registry 支持的 pooling）。
 #
 # 必设环境变量：
-#   POOLING — mean | max | attn
+#   POOLING — mean | max | attn_structured | FLaG | ...
 #
 # 其他环境变量（常用）：
 #   MODEL_TYPE, DATASET, CONDITION, DIFF, THRESHOLD
@@ -27,18 +27,18 @@ set -euo pipefail
 #
 # 示例：
 #   DRY_RUN=1 POOLING=mean MODEL_TYPE=esm2_t12 DATASET=e_coli bash evaluation_scripts/run_baseline_pooling_train.sh
-#   DRY_RUN=1 POOLING=attn RANDOM_SEED=3 MODEL_TYPE=esm2_t12 DATASET=e_coli bash evaluation_scripts/run_baseline_pooling_train.sh
+#   DRY_RUN=1 POOLING=attn_structured RANDOM_SEED=3 MODEL_TYPE=esm2_t12 DATASET=e_coli bash evaluation_scripts/run_baseline_pooling_train.sh
 # =============================================================================
 
 REPO_ROOT="${REPO_ROOT:-/data/home/scv6872/run/kwli/AMPCliff}"
 
 
 if [[ -z "${POOLING:-}" ]]; then
-  echo "ERROR: POOLING must be set to one of: mean, max, attn" >&2
+  echo "ERROR: POOLING must be set (see allowed list)" >&2
   exit 1
 fi
 case "${POOLING}" in
-  mean|max|attn|last|mltp_paper|latent_attn|attn_structured|fft_latent_attn_gate) ;;
+  mean|max|last|mltp_paper|latent_attn|attn_structured|FLaG) ;;
   *)
     echo "ERROR: Invalid POOLING='${POOLING}'" >&2
     exit 1
@@ -133,7 +133,7 @@ if [[ -n "${RANDOM_SEED:-}" ]]; then
 fi
 
 echo "=========================================="
-echo "Baseline pooling train (mean / max / attn)"
+echo "Baseline pooling train"
 echo "=========================================="
 echo "REPO_ROOT=${REPO_ROOT}"
 # echo "PYTHON_BIN=${PYTHON_BIN}"

@@ -29,7 +29,7 @@ import matplotlib.pyplot as plt
 
 ABLATION_DISPLAY_ORDER = [
     "mean",
-    "attn",
+    "attn_structured",
     "latent_attn",
     "fft_latent_only",
     "fft_gate_only",
@@ -44,7 +44,7 @@ ABLATION_DISPLAY_ORDER = [
 
 ABLATION_LABELS = {
     "mean": "Mean",
-    "attn": "Attn",
+    "attn_structured": "attn",
     "latent_attn": "Latent Attn",
     "fft_latent_only": "FFT-LATENT",
     "fft_gate_only": "FFT-GATE",

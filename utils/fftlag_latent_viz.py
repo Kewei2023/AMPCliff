@@ -174,15 +174,12 @@ def _vector_cosine(a: torch.Tensor, b: torch.Tensor) -> float:
 
 
 def gate_input_mode_from_pooling(pooling: str) -> GateInputMode:
-    """Map pooling name to gate_input aggregation used in training."""
-    name = str(pooling).strip()
-    if name in (
-        "fft_latent_attn_gate_v3",
-        "fft_latent_attn_gate_v3_1",
-        "fft_latent_attn_gate_v3_2",
-        "fft_latent_attn_gate_v3_3",
-    ):
-        return "concat"
+    """Map pooling name to gate_input aggregation used in training.
+
+    Release only ships FFTLatentAttentionGatePooling (public id FLaG), which
+    uses mean aggregation over latents. Historical v3/concat variants removed.
+    """
+    _ = str(pooling).strip()
     return "mean"
 
 
@@ -193,8 +190,8 @@ def gate_input_from_latent_out(
     """
     (L, 2D) or (B, L, 2D) -> gate_input aligned with training.
 
-    mean: FFTLatentAttentionGatePooling (V1)
-    concat: FFTLatentAttentionGateV3Pooling
+    mean: FFTLatentAttentionGatePooling (public pooling id FLaG)
+    concat: legacy (removed); kept only for API compatibility
     """
     if mode not in ("mean", "concat"):
         raise ValueError(f"gate_input mode must be 'mean' or 'concat', got {mode!r}")

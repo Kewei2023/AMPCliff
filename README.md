@@ -6,7 +6,7 @@
 
 *Built on [AMPCliff](https://github.com/Kewei2023/AMPCliff)*
 
-**FLaG** (Frequency-Domain Latent Attention Gating for Cross-Domain Token Aggregation) is an independent research project built on [AMPCliff](https://github.com/Kewei2023/AMPCliff) for antimicrobial peptide **activity cliff** prediction. AMPCliff provides the activity cliff dataset, benchmark framework, and ESM2 downstream training infrastructure; FLaG introduces the core pooling method `fft_latent_attn_gate` along with mechanism analysis and ablation experiments.
+**FLaG** (Frequency-Domain Latent Attention Gating for Cross-Domain Token Aggregation) is an independent research project built on [AMPCliff](https://github.com/Kewei2023/AMPCliff) for antimicrobial peptide **activity cliff** prediction. AMPCliff provides the activity cliff dataset, benchmark framework, and ESM2 downstream training infrastructure; FLaG introduces the core pooling method `FLaG` along with mechanism analysis and ablation experiments.
 
 Code is hosted on the **`FLaG` branch** of the AMPCliff repository (the `AMPCliff` Python package name and directory layout are retained for historical reasons).
 
@@ -17,6 +17,7 @@ Code is hosted on the **`FLaG` branch** of the AMPCliff repository (the `AMPClif
 - [Setup & Environment](#setup--environment)
 - [Data & Model Weights](#data--model-weights)
 - [Training FLaG](#training-flag)
+- [Running](#running)
 - [Five Mechanism Experiments](#five-mechanism-experiments)
 - [Ablation Scripts](#ablation-scripts)
 - [Key Configuration](#key-configuration)
@@ -85,7 +86,7 @@ FLaG pooling is implemented as `FFTLatentAttentionGatePooling` in `factory/pooli
 
 **rFFT → latent attention → gate → iFFT → time pooling**
 
-Config key: `model.regression.pooling=fft_latent_attn_gate`
+Config key: `model.regression.pooling=FLaG`
 
 ### Single Run
 
@@ -93,7 +94,7 @@ Config key: `model.regression.pooling=fft_latent_attn_gate`
 export REPO_ROOT=/path/to/AMPCliff
 cd "${REPO_ROOT}"
 
-POOLING=fft_latent_attn_gate MODEL_TYPE=esm2_t6 DATASET=s_aureus \
+POOLING=FLaG MODEL_TYPE=esm2_t6 DATASET=s_aureus \
   bash evaluation_scripts/run_baseline_pooling_train.sh
 ```
 
@@ -106,10 +107,10 @@ Sharded parallel scripts (set `POOLINGS` for baseline comparison):
 
 ```bash
 # FLaG only
-POOLINGS="fft_latent_attn_gate" bash evaluation_scripts/run_baseline_pooling_grid_2x2_seeds_1.sh
+POOLINGS="FLaG" bash evaluation_scripts/run_baseline_pooling_grid_2x2_seeds_1.sh
 
-# Compare against mean / max / attn
-POOLINGS="mean max attn fft_latent_attn_gate" bash evaluation_scripts/run_baseline_pooling_grid_2x2_seeds_1.sh
+# Compare against mean / max / attn_structured
+POOLINGS="mean max attn_structured FLaG" bash evaluation_scripts/run_baseline_pooling_grid_2x2_seeds_1.sh
 # seeds_2.sh ~ seeds_4.sh are the remaining shards
 ```
 
@@ -123,9 +124,91 @@ python evaluation_scripts/aggregate_pooling_seed_metrics.py
 
 ---
 
+## Running
+
+Quick entry points for baseline comparison and the five mechanism experiments (each with run + plot). More background: [Five Mechanism Experiments](#five-mechanism-experiments).
+
+### 1. Baseline comparison (train + aggregate)
+
+Train FLaG against common pooling baselines on the 2×2 grid (esm2_t6/t12 × e_coli/s_aureus) with multiple seeds (shards 1–4):
+
+```bash
+POOLINGS="mean max attn_structured last latent_attn mltp_paper FLaG" \
+  bash evaluation_scripts/run_baseline_pooling_grid_2x2_seeds_1.sh
+# Also run seeds_2 / _3 / _4 (same POOLINGS) in parallel terminals or jobs.
+
+# Single-run smoke test
+POOLING=FLaG MODEL_TYPE=esm2_t6 DATASET=s_aureus \
+  bash evaluation_scripts/run_baseline_pooling_train.sh
+```
+
+Aggregate seed metrics and export tables:
+
+```bash
+bash evaluation_scripts/run_aggregate_baseline_pooling_seed_metrics.sh
+# or
+python evaluation_scripts/aggregate_pooling_seed_metrics.py
+python evaluation_scripts/merge_seed_metrics_pooling_csv_to_xlsx.py
+```
+
+Outputs land under `outputs/ablation_new_data/` (and related statics paths used by the aggregate scripts).
+
+### 2. Five mechanism experiments (run + plot)
+
+Requires trained FLaG checkpoints (`POOLING=FLaG`). Exp1–4 outputs go under `outputs/analysis/fftlag_mechanism/`; Exp5 under `outputs/analysis/dc_validation/` (presets also in [`paper/results/exp5/`](paper/results/exp5/)). Background and configs: [Five Mechanism Experiments](#five-mechanism-experiments).
+
+**Exp1 — Band knockout**
+
+```bash
+bash evaluation_scripts/run_fftlag_exp1_fulltest.sh
+# optional: sbatch evaluation_scripts/run_fftlag_exp1_fulltest_slurm.sh
+python evaluation_scripts/aggregate_fftlag_mechanism_seeds.py
+python evaluation_scripts/plot_fftlag_exp1_fulltest_violin.py
+python evaluation_scripts/plot_fftlag_exp1_representative_heatmaps.py
+```
+
+**Exp2 — Gate PSD**
+
+```bash
+bash evaluation_scripts/run_fftlag_exp2_fulltest.sh
+python evaluation_scripts/plot_fftlag_exp2_fulltest_combined.py
+```
+
+**Exp3 — Token knockout (|ΔMSE|)**
+
+```bash
+bash evaluation_scripts/run_fftlag_exp3_fulltest.sh
+# or two-GPU revised poolings:
+# bash evaluation_scripts/run_fftlag_exp3_revised_poolings_parallel.sh
+python evaluation_scripts/aggregate_exp3_token_knockout_mse_diff.py --force
+python evaluation_scripts/plot_fftlag_exp3_mse_diff_violin_revised.py --force
+python evaluation_scripts/export_fftlag_exp3_token_knockout_data.py
+```
+
+**Exp4 — Latent viz**
+
+```bash
+bash evaluation_scripts/run_fftlag_exp4_fulltest.sh
+python evaluation_scripts/plot_fftlag_exp4_fulltest_latent_query_dist.py
+# optional attn-score variant:
+# bash evaluation_scripts/run_fftlag_exp4_attn_score_raw.sh
+# python evaluation_scripts/plot_fftlag_exp4_attn_score_raw.py
+```
+
+**Exp5 — DC–property validation**
+
+```bash
+bash evaluation_scripts/run_dc_validation_v2.sh
+python evaluation_scripts/plot_dc_validation_combined_figure_v3.py
+python evaluation_scripts/plot_property_dc_knockout.py
+python evaluation_scripts/plot_multi_property_band_sensitivity_combined.py
+```
+
+---
+
 ## Five Mechanism Experiments
 
-Mechanism experiments analyze FLaG's internal behavior on the activity cliff task. **Train FLaG models first** (checkpoints are resolved by default from `outputs/ablation_new_data/{model}_fft_latent_attn_gate_{dataset}_diff5/seed_*/data/model.pth`).
+Mechanism experiments analyze FLaG's internal behavior on the activity cliff task. **Train FLaG models first** (checkpoints are resolved by default from `outputs/ablation_new_data/{model}_FLaG_{dataset}_diff5/seed_*/data/model.pth`).
 
 ### Exp1–4: mechanism statistics on the full test set
 
@@ -207,7 +290,7 @@ bash evaluation_scripts/run_fftlag_mechanism_experiments.sh
 
 ## Ablation Scripts
 
-### A. Pooling Baseline Comparison (mean / max / attn / FLaG)
+### A. Pooling Baseline Comparison (mean / max / attn_structured / FLaG)
 
 | Script | Role |
 |--------|------|
@@ -230,7 +313,7 @@ bash evaluation_scripts/run_fftlag_mechanism_experiments.sh
 | `evaluation_scripts/merge_seed_metrics_pooling_csv_to_xlsx.py` | Merge seed metrics |
 | `run_ablation_protein.sh` | Multi-component pooling ablation batch training (see note below) |
 
-Supported poolings: `mean`, `max`, `attn`, `last`, `latent_attn`, `attn_structured`, `mltp_paper`, `fft_latent_attn_gate`.
+Supported poolings: `mean`, `max`, `last`, `latent_attn`, `attn_structured`, `mltp_paper`, `FLaG`.
 
 ```bash
 POOLING=attn_structured MODEL_TYPE=esm2_t6 DATASET=s_aureus bash evaluation_scripts/run_baseline_pooling_train.sh
@@ -248,12 +331,12 @@ FLaG-related keys in `configs/downstream.yaml`:
 ```yaml
 features.type: LLM
 model.regression.version: esm2_t6   # or esm2_t12
-model.regression.pooling: fft_latent_attn_gate
+model.regression.pooling: FLaG
 model.regression.apply: none
-model.regression.pooling_config.fft_latent_attn_gate:
+model.regression.pooling_config.FLaG:
   num_heads: 4
   num_latents: 8
-  time_pool: max        # max | mean | attn
+  time_pool: max        # max | mean
   gate_residual: true
   use_gate: true
   use_latent: true
