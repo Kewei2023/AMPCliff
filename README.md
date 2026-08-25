@@ -212,13 +212,13 @@ Mechanism experiments analyze FLaG's internal behavior on the activity cliff tas
 
 ### Exp1–4: mechanism statistics on the full test set
 
-Exp1–4 reuse the original mechanism probes; the main update is **full-test coverage** (all test peptides) instead of a 30-peptide manifest subset. Exp1 plots report **absolute** \(\lvert\Delta\mathrm{MSE}\rvert\).
+Exp1–4 reuse the original mechanism probes; the main update is **full-test coverage** (all test peptides) instead of a 30-peptide manifest subset. Exp1 plots report **absolute** $\lvert\Delta\mathrm{MSE}\rvert$.
 
 | Exp | Purpose | Main Python Script | Full-test batch |
 |-----|---------|-------------------|-----------------|
 | **Exp1** Band knockout | Sequence band notch sensitivity | `downstream_evaluate_spectrual_filter.py` | `evaluation_scripts/run_fftlag_exp1_fulltest.sh` (+ `_slurm`) |
 | **Exp2** Gate PSD | Spectral energy change before/after gate | `downstream_evaluate_psd_gate.py` | `evaluation_scripts/run_fftlag_exp2_fulltest.sh` (+ `_slurm`) |
-| **Exp3** Token knockout | Token perturbation response (\(\lvert\Delta\mathrm{MSE}\rvert\)) | `downstream_evaluate_knockout.py` | `evaluation_scripts/run_fftlag_exp3_fulltest.sh` (+ `_slurm`); parallel revised poolings: `run_fftlag_exp3_revised_poolings_parallel.sh` |
+| **Exp3** Token knockout | Token perturbation response ($\lvert\Delta\mathrm{MSE}\rvert$) | `downstream_evaluate_knockout.py` | `evaluation_scripts/run_fftlag_exp3_fulltest.sh` (+ `_slurm`); parallel revised poolings: `run_fftlag_exp3_revised_poolings_parallel.sh` |
 | **Exp4** Latent viz | Latent query band mass distribution | `downstream_evaluate_fft_lag_latent.py` | `evaluation_scripts/run_fftlag_exp4_fulltest.sh` |
 
 Legacy subset orchestration (30 peptides): `evaluation_scripts/run_fftlag_mechanism_experiments.sh` (`RUN_EXPS=1,2,4` by default; Exp3 separate).
@@ -248,7 +248,7 @@ The revised combined violin plots 7 poolings (mean / max / attn_structured→att
 | Step | Role | Scripts |
 |------|------|---------|
 | 1 | Build `dc_property_table.csv` | `build_dc_property_table.py`, `dc_property_utils.py` |
-| 2 | Last-layer DCT \(C_0\)–\(C_3\) | `extract_dct_coefficient_features.py` |
+| 2 | Last-layer DCT $C_0$–$C_3$ | `extract_dct_coefficient_features.py` |
 | 3 | **Main exp. 1** DC property decoding | `analyze_dc_property_encoding.py`, `dc_property_probe.py` |
 | 4 | **Main exp. 2A** Species×property activity | `analyze_species_property_effects.py` |
 | 5 | **Main exp. 2B** Property-bucket band/DC KO | `run_dc_property_knockout_fulltest.sh`, `analyze_property_dc_tables.py`, `plot_property_dc_knockout.py` |
@@ -259,7 +259,7 @@ Official Exp5 orchestration:
 bash evaluation_scripts/run_dc_validation_v2.sh
 ```
 
-Exp5 reports **both** signed \(\Delta\mathrm{MSE}\) and \(\lvert\Delta\mathrm{MSE}\rvert\) (see Step-5 tables/figures). Preset result snapshots (no large `.npz` features) live under [`paper/results/exp5/`](paper/results/exp5/).
+Exp5 reports **both** signed $\Delta\mathrm{MSE}$ and $\lvert\Delta\mathrm{MSE}\rvert$ (see Step-5 tables/figures). Preset result snapshots (no large `.npz` features) live under [`paper/results/exp5/`](paper/results/exp5/).
 
 Optional / legacy helix-structure bucketing from Exp1/2/4 aggregates: `run_exp5_structure_fulltest.sh` / `analyze_fft_lag_mechanism_by_structure.py` (not required for the core Exp5 evidence chain).
 

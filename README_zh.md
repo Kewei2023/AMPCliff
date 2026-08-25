@@ -212,13 +212,13 @@ python evaluation_scripts/plot_multi_property_band_sensitivity_combined.py
 
 ### Exp1–4：全 test 集上的机制统计
 
-Exp1–4 仍是原机制探针；相对旧版，主要升级是覆盖 **全部 test 肽**（fulltest），而非 30 肽 manifest 子集。Exp1 出图使用 **绝对值** \(\lvert\Delta\mathrm{MSE}\rvert\)。
+Exp1–4 仍是原机制探针；相对旧版，主要升级是覆盖 **全部 test 肽**（fulltest），而非 30 肽 manifest 子集。Exp1 出图使用 **绝对值** $\lvert\Delta\mathrm{MSE}\rvert$。
 
 | Exp | 目的 | 主 Python 脚本 | Fulltest 批处理 |
 |-----|------|----------------|-----------------|
 | **Exp1** Band knockout | 序列频带 notch 敏感性 | `downstream_evaluate_spectrual_filter.py` | `evaluation_scripts/run_fftlag_exp1_fulltest.sh`（及 `_slurm`） |
 | **Exp2** Gate PSD | gate 前后频谱能量变化 | `downstream_evaluate_psd_gate.py` | `evaluation_scripts/run_fftlag_exp2_fulltest.sh`（及 `_slurm`） |
-| **Exp3** Token knockout | token 扰动响应分布（\(\lvert\Delta\mathrm{MSE}\rvert\)） | `downstream_evaluate_knockout.py` | `evaluation_scripts/run_fftlag_exp3_fulltest.sh`（及 `_slurm`）；并行 revised pooling：`run_fftlag_exp3_revised_poolings_parallel.sh` |
+| **Exp3** Token knockout | token 扰动响应分布（$\lvert\Delta\mathrm{MSE}\rvert$） | `downstream_evaluate_knockout.py` | `evaluation_scripts/run_fftlag_exp3_fulltest.sh`（及 `_slurm`）；并行 revised pooling：`run_fftlag_exp3_revised_poolings_parallel.sh` |
 | **Exp4** Latent viz | latent query 频带质量分布 | `downstream_evaluate_fft_lag_latent.py` | `evaluation_scripts/run_fftlag_exp4_fulltest.sh` |
 
 旧版 30 肽子集调度：`evaluation_scripts/run_fftlag_mechanism_experiments.sh`（默认 `RUN_EXPS=1,2,4`；Exp3 单独跑）。
@@ -248,7 +248,7 @@ Revised combined violin 默认绘制 7 个 pooling（mean / max / attn_structure
 | 步骤 | 角色 | 脚本 |
 |------|------|------|
 | 1 | 生成 `dc_property_table.csv` | `build_dc_property_table.py`、`dc_property_utils.py` |
-| 2 | 最后一层 DCT \(C_0\)–\(C_3\) | `extract_dct_coefficient_features.py` |
+| 2 | 最后一层 DCT $C_0$–$C_3$ | `extract_dct_coefficient_features.py` |
 | 3 | **主实验一** DC property decoding | `analyze_dc_property_encoding.py`、`dc_property_probe.py` |
 | 4 | **主实验二 A** 物种×属性活性 | `analyze_species_property_effects.py` |
 | 5 | **主实验二 B** 属性分桶 band/DC KO | `run_dc_property_knockout_fulltest.sh`、`analyze_property_dc_tables.py`、`plot_property_dc_knockout.py` |
@@ -259,7 +259,7 @@ Exp5 官方编排：
 bash evaluation_scripts/run_dc_validation_v2.sh
 ```
 
-Exp5 同时产出 **signed** \(\Delta\mathrm{MSE}\) 与 \(\lvert\Delta\mathrm{MSE}\rvert\)。预置结果（不含大体量 `.npz`）见 [`paper/results/exp5/`](paper/results/exp5/)。
+Exp5 同时产出 **signed** $\Delta\mathrm{MSE}$ 与 $\lvert\Delta\mathrm{MSE}\rvert$。预置结果（不含大体量 `.npz`）见 [`paper/results/exp5/`](paper/results/exp5/)。
 
 可选/遗留：基于 Exp1/2/4 聚合的 helix 结构分桶（`run_exp5_structure_fulltest.sh` / `analyze_fft_lag_mechanism_by_structure.py`），**不是** Exp5 最小证据链的必选项。
 
