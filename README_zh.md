@@ -186,14 +186,16 @@ python evaluation_scripts/plot_fftlag_exp3_mse_diff_violin_revised.py --force
 python evaluation_scripts/export_fftlag_exp3_token_knockout_data.py
 ```
 
-**Exp4 — Latpython evaluation_scripts/plot_fftlag_exp4_fulltest_latent_query_dist.py
-# optional attn-score variant / combined figure:
+**Exp4 — Latent viz**
+
+```bash
+bash evaluation_scripts/run_fftlag_exp4_fulltest.sh
+python evaluation_scripts/plot_fftlag_exp4_fulltest_latent_query_dist.py
+# 可选 attn-score 变体 / 合成图：
 # bash evaluation_scripts/run_fftlag_exp4_attn_score_raw.sh
 # python evaluation_scripts/plot_fftlag_exp4_attn_score_raw.py
 # python evaluation_scripts/aggregate_fftlag_exp4_attn_score_raw.py
 python evaluation_scripts/plot_fftlag_exp4_frequency_attention_combined.py
-_raw.sh
-# python evaluation_scripts/plot_fftlag_exp4_attn_score_raw.py
 ```
 
 **Exp5 — DC–理化性质验证**
@@ -213,7 +215,7 @@ python evaluation_scripts/plot_multi_property_band_sensitivity_combined.py
 
 ### Exp1–4：全 test 集上的机制统计
 
-Exp1–4 仍是原机制探针；相对旧版，主要升级是覆盖 **全部 test 肽**（fulltest），而非 30 肽 manifest 子集。Exp1 出图使用 **绝对值** $\lvert\Delta\mathrm{MSE}\rvert$。
+Exp1–4 仍是原机制探针；相对旧版，主要升级是覆盖 **全部 test 肽**（fulltest），而非 30 肽 manifest 子集。Exp1 出图使用 **绝对值** $\lvert\Delta\mathrm{P}\rvert$（CSV 列仍为 `mse_diff`，图注为 $|\Delta\mathrm{P}|$）。
 
 | Exp | 目的 | 主 Python 脚本 | Fulltest 批处理 |
 |-----|------|----------------|-----------------|
@@ -374,7 +376,9 @@ python downstream_evaluate.py \
 | `downstream_evaluate_knockout.py` | Mechanism | Exp3：token knockout |
 | `downstream_evaluate_fft_lag_latent.py` | Mechanism | Exp4：latent 可视化 |
 | `evaluation_scripts/run_fftlag_exp{1,2,3,4}_fulltest.sh` | Mechanism | Exp1–4 全 test 批处理 |
-| `evaluation_scripts/plot_fftlag_exp1_fulltest_violin.py` | Mechanism | Exp1 \|ΔMSE\| 小提琴图 |
+| `evaluation_scripts/plot_fftlag_exp1_fulltest_violin.py` | Mechanism | Exp1 $|\Delta\mathrm{P}|$ 小提琴图 |
+| `evaluation_scripts/plot_fftlag_exp1_violin_heatmap_composite.py` | Mechanism | Exp1 violin+heatmap 合成图 |
+| `evaluation_scripts/plot_fftlag_exp4_frequency_attention_combined.py` | Mechanism | Exp4 频域 attention 合成图 |
 | `analyze_fft_lag_mechanism_by_structure.py` | Mechanism | Exp5 可选结构分桶 |
 | `evaluation_scripts/run_dc_validation_v2.sh` | Mechanism | Exp5：官方流水线（Step 1–5） |
 | `build_dc_property_table.py` | Mechanism | Exp5 Step 1：属性表 |

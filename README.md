@@ -215,7 +215,7 @@ Mechanism experiments analyze FLaG's internal behavior on the activity cliff tas
 
 ### Exp1–4: mechanism statistics on the full test set
 
-Exp1–4 reuse the original mechanism probes; the main update is **full-test coverage** (all test peptides) instead of a 30-peptide manifest subset. Exp1 plots report **absolute** $\lvert\Delta\mathrm{MSE}\rvert$.
+Exp1–4 reuse the original mechanism probes; the main update is **full-test coverage** (all test peptides) instead of a 30-peptide manifest subset. Exp1 plots report **absolute** $\lvert\Delta\mathrm{P}\rvert$ (CSV column remains `mse_diff`; figure labels use $|\Delta\mathrm{P}|$).
 
 | Exp | Purpose | Main Python Script | Full-test batch |
 |-----|---------|-------------------|-----------------|
@@ -376,7 +376,9 @@ python downstream_evaluate.py \
 | `downstream_evaluate_knockout.py` | Mechanism | Exp3: token knockout |
 | `downstream_evaluate_fft_lag_latent.py` | Mechanism | Exp4: latent visualization |
 | `evaluation_scripts/run_fftlag_exp{1,2,3,4}_fulltest.sh` | Mechanism | Exp1–4 full-test batch runners |
-| `evaluation_scripts/plot_fftlag_exp1_fulltest_violin.py` | Mechanism | Exp1 \|ΔMSE\| violin plots |
+| `evaluation_scripts/plot_fftlag_exp1_fulltest_violin.py` | Mechanism | Exp1 $|\Delta\mathrm{P}|$ violin plots |
+| `evaluation_scripts/plot_fftlag_exp1_violin_heatmap_composite.py` | Mechanism | Exp1 violin+heatmap composite |
+| `evaluation_scripts/plot_fftlag_exp4_frequency_attention_combined.py` | Mechanism | Exp4 frequency-attention combined figure |
 | `analyze_fft_lag_mechanism_by_structure.py` | Mechanism | Exp5 optional structure bucketing |
 | `evaluation_scripts/run_dc_validation_v2.sh` | Mechanism | Exp5: official pipeline (Steps 1–5) |
 | `build_dc_property_table.py` | Mechanism | Exp5 Step 1: property table |
