@@ -33,29 +33,6 @@ import torch
 import json
 from typing import Any, Dict, List, Optional, Set, Tuple
 
-_DEBUG_LOG = Path(__file__).resolve().parent / ".cursor" / "debug-498d08.log"
-
-
-def _debug_log(hypothesis_id: str, location: str, message: str, data: dict) -> None:
-    # #region agent log
-    try:
-        import time as _time
-
-        payload = {
-            "sessionId": "498d08",
-            "hypothesisId": hypothesis_id,
-            "location": location,
-            "message": message,
-            "data": data,
-            "timestamp": int(_time.time() * 1000),
-        }
-        _DEBUG_LOG.parent.mkdir(parents=True, exist_ok=True)
-        with open(_DEBUG_LOG, "a", encoding="utf-8") as _df:
-            _df.write(json.dumps(payload, ensure_ascii=False) + "\n")
-    except Exception:
-        pass
-    # #endregion
-
 
 def _resolve_data_file(orig_cwd: str, template: str, **kwargs) -> str:
     """Resolve template placeholders and anchor relative paths to Hydra orig cwd."""
@@ -266,20 +243,6 @@ def main(cfg: DictConfig):
                 threshold=threshold,
                 dataset=cfg.data[cfg.task.type].get('dataset')
             )
-            # #region agent log
-            _debug_log(
-                "H1",
-                "downstream_evaluate_knockout.py:train_path",
-                "resolved train csv",
-                {
-                    "orig_cwd": orig_cwd,
-                    "hydra_cwd": os.getcwd(),
-                    "train_file_path": train_file_path,
-                    "exists": os.path.isfile(train_file_path),
-                },
-            )
-            # #endregion
-
             train_dataloader = make_loader(
                                             local_rank=local_rank,
                                             dataset_file=train_file_path,

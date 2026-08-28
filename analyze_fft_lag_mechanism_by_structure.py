@@ -52,7 +52,7 @@ DCT_BAND_MAPPING_CAPTION_EN = (
     "the lowest-frequency (slowest along-sequence) components and Band 7 the highest-frequency "
     "(most local) components; band boundaries depend on L (e.g. at L=25, Band 7 spans DCT "
     "indices [11,25) and contains 14 coefficients). Band knockout applies a notch mask on "
-    "the target band's DCT coefficients (with L2 norm preservation), followed by inverse DCT. "
+    "the target band's DCT coefficients, followed by inverse DCT. "
     "A split requires L >= k (minimum L=8 for k=8). At L=9, Bands 0--6 each span one DCT "
     "coefficient and Band 7 spans [7,9) (two coefficients); at L=25, Band 7 spans DCT "
     "indices [11,25) and contains 14 coefficients)."

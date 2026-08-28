@@ -165,7 +165,7 @@ bash evaluation_scripts/run_fftlag_exp1_fulltest.sh
 python evaluation_scripts/aggregate_fftlag_mechanism_seeds.py
 python evaluation_scripts/plot_fftlag_exp1_fulltest_violin.py
 python evaluation_scripts/plot_fftlag_exp1_representative_heatmaps.py
-python evaluation_scripts/plot_fftlag_exp1_violin_heatmap_composite.py
+python evaluation_scripts/plot_exp1_abs_mse_violin_heatmap_composite_allblue_violin_u1.py
 ```
 
 **Exp2 — Gate PSD**
@@ -377,7 +377,7 @@ python downstream_evaluate.py \
 | `downstream_evaluate_fft_lag_latent.py` | Mechanism | Exp4: latent visualization |
 | `evaluation_scripts/run_fftlag_exp{1,2,3,4}_fulltest.sh` | Mechanism | Exp1–4 full-test batch runners |
 | `evaluation_scripts/plot_fftlag_exp1_fulltest_violin.py` | Mechanism | Exp1 $|\Delta\mathrm{P}|$ violin plots |
-| `evaluation_scripts/plot_fftlag_exp1_violin_heatmap_composite.py` | Mechanism | Exp1 violin+heatmap composite |
+| `evaluation_scripts/plot_exp1_abs_mse_violin_heatmap_composite_allblue_violin_u1.py` | Mechanism | Exp1 violin+heatmap composite |
 | `evaluation_scripts/plot_fftlag_exp4_frequency_attention_combined.py` | Mechanism | Exp4 frequency-attention combined figure |
 | `analyze_fft_lag_mechanism_by_structure.py` | Mechanism | Exp5 optional structure bucketing |
 | `evaluation_scripts/run_dc_validation_v2.sh` | Mechanism | Exp5: official pipeline (Steps 1–5) |

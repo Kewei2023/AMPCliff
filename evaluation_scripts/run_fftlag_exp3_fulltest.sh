@@ -127,9 +127,10 @@ resolve_exp_root() {
 resolve_ckpt_dir() {
   local seed_root="$1"
   local mp
-  # Prefer largest model.pth when multiple checkpoints exist (e.g. last pooling).
-  mp="$(find "${seed_root}" -type f -name model.pth -printf '%s %p\n' 2>/dev/null \
-    | sort -nr | head -1 | cut -d' ' -f2-)"
+  # 取 spearman 最高的 checkpoint（目录名含 model_step_N_spearman_X）；无 spearman 命名时排最后（-1），同为无命名时按路径序取第一。
+  mp="$(find "${seed_root}" -type f -name model.pth 2>/dev/null \
+    | awk '{ p=$0; sp=-1; if (match(p, /spearman_[0-9.]+/)) { sp=substr(p, RSTART+9, RLENGTH-9)+0 } print sp "\t" p }' \
+    | sort -t$'\t' -k1,1gr | head -1 | cut -f2)"
   if [[ -z "${mp}" ]]; then
     return 1
   fi

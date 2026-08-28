@@ -875,7 +875,8 @@ def render_primary_plots(
     gate_input_mode: GateInputMode = "mean",
 ) -> None:
     """Render training-aligned figures under out_dir."""
-    plots = set(primary_plots or DEFAULT_PRIMARY_PLOTS)
+    # 空序列表示"不画任何图"（如 fulltest 批量评估传 primary_plots=[]），仅 None 才回退默认
+    plots = set(DEFAULT_PRIMARY_PLOTS) if primary_plots is None else set(primary_plots)
     unknown = plots - PRIMARY_PLOT_NAMES
     if unknown:
         raise ValueError(f"Unknown primary_plots: {unknown}")

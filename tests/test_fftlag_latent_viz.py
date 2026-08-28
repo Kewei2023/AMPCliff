@@ -257,6 +257,24 @@ def test_render_primary_plots_per_sample_raw_attn_score(tmp_path):
     assert (sub / "attn_score_raw.csv").is_file()
 
 
+def test_render_primary_plots_per_sample_empty_plots_no_png(tmp_path):
+    tables_a = _mini_exp4_tables(10)
+    mass, dev, readout, contrib, compare, band, lo = tables_a
+
+    render_primary_plots_per_sample(
+        contrib_df=contrib,
+        dev_df=dev,
+        readout_df=readout,
+        latent_out_by_idx={10: lo},
+        dataset_label="test_ds",
+        out_base=str(tmp_path),
+        primary_plots=[],
+    )
+
+    per_sample_dir = tmp_path / "per_sample"
+    assert not per_sample_dir.exists() or not any(per_sample_dir.rglob("*.png"))
+
+
 def test_render_primary_plots_per_sample_two_peptides(tmp_path):
     tables_a = _mini_exp4_tables(10)
     tables_b = _mini_exp4_tables(20)
