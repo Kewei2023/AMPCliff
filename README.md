@@ -202,7 +202,7 @@ python evaluation_scripts/plot_fftlag_exp4_frequency_attention_combined.py
 
 ```bash
 bash evaluation_scripts/run_dc_validation_v2.sh
-python evaluation_scripts/plot_dc_validation_combined_figure_v3.py
+python evaluation_scripts/plot_dc_validation_combined_figure_v5.py
 python evaluation_scripts/plot_property_dc_knockout.py
 python evaluation_scripts/plot_multi_property_band_sensitivity_combined.py
 ```
