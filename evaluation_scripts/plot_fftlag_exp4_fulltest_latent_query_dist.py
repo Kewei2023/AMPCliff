@@ -14,7 +14,7 @@ _EVAL_SCRIPTS = Path(__file__).resolve().parent
 if str(_EVAL_SCRIPTS) not in sys.path:
     sys.path.insert(0, str(_EVAL_SCRIPTS))
 
-from fftlag_aggregated_paths import exp_agg_dir
+from fftlag_aggregated_paths import exp_agg_dir, exp_figures_dir
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 _REPO_PARENT = REPO_ROOT.parent
@@ -74,16 +74,17 @@ def process_dataset(
     dry_run: bool = False,
 ) -> Tuple[bool, Dict[str, object], Optional[pd.DataFrame]]:
     """Return (ok, stats, long_df) for one dataset."""
-    out_dir = exp_agg_dir(analysis_root, dataset, "exp4")
-    long_csv = out_dir / "latent_query_freq_distribution_long.csv"
-    summary_csv = out_dir / "latent_query_freq_distribution_summary.csv"
-    box_png = out_dir / "latent_query_freq_boxplot.png"
-    violin_png = out_dir / "latent_query_freq_violinplot.png"
-    mismatch_csv = out_dir / "latent_query_freq_shape_mismatch.csv"
+    data_dir = exp_agg_dir(analysis_root, dataset, "exp4")
+    fig_dir = exp_figures_dir(analysis_root, "exp4", dataset)
+    long_csv = data_dir / "latent_query_freq_distribution_long.csv"
+    summary_csv = data_dir / "latent_query_freq_distribution_summary.csv"
+    box_png = fig_dir / "latent_query_freq_boxplot.png"
+    violin_png = fig_dir / "latent_query_freq_violinplot.png"
+    mismatch_csv = data_dir / "latent_query_freq_shape_mismatch.csv"
 
     outputs = [long_csv, summary_csv, box_png, violin_png]
     if all(p.is_file() for p in outputs) and not force:
-        Logger.info(f"[SKIP] dataset={dataset} outputs exist under {out_dir}")
+        Logger.info(f"[SKIP] dataset={dataset} outputs exist under {fig_dir}")
         long_df = pd.read_csv(long_csv)
         return True, {"skip": 1, "n_idx": int(long_df["idx"].nunique())}, long_df
 
@@ -121,11 +122,12 @@ def process_dataset(
 
     if dry_run:
         Logger.info(
-            f"[DRY] dataset={dataset} idx={n_idx} long_rows={len(long_df)} -> {out_dir}"
+            f"[DRY] dataset={dataset} idx={n_idx} long_rows={len(long_df)} -> {fig_dir}"
         )
         return True, stats, long_df
 
-    out_dir.mkdir(parents=True, exist_ok=True)
+    data_dir.mkdir(parents=True, exist_ok=True)
+    fig_dir.mkdir(parents=True, exist_ok=True)
     long_df.to_csv(long_csv, index=False)
     summary_df.to_csv(summary_csv, index=False)
     Logger.info(f"[saved] {long_csv} ({len(long_df)} rows)")
@@ -150,7 +152,7 @@ def process_dataset(
         n_seeds=n_seeds_used,
     )
 
-    stats["out_dir"] = str(out_dir)
+    stats["out_dir"] = str(fig_dir)
     return True, stats, long_df
 
 
@@ -191,16 +193,16 @@ def run_all(
         )
 
     if not dry_run and len(long_dfs) >= 2:
-        agg_parent = analysis_root / "aggregated"
+        fig_combined = exp_figures_dir(analysis_root, "exp4", "combined")
         plot_latent_query_freq_distribution_combined(
             long_dfs,
-            str(agg_parent / "exp4_latent_query_freq_boxplot_combined.png"),
+            str(fig_combined / "exp4_latent_query_freq_boxplot_combined.png"),
             kind="box",
             n_seeds=n_seeds,
         )
         plot_latent_query_freq_distribution_combined(
             long_dfs,
-            str(agg_parent / "exp4_latent_query_freq_violinplot_combined.png"),
+            str(fig_combined / "exp4_latent_query_freq_violinplot_combined.png"),
             kind="violin",
             n_seeds=n_seeds,
         )

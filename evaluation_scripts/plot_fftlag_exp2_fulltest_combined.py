@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# maintained by kewei li
 """Plot Exp2 full-test PSD gate band summary across all peptides (mean ± std)."""
 from __future__ import annotations
 
@@ -18,7 +19,7 @@ _EVAL_SCRIPTS = Path(__file__).resolve().parent
 if str(_EVAL_SCRIPTS) not in sys.path:
     sys.path.insert(0, str(_EVAL_SCRIPTS))
 
-from fftlag_aggregated_paths import exp_agg_dir
+from fftlag_aggregated_paths import exp_agg_dir, exp_figures_dir
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DATASETS = ("e_coli", "s_aureus")
@@ -281,9 +282,10 @@ def process_dataset(
     *,
     force: bool,
 ) -> tuple[bool, Optional[pd.DataFrame], int, int]:
-    out_dir = exp_agg_dir(analysis_root, dataset, "exp2")
-    summary_csv = out_dir / "gate_by_band_all_samples_summary.csv"
-    out_png = out_dir / "gate_band_summary_all_samples.png"
+    data_dir = exp_agg_dir(analysis_root, dataset, "exp2")
+    fig_dir = exp_figures_dir(analysis_root, "exp2", dataset)
+    summary_csv = data_dir / "gate_by_band_all_samples_summary.csv"
+    out_png = fig_dir / "gate_band_summary_all_samples.png"
     out_svg = out_png.with_suffix(".svg")
 
     if summary_csv.is_file() and not force:
@@ -321,7 +323,8 @@ def process_dataset(
         f"n_samples={n_samples} n_bands={n_bands}"
     )
 
-    out_dir.mkdir(parents=True, exist_ok=True)
+    data_dir.mkdir(parents=True, exist_ok=True)
+    fig_dir.mkdir(parents=True, exist_ok=True)
     band_df.to_csv(summary_csv, index=False)
     print(f"[saved] {summary_csv}")
 
@@ -365,7 +368,7 @@ def run_all(
             meta[dataset] = (n_seeds, n_samples)
 
     if len(band_dfs) >= 1:
-        combined_png = analysis_root / "aggregated" / "exp2_gate_band_summary_all_samples_combined.png"
+        combined_png = exp_figures_dir(analysis_root, "exp2", "combined") / "exp2_gate_band_summary_all_samples_combined.png"
         combined_svg = combined_png.with_suffix(".svg")
         if combined_png.is_file() and combined_svg.is_file() and not force and len(band_dfs) < 2:
             pass

@@ -37,6 +37,7 @@ AGGREGATED_SUBDIR="${AGGREGATED_SUBDIR:-aggregated_fulltest}"
 EXP1_SUBDIR="${EXP1_SUBDIR:-exp1_band_knockout_fulltest}"
 PROPERTY_TABLE="${PROPERTY_TABLE:-${REPO_ROOT}/outputs/analysis/dc_validation/dc_property_table.csv}"
 OUTPUT_ROOT="${OUTPUT_ROOT:-${REPO_ROOT}/outputs/analysis/dc_validation/property_dc_knockout_fulltest}"
+FIGURES_ROOT="${FIGURES_ROOT:-${REPO_ROOT}/outputs/analysis/fftlag_mechanism/figures/exp5}"
 
 _BASE_CSV="${REPO_ROOT}/data/blosum62 average/diff_${DIFF}-trd_${THRESHOLD}"
 
@@ -88,6 +89,7 @@ FAIL=0
 echo "========== Property DC Knockout Fulltest =========="
 echo "ANALYSIS_ROOT=${ANALYSIS_ROOT}"
 echo "OUTPUT_ROOT=${OUTPUT_ROOT}"
+echo "FIGURES_ROOT=${FIGURES_ROOT}"
 echo "AGGREGATED_SUBDIR=${AGGREGATED_SUBDIR}"
 echo "PLOT_ONLY=${PLOT_ONLY} REQUIRE_EXP1=${REQUIRE_EXP1}"
 echo "==================================================="
@@ -150,7 +152,7 @@ fi
 
 for ds in e_coli s_aureus; do
   out_intermediate="${OUTPUT_ROOT}/${ds}/intermediate"
-  out_figures="${OUTPUT_ROOT}/${ds}/figures"
+  out_figures="${FIGURES_ROOT}/${ds}"
   if [[ ! -d "${out_intermediate}" ]]; then
     echo "[FAIL] missing intermediate dir: ${out_intermediate}"
     FAIL=$((FAIL + 1))

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# maintained by kewei li
 """Plot Exp1 full-test band knockout |ΔMSE| distributions as per-layer violin plots."""
 from __future__ import annotations
 
@@ -19,7 +20,7 @@ _EVAL_SCRIPTS = Path(__file__).resolve().parent
 if str(_EVAL_SCRIPTS) not in sys.path:
     sys.path.insert(0, str(_EVAL_SCRIPTS))
 
-from fftlag_aggregated_paths import exp_agg_dir
+from fftlag_aggregated_paths import exp_agg_dir, exp_figures_dir
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
@@ -239,9 +240,10 @@ def process_dataset(
     *,
     force: bool,
 ) -> Tuple[bool, Optional[pd.DataFrame], int, int]:
-    out_dir = exp_agg_dir(analysis_root, dataset, "exp1")
-    long_csv = out_dir / LONG_CSV
-    summary_csv = out_dir / SUMMARY_CSV
+    data_dir = exp_agg_dir(analysis_root, dataset, "exp1")
+    fig_dir = exp_figures_dir(analysis_root, "exp1", dataset)
+    long_csv = data_dir / LONG_CSV
+    summary_csv = data_dir / SUMMARY_CSV
 
     layers: list[int] = []
     idx_level, source = load_idx_level_exp1(
@@ -266,7 +268,7 @@ def process_dataset(
     n_seeds = int(long_df["n_seeds"].max()) if "n_seeds" in long_df.columns else len(seeds)
     n_bands = int(long_df["band"].nunique())
 
-    layer_pngs = [out_dir / f"exp1_band_knockout_violin_layer{layer}.png" for layer in layers]
+    layer_pngs = [fig_dir / f"exp1_band_knockout_violin_layer{layer}.png" for layer in layers]
     outputs_ready = (
         long_csv.is_file()
         and summary_csv.is_file()
@@ -274,7 +276,7 @@ def process_dataset(
         and all(p.is_file() for p in layer_pngs)
     )
     if outputs_ready and not force:
-        print(f"[SKIP] {dataset}: outputs exist under {out_dir} (use --force to overwrite)")
+        print(f"[SKIP] {dataset}: outputs exist under {fig_dir} (use --force to overwrite)")
         return True, long_df, n_samples, n_seeds
 
     print(
@@ -282,7 +284,8 @@ def process_dataset(
         f"n_seeds={n_seeds} n_layers={len(layers)} n_bands={n_bands}"
     )
 
-    out_dir.mkdir(parents=True, exist_ok=True)
+    data_dir.mkdir(parents=True, exist_ok=True)
+    fig_dir.mkdir(parents=True, exist_ok=True)
     long_df.to_csv(long_csv, index=False)
     summary_df.to_csv(summary_csv, index=False)
     print(f"[saved] {long_csv} ({len(long_df)} rows)")
@@ -293,7 +296,7 @@ def process_dataset(
             long_df,
             layer,
             dataset,
-            out_dir / f"exp1_band_knockout_violin_layer{layer}.png",
+            fig_dir / f"exp1_band_knockout_violin_layer{layer}.png",
             n_seeds=n_seeds,
         )
 

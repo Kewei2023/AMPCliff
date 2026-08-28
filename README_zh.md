@@ -238,7 +238,7 @@ python evaluation_scripts/plot_fftlag_exp3_mse_diff_violin_revised.py --force
 python evaluation_scripts/export_fftlag_exp3_token_knockout_data.py
 ```
 
-Revised combined violin 默认绘制 7 个 pooling（mean / max / attn / last / MLTP / latent_attn / FLaG），输出 `outputs/analysis/fftlag_mechanism/aggregated/exp3_token_knockout_mse_diff_violinplot_combined_no_swe_ot.png`（及 `.svg` / `.xlsx` 数据导出）。
+Revised combined violin 默认绘制 7 个 pooling（mean / max / attn / last / MLTP / latent_attn / FLaG），输出 `outputs/analysis/fftlag_mechanism/figures/exp3/combined/exp3_token_knockout_mse_diff_violinplot_combined_no_swe_ot.png`（及 `.svg` / `.xlsx` 数据导出）。
 
 ### Exp5（升级）：DC–理化性质验证
 

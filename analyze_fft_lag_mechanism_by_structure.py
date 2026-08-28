@@ -291,9 +291,12 @@ def analyze_band_sensitivity(
     exp1_csv: Path,
     out_dir: Path,
     species: str | None = None,
+    figures_dir: Path | None = None,
 ) -> None:
     if not exp1_csv.is_file():
         return
+    fig_dir = figures_dir or out_dir
+    fig_dir.mkdir(parents=True, exist_ok=True)
     df = pd.read_csv(exp1_csv)
     if "idx" not in df.columns:
         return
@@ -330,7 +333,7 @@ def analyze_band_sensitivity(
     by_band.to_csv(out_dir / "bucketwise_band_sensitivity_by_band.csv", index=False)
     _plot_band_sensitivity_lines(
         by_band,
-        out_dir / "bucketwise_band_sensitivity_by_band_lines.png",
+        fig_dir / "bucketwise_band_sensitivity_by_band_lines.png",
         "Band-wise |MSE diff| by helix propensity bucket",
     )
 
@@ -349,14 +352,14 @@ def analyze_band_sensitivity(
     _plot_bucket_bar(
         bucket_summary,
         "mean_abs_mse_diff",
-        out_dir / "bucketwise_band_sensitivity.png",
+        fig_dir / "bucketwise_band_sensitivity.png",
         "Mean |MSE diff| by structure bucket",
         "Mean abs MSE diff (avg over layers/bands)",
     )
     _plot_band_sensitivity_combined(
         sample_level,
         by_band,
-        out_dir / "bucketwise_band_sensitivity_combined.png",
+        fig_dir / "bucketwise_band_sensitivity_combined.png",
         left_aligned_bucket_chart_title(
             species or infer_species_from_path(out_dir),
             band_sensitivity_task_name("Helix propensity bucket"),
@@ -369,9 +372,12 @@ def analyze_gate_effect(
     exp2_csv: Path,
     out_dir: Path,
     species: str | None = None,
+    figures_dir: Path | None = None,
 ) -> None:
     if not exp2_csv.is_file():
         return
+    fig_dir = figures_dir or out_dir
+    fig_dir.mkdir(parents=True, exist_ok=True)
     df = pd.read_csv(exp2_csv)
     if "idx" not in df.columns:
         return
@@ -408,7 +414,7 @@ def analyze_gate_effect(
     by_band.to_csv(out_dir / "bucketwise_gate_effect_by_band.csv", index=False)
     _plot_gate_effect_lines(
         by_band,
-        out_dir / "bucketwise_gate_effect_by_band_lines.png",
+        fig_dir / "bucketwise_gate_effect_by_band_lines.png",
         "Band-wise gate effective weight by helix propensity bucket",
     )
 
@@ -427,7 +433,7 @@ def analyze_gate_effect(
     _plot_bucket_bar(
         bucket_summary,
         "gate_spread",
-        out_dir / "bucketwise_gate_effect.png",
+        fig_dir / "bucketwise_gate_effect.png",
         "Gate effective-weight spread by structure bucket",
         "max - min effective_weight across bands",
     )
@@ -436,7 +442,7 @@ def analyze_gate_effect(
         by_band,
         bar_y_col="gate_spread",
         line_y_col="effective_weight_mean",
-        out_png=out_dir / "bucketwise_gate_effect_combined.png",
+        out_png=fig_dir / "bucketwise_gate_effect_combined.png",
         title=left_aligned_bucket_chart_title(
             species or infer_species_from_path(out_dir),
             GATE_EFFECT_TASK_NAME,
@@ -446,9 +452,16 @@ def analyze_gate_effect(
     )
 
 
-def analyze_latent_diversity(proxy_df: pd.DataFrame, exp4_div_csv: Path, out_dir: Path) -> None:
+def analyze_latent_diversity(
+    proxy_df: pd.DataFrame,
+    exp4_div_csv: Path,
+    out_dir: Path,
+    figures_dir: Path | None = None,
+) -> None:
     if not exp4_div_csv.is_file():
         return
+    fig_dir = figures_dir or out_dir
+    fig_dir.mkdir(parents=True, exist_ok=True)
     df = pd.read_csv(exp4_div_csv)
     if "idx" not in df.columns:
         return
@@ -469,7 +482,7 @@ def analyze_latent_diversity(proxy_df: pd.DataFrame, exp4_div_csv: Path, out_dir
     _plot_bucket_bar(
         agg,
         "mean_query_cosine_distance",
-        out_dir / "bucketwise_latent_diversity.png",
+        fig_dir / "bucketwise_latent_diversity.png",
         "Latent query diversity by structure bucket",
         "Mean query-query cosine distance",
     )
@@ -766,9 +779,15 @@ def run_property_dc_analysis(
         out.to_csv(output_dir / "property_dc_knockout_sensitivity.csv", index=False)
 
 
-def replot_structure_combined_figures(out_dir: Path, species: str | None = None) -> None:
+def replot_structure_combined_figures(
+    out_dir: Path,
+    species: str | None = None,
+    figures_dir: Path | None = None,
+) -> None:
     """Regenerate combined bucket bar/line figures from saved Exp5 CSVs."""
     species = species or infer_species_from_path(out_dir)
+    fig_dir = figures_dir or out_dir
+    fig_dir.mkdir(parents=True, exist_ok=True)
 
     band_sample_path = out_dir / "per_sample_band_sensitivity_by_structure.csv"
     band_by_band_path = out_dir / "bucketwise_band_sensitivity_by_band.csv"
@@ -782,7 +801,7 @@ def replot_structure_combined_figures(out_dir: Path, species: str | None = None)
         _plot_band_sensitivity_combined(
             sample_level,
             by_band,
-            out_dir / "bucketwise_band_sensitivity_combined.png",
+            fig_dir / "bucketwise_band_sensitivity_combined.png",
             left_aligned_bucket_chart_title(
                 species,
                 band_sensitivity_task_name("Helix propensity bucket"),
@@ -803,7 +822,7 @@ def replot_structure_combined_figures(out_dir: Path, species: str | None = None)
             by_band,
             bar_y_col="gate_spread",
             line_y_col="effective_weight_mean",
-            out_png=out_dir / "bucketwise_gate_effect_combined.png",
+            out_png=fig_dir / "bucketwise_gate_effect_combined.png",
             title=left_aligned_bucket_chart_title(species, GATE_EFFECT_TASK_NAME),
             ylabel="Gate effective weight / spread",
             xlabel="Helix propensity bucket",
@@ -815,6 +834,12 @@ def main() -> int:
     ap.add_argument("--manifest", type=Path, default=None)
     ap.add_argument("--aggregated-dir", type=Path, default=None)
     ap.add_argument("--output-dir", type=Path, required=True)
+    ap.add_argument(
+        "--figures-dir",
+        type=Path,
+        default=None,
+        help="Directory for PNG figures (default: same as --output-dir)",
+    )
     ap.add_argument("--analysis-mode", choices=["helix", "property", "both"], default="helix")
     ap.add_argument("--property-table", type=Path, default=None)
     ap.add_argument("--properties", nargs="*", default=["net_charge", "mean_hydrophobicity"])
@@ -828,6 +853,9 @@ def main() -> int:
     args = ap.parse_args()
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
+    figures_dir = args.figures_dir
+    if figures_dir is not None:
+        figures_dir.mkdir(parents=True, exist_ok=True)
 
     if args.analysis_mode in ("helix", "both"):
         if args.manifest is None or args.aggregated_dir is None:
@@ -845,6 +873,7 @@ def main() -> int:
             ),
             args.output_dir,
             species=args.species or infer_species_from_path(args.output_dir),
+            figures_dir=figures_dir,
         )
         analyze_gate_effect(
             proxy_df,
@@ -856,6 +885,7 @@ def main() -> int:
             ),
             args.output_dir,
             species=args.species or infer_species_from_path(args.output_dir),
+            figures_dir=figures_dir,
         )
         analyze_latent_diversity(
             proxy_df,
@@ -866,6 +896,7 @@ def main() -> int:
                 legacy_filename="exp4_latent_query_diversity_aggregated.csv",
             ),
             args.output_dir,
+            figures_dir=figures_dir,
         )
 
         exp5_root = args.output_dir.parent

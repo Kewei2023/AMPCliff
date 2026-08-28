@@ -39,6 +39,7 @@ EXP1_SUBDIR="${EXP1_SUBDIR:-exp1_band_knockout_fulltest}"
 EXP2_SUBDIR="${EXP2_SUBDIR:-exp2_psd_gate_fulltest}"
 EXP4_SUBDIR="${EXP4_SUBDIR:-exp4_latent_fulltest}"
 OUTPUT_ROOT="${OUTPUT_ROOT:-${ANALYSIS_ROOT}/exp5_structure_fulltest}"
+FIGURES_ROOT="${FIGURES_ROOT:-${ANALYSIS_ROOT}/figures/exp5}"
 MANIFEST_DIR="${MANIFEST_DIR:-${REPO_ROOT}/outputs/ablation_new_data/_amp_knockout_seed_runs/_peptide_manifest}"
 
 _BASE_CSV="${REPO_ROOT}/data/blosum62 average/diff_${DIFF}-trd_${THRESHOLD}"
@@ -121,16 +122,17 @@ print(int(df['n_samples'].sum()) if 'n_samples' in df.columns else 0)
     return 1
   fi
   local fig_ok=1
+  local fig_dir="${FIGURES_ROOT}/${ds}"
   for fig in bucketwise_band_sensitivity_combined.png bucketwise_gate_effect_combined.png bucketwise_latent_diversity.png; do
-    if [[ ! -f "${OUTPUT_ROOT}/${ds}/${fig}" ]]; then
-      echo "[VERIFY FAIL] missing figure ${OUTPUT_ROOT}/${ds}/${fig}"
+    if [[ ! -f "${fig_dir}/${fig}" ]]; then
+      echo "[VERIFY FAIL] missing figure ${fig_dir}/${fig}"
       fig_ok=0
     fi
   done
   if [[ "${fig_ok}" -eq 0 ]]; then
     return 1
   fi
-  echo "[VERIFY OK] ${ds}: n_samples=${total_n}, key figures present"
+  echo "[VERIFY OK] ${ds}: n_samples=${total_n}, key figures present under ${fig_dir}"
   return 0
 }
 
@@ -141,6 +143,7 @@ FAIL=0
 echo "========== Exp5 Structure Fulltest =========="
 echo "ANALYSIS_ROOT=${ANALYSIS_ROOT}"
 echo "OUTPUT_ROOT=${OUTPUT_ROOT}"
+echo "FIGURES_ROOT=${FIGURES_ROOT}"
 echo "AGGREGATED_SUBDIR=${AGGREGATED_SUBDIR}"
 echo "ANALYZE_ONLY=${ANALYZE_ONLY} REQUIRE_UPSTREAM=${REQUIRE_UPSTREAM}"
 echo "============================================="
@@ -189,10 +192,11 @@ for ds in e_coli s_aureus; do
   manifest="${MANIFEST_DIR}/${MODEL_VERSION}_${ds}_diff${DIFF}_fulltest.json"
   agg_dir="${ANALYSIS_ROOT}/${AGGREGATED_SUBDIR}/${ds}"
   out_dir="${OUTPUT_ROOT}/${ds}"
+  fig_dir="${FIGURES_ROOT}/${ds}"
   done_marker="${out_dir}/bucketwise_band_sensitivity_summary.csv"
-  gate_fig="${out_dir}/bucketwise_gate_effect_combined.png"
+  gate_fig="${fig_dir}/bucketwise_gate_effect_combined.png"
   exp5_complete=0
-  if [[ -f "${done_marker}" && -f "${gate_fig}" && -f "${out_dir}/bucketwise_latent_diversity.png" ]]; then
+  if [[ -f "${done_marker}" && -f "${gate_fig}" && -f "${fig_dir}/bucketwise_latent_diversity.png" ]]; then
     exp5_complete=1
   fi
 
@@ -207,11 +211,12 @@ for ds in e_coli s_aureus; do
     SKIP=$((SKIP + 1))
   else
     echo "[RUN] Exp5 analyze ${ds}"
-    mkdir -p "${out_dir}"
+    mkdir -p "${out_dir}" "${fig_dir}"
     if "${PYTHON_BIN}" -u "${REPO_ROOT}/analyze_fft_lag_mechanism_by_structure.py" \
       --manifest "${manifest}" \
       --aggregated-dir "${agg_dir}" \
-      --output-dir "${out_dir}"; then
+      --output-dir "${out_dir}" \
+      --figures-dir "${fig_dir}"; then
       RUN=$((RUN + 1))
     else
       echo "[FAIL] Exp5 analyze ${ds}"

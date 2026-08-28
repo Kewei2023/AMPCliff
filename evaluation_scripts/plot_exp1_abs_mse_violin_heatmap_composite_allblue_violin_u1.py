@@ -1,3 +1,4 @@
+# maintained by kewei li
 from pathlib import Path
 from collections import defaultdict
 import re
@@ -10,13 +11,14 @@ from matplotlib import colors
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SCRIPT_DIR.parent
-# 与 export_fftlag_exp1_fulltest_violin_data.py 的默认输出保持一致：读写均锚定 aggregated 目录
+# 输入 XLSX 仍读 aggregated；出图统一到 figures/exp1/combined/
 AGG_DIR = REPO_ROOT / "outputs" / "analysis" / "fftlag_mechanism" / "aggregated"
+FIG_DIR = REPO_ROOT / "outputs" / "analysis" / "fftlag_mechanism" / "figures" / "exp1" / "combined"
 violin_xlsx = AGG_DIR / "exp1_band_knockout_violin_combined_data.xlsx"
 heatmap_xlsx = AGG_DIR / "exp1_representative_band_knockout_heatmaps_data.xlsx"
 
-out_png = AGG_DIR / "exp1_abs_mse_violin_heatmap_composite_allblue_violin.png"
-out_svg = AGG_DIR / "exp1_abs_mse_violin_heatmap_composite_allblue_violin.svg"
+out_png = FIG_DIR / "exp1_abs_mse_violin_heatmap_composite_allblue_violin.png"
+out_svg = FIG_DIR / "exp1_abs_mse_violin_heatmap_composite_allblue_violin.svg"
 
 
 # Global font-size scaling factor.
@@ -363,6 +365,7 @@ fig.text(bottom_left - 0.017, bottom_center, "ESM-2 layer",
 fig.text(0.5, bottom_y0 - 0.035, "Sequence-frequency band",
          ha="center", va="center", fontsize=fs(15.5))
 
+FIG_DIR.mkdir(parents=True, exist_ok=True)
 fig.savefig(out_png, dpi=600, bbox_inches="tight", facecolor="white")
 fig.savefig(out_svg, bbox_inches="tight", facecolor="white")
 

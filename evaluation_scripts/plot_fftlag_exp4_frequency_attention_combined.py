@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# maintained by kewei li
 """Exp4 combined figure: freq-bin attention violins + representative query×freq heatmaps."""
 from __future__ import annotations
 
@@ -20,7 +21,7 @@ _EVAL_SCRIPTS = Path(__file__).resolve().parent
 if str(_EVAL_SCRIPTS) not in sys.path:
     sys.path.insert(0, str(_EVAL_SCRIPTS))
 
-from fftlag_aggregated_paths import exp_agg_dir
+from fftlag_aggregated_paths import exp_agg_dir, exp_figures_dir
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
@@ -333,7 +334,7 @@ def main() -> None:
     ap.add_argument("--out-png", type=Path, default=None)
     args = ap.parse_args()
 
-    out_dir = args.analysis_root / "aggregated"
+    out_dir = exp_figures_dir(args.analysis_root, "exp4", "combined")
     out_png = args.out_png or (out_dir / COMPOSITE_PNG)
     out_pdf = out_png.with_suffix(".pdf")
     out_svg = out_png.with_suffix(".svg")

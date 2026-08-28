@@ -17,9 +17,9 @@ COMBINED_DIR = (
     REPO_ROOT / "outputs" / "analysis" / "fftlag_mechanism" / "figures" / "exp5" / "combined"
 )
 INPUT_XLSX = COMBINED_DIR / "dc_validation_combined_figure_data.xlsx"
-OUT_PNG = COMBINED_DIR / "dc_validation_combined_figure_updated_v3.png"
-OUT_PDF = COMBINED_DIR / "dc_validation_combined_figure_updated_v3.pdf"
-OUT_SVG = COMBINED_DIR / "dc_validation_combined_figure_updated_v3.svg"
+OUT_PNG = COMBINED_DIR / "dc_validation_combined_figure_updated_v6.png"
+OUT_PDF = COMBINED_DIR / "dc_validation_combined_figure_updated_v6.pdf"
+OUT_SVG = COMBINED_DIR / "dc_validation_combined_figure_updated_v6.svg"
 
 # Global font-size scaling factor.
 # 1.0 keeps the original font sizes.

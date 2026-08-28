@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# maintained by kewei li
 """Plot Exp1 representative per-sample layer×band knockout heatmaps (Exp4 ID aligned)."""
 from __future__ import annotations
 
@@ -22,7 +23,7 @@ _EVAL_SCRIPTS = Path(__file__).resolve().parent
 if str(_EVAL_SCRIPTS) not in sys.path:
     sys.path.insert(0, str(_EVAL_SCRIPTS))
 
-from fftlag_aggregated_paths import exp_agg_dir
+from fftlag_aggregated_paths import exp_agg_dir, exp_figures_dir
 from plot_fftlag_exp1_fulltest_violin import load_idx_level_exp1
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -286,12 +287,14 @@ def process_dataset(
         vmin = auto_vmin if vmin is None else vmin
         vmax = auto_vmax if vmax is None else vmax
 
-    exp1_out = exp_agg_dir(analysis_root, dataset, "exp1")
+    exp1_data = exp_agg_dir(analysis_root, dataset, "exp1")
+    exp1_fig = exp_figures_dir(analysis_root, "exp1", dataset)
     for idx, long_df in long_by_idx.items():
-        idx_dir = exp1_out / "per_sample" / f"idx_{idx}"
-        out_png = idx_dir / HEATMAP_PNG
-        out_long = idx_dir / LONG_CSV
-        out_wide = idx_dir / WIDE_CSV
+        data_idx_dir = exp1_data / "per_sample" / f"idx_{idx}"
+        fig_idx_dir = exp1_fig / "per_sample" / f"idx_{idx}"
+        out_png = fig_idx_dir / HEATMAP_PNG
+        out_long = data_idx_dir / LONG_CSV
+        out_wide = data_idx_dir / WIDE_CSV
         if (
             not force
             and out_png.is_file()
@@ -302,7 +305,8 @@ def process_dataset(
             continue
 
         n_seeds = _n_seeds_from_long(long_df, len(seeds))
-        idx_dir.mkdir(parents=True, exist_ok=True)
+        data_idx_dir.mkdir(parents=True, exist_ok=True)
+        fig_idx_dir.mkdir(parents=True, exist_ok=True)
         long_df.to_csv(out_long, index=False)
         long_to_wide(long_df).to_csv(out_wide, index=False)
         plot_exp1_band_knockout_heatmap(
@@ -382,7 +386,7 @@ def run_all(
                     all_long.append(part)
 
     if all_pivots:
-        combined_png = analysis_root / "aggregated" / COMBINED_PNG
+        combined_png = exp_figures_dir(analysis_root, "exp1", "combined") / COMBINED_PNG
         plot_exp1_representative_combined(
             all_pivots,
             combined_png,
